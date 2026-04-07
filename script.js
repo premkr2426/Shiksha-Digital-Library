@@ -431,26 +431,120 @@ window.wizardConfirmBooking = async function() {
 }
 
 // ==========================================
-// 10. FETCH ROOMS FROM ADMIN PANEL
+// 10. FETCH ROOMS & ROOM DETAILS MODAL
 // ==========================================
+
+// Cache all fetched rooms for detail modal lookups
+window.allDynamicRooms = [];
+let selectedRoomIdForBooking = null;
+
 onSnapshot(roomsRef, (snapshot) => {
     const grid = document.getElementById('dynamicRoomsGrid');
     if (!grid) return;
-    
+
     if (snapshot.empty) {
+        window.allDynamicRooms = [];
         grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">No premium rooms available at the moment. Please check back later.</p>';
         return;
     }
-    
+
+    window.allDynamicRooms = [];
     let html = '';
-    snapshot.forEach(doc => {
-        const room = doc.data();
+    snapshot.forEach(docSnap => {
+        const room = { id: docSnap.id, ...docSnap.data() };
+        window.allDynamicRooms.push(room);
+
+        const imgSrc = room.imageUrl || 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&q=80';
+        const safeName = (room.name || '').replace(/</g, '&lt;');
+        const safeTag = (room.tagline || '').replace(/</g, '&lt;');
+        const safeDesc = (room.description || '').replace(/</g, '&lt;');
+        const priceLabel = room.price5 ? `From ₹${room.price5}/mo` : '';
+
         html += `
-        <div style="background: var(--bg-card); padding: 24px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-card);">
-            <h3 style="font-size: 1.3rem; margin-bottom: 12px;">🚪 ${room.name}</h3>
-            <span style="background: var(--accent-glow); color: var(--accent-light); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">${room.tagline}</span>
-            <p style="margin-top: 16px; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">${room.description}</p>
+        <div class="dynamic-room-card" onclick="openRoomDetailsModal('${room.id}')">
+            <img src="${imgSrc}" alt="${safeName}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:16px;">
+            <h3>${safeName}</h3>
+            <div class="room-tagline">${safeTag}</div>
+            <p>${safeDesc}</p>
+            ${priceLabel ? `<span style="font-size:0.9rem; font-weight:700; color:var(--accent-1); margin-top:8px; display:inline-block;">${priceLabel}</span>` : ''}
+            <button class="btn btn-outline btn-book-room" style="margin-top:16px;">View Details</button>
         </div>`;
     });
     grid.innerHTML = html;
 });
+
+// Open Room Details Modal
+window.openRoomDetailsModal = function(roomId) {
+    const room = window.allDynamicRooms.find(r => r.id === roomId);
+    if (!room) return;
+
+    selectedRoomIdForBooking = roomId;
+
+    // Image
+    const imgEl = document.getElementById('roomDetailImg');
+    const imgSrc = room.imageUrl || 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&q=80';
+    imgEl.src = imgSrc;
+    imgEl.alt = room.name || 'Room';
+
+    // Name, Tagline, Description
+    document.getElementById('roomDetailName').textContent = room.name || 'Unnamed Room';
+    document.getElementById('roomDetailTagline').textContent = room.tagline || '';
+    document.getElementById('roomDetailDesc').textContent = room.description || '';
+
+    // Pricing
+    const pricingEl = document.getElementById('roomDetailPricing');
+    pricingEl.innerHTML = `
+        <div class="pricing-tile">
+            <span class="pricing-duration">5 Hours</span>
+            <span class="pricing-amount">₹${room.price5 || 0}<span style="font-size:0.75rem; font-weight:500;"> /month</span></span>
+        </div>
+        <div class="pricing-tile popular">
+            <span class="pricing-badge">Popular</span>
+            <span class="pricing-duration">10 Hours</span>
+            <span class="pricing-amount">₹${room.price10 || 0}<span style="font-size:0.75rem; font-weight:500;"> /month</span></span>
+        </div>
+        <div class="pricing-tile">
+            <span class="pricing-duration">Full Shift</span>
+            <span class="pricing-amount">₹${room.priceFull || 0}<span style="font-size:0.75rem; font-weight:500;"> /month</span></span>
+        </div>
+    `;
+
+    // Features
+    const featEl = document.getElementById('roomDetailFeatures');
+    const features = room.features && room.features.length > 0
+        ? room.features
+        : ['No features listed'];
+    featEl.innerHTML = features.map(f => `<li>✅ ${f.replace(/</g, '&lt;')}</li>`).join('');
+
+    // Show modal
+    const modal = document.getElementById('roomDetailsModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+// Close Room Details Modal
+window.closeRoomDetailsModal = function() {
+    const modal = document.getElementById('roomDetailsModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+// Proceed to Book — close details modal, open booking modal, auto-select room
+window.proceedToBookFromDetails = function() {
+    // Close details modal
+    closeRoomDetailsModal();
+
+    // Find the index of the selected room among cached rooms
+    const roomIndex = window.allDynamicRooms.findIndex(r => r.id === selectedRoomIdForBooking);
+    const roomNumber = roomIndex + 1; // 1-based index for wizardSelectRoom
+
+    // Open booking modal
+    openBookingModal();
+
+    // Auto-select the room in the wizard (after a brief delay for modal to render)
+    setTimeout(() => {
+        if (typeof wizardSelectRoom === 'function') {
+            wizardSelectRoom(roomNumber);
+        }
+    }, 150);
+};

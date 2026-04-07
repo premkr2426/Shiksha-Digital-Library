@@ -1110,6 +1110,17 @@
                         <input type="text" id="roomName" class="room-input" placeholder="Room Name (e.g. Room 4)" required>
                         <input type="text" id="roomTag" class="room-input" placeholder="Tagline (e.g. Creator Space)" required>
                         <input type="text" id="roomDesc" class="room-input" placeholder="Short Description..." required>
+                        <input type="url" id="roomImage" class="room-input" placeholder="Image URL (e.g. https://...jpg)">
+                    </div>
+                    <div class="room-form-group" style="margin-top: 12px;">
+                        <input type="number" id="roomPrice5" class="room-input" placeholder="5 Hours Price (₹)" min="0">
+                        <input type="number" id="roomPrice10" class="room-input" placeholder="10 Hours Price (₹)" min="0">
+                        <input type="number" id="roomPriceFull" class="room-input" placeholder="Full Shift Price (₹)" min="0">
+                    </div>
+                    <div class="room-form-group" style="margin-top: 12px;">
+                        <textarea id="roomFeatures" class="room-input" placeholder="Features (comma-separated, e.g. AC, Personal Desk, Free WiFi, Locker)" rows="3" style="resize: vertical; width: 100%;"></textarea>
+                    </div>
+                    <div class="room-form-group" style="margin-top: 12px;">
                         <button type="submit" class="btn-add-room" id="submitRoomBtn">Add Room</button>
                     </div>
                 </form>
@@ -1413,17 +1424,32 @@
         const rName = document.getElementById('roomName').value.trim();
         const rTag = document.getElementById('roomTag').value.trim();
         const rDesc = document.getElementById('roomDesc').value.trim();
+        const rImage = document.getElementById('roomImage').value.trim();
+        const rPrice5 = parseInt(document.getElementById('roomPrice5').value) || 0;
+        const rPrice10 = parseInt(document.getElementById('roomPrice10').value) || 0;
+        const rPriceFull = parseInt(document.getElementById('roomPriceFull').value) || 0;
+        const rFeatures = document.getElementById('roomFeatures').value.trim();
         const btn = document.getElementById('submitRoomBtn');
 
         if (!rName || !rTag || !rDesc) return;
         btn.disabled = true;
         btn.textContent = 'Adding...';
 
+        // Split features by comma into an array
+        const featuresArray = rFeatures
+            ? rFeatures.split(',').map(f => f.trim()).filter(f => f.length > 0)
+            : [];
+
         try {
             await addDoc(roomsRef, {
                 name: rName,
                 tagline: rTag,
                 description: rDesc,
+                imageUrl: rImage || '',
+                price5: rPrice5,
+                price10: rPrice10,
+                priceFull: rPriceFull,
+                features: featuresArray,
                 createdAt: new Date()
             });
             showToast('Room added successfully!', 'success');
@@ -1457,11 +1483,16 @@
 
         let html = '';
         rooms.forEach((room) => {
+            const featList = (room.features && room.features.length > 0)
+                ? room.features.map(f => escapeHtml(f)).join(', ')
+                : 'No features listed';
+            const priceInfo = `₹${room.price5 || 0} / ₹${room.price10 || 0} / ₹${room.priceFull || 0}`;
             html += `
             <div class="room-list-item">
                 <div class="room-list-info">
                     <h4>${escapeHtml(room.name)} <span class="room-tag">${escapeHtml(room.tagline)}</span></h4>
                     <p class="room-list-desc">${escapeHtml(room.description)}</p>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">💰 ${priceInfo} &nbsp;|&nbsp; ✨ ${featList}</p>
                 </div>
                 <button class="cancel-btn" onclick="deleteRoom('${room.id}')">🗑️ Delete</button>
             </div>

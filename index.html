@@ -312,6 +312,49 @@
     <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
 
+    <!-- ========== ROOM DETAILS MODAL ========== -->
+    <div class="modal-overlay" id="roomDetailsModal">
+        <div class="modal-content room-details-modal">
+            <button class="modal-close" onclick="closeRoomDetailsModal()" aria-label="Close modal">✖</button>
+            
+            <!-- Room Image -->
+            <div class="room-detail-image" id="roomDetailImage">
+                <img src="" alt="Room Image" id="roomDetailImg" style="width: 100%; height: 240px; object-fit: cover; border-radius: 12px;">
+            </div>
+
+            <!-- Room Name & Tagline -->
+            <div style="text-align: center; margin: 20px 0 8px;">
+                <h2 class="section-title" style="font-size: 1.6rem;" id="roomDetailName">Room Name</h2>
+                <span class="room-tagline" id="roomDetailTagline">Tagline</span>
+            </div>
+
+            <!-- Description -->
+            <p style="text-align: center; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;" id="roomDetailDesc">Description</p>
+
+            <!-- Pricing Section -->
+            <div class="room-detail-section">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">💰 Pricing Details (Time-Wise)</h3>
+                <div class="room-pricing-grid" id="roomDetailPricing">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="room-detail-section" style="margin-top: 24px;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">✨ About This Room</h3>
+                <ul class="room-features-list" id="roomDetailFeatures">
+                    <!-- Injected dynamically -->
+                </ul>
+            </div>
+
+            <!-- Proceed to Book Button -->
+            <div style="text-align: center; margin-top: 28px;">
+                <button class="btn btn-primary btn-lg" id="proceedToBookBtn" onclick="proceedToBookFromDetails()" style="width: 100%; max-width: 400px;">
+                    Proceed to Book <span class="btn-arrow">→</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ========== BOOKING MODAL ========== -->
     <div class="modal-overlay" id="bookingModal" style="display: none;">
