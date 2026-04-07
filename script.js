@@ -429,3 +429,28 @@ window.wizardConfirmBooking = async function() {
         confirmBtn.innerHTML = 'Confirm Booking <span class="btn-arrow">→</span>';
     }
 }
+
+// ==========================================
+// 10. FETCH ROOMS FROM ADMIN PANEL
+// ==========================================
+onSnapshot(roomsRef, (snapshot) => {
+    const grid = document.getElementById('dynamicRoomsGrid');
+    if (!grid) return;
+    
+    if (snapshot.empty) {
+        grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">No premium rooms available at the moment. Please check back later.</p>';
+        return;
+    }
+    
+    let html = '';
+    snapshot.forEach(doc => {
+        const room = doc.data();
+        html += `
+        <div style="background: var(--bg-card); padding: 24px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-card);">
+            <h3 style="font-size: 1.3rem; margin-bottom: 12px;">🚪 ${room.name}</h3>
+            <span style="background: var(--accent-glow); color: var(--accent-light); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">${room.tagline}</span>
+            <p style="margin-top: 16px; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">${room.description}</p>
+        </div>`;
+    });
+    grid.innerHTML = html;
+});

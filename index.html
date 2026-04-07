@@ -414,43 +414,5 @@
 
 
     <script type="module" src="script.js"></script>
-    <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyA9nATGsp8x_nIEF-i27waTj5gMEjbNrRQ",
-    authDomain: "shiksha-digital-library.firebaseapp.com",
-    databaseURL: "https://shiksha-digital-library-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "shiksha-digital-library",
-    storageBucket: "shiksha-digital-library.firebasestorage.app",
-    messagingSenderId: "162891971459",
-    appId: "1:162891971459:web:719b671bfed9c76aba14b6"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-onSnapshot(collection(db, 'rooms'), (snapshot) => {
-    const grid = document.getElementById('dynamicRoomsGrid');
-    if (!grid) return;
-    
-    if (snapshot.empty) {
-        grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">No premium rooms available at the moment. Please check back later.</p>';
-        return;
-    }
-    
-    let html = '';
-    snapshot.forEach(doc => {
-        const room = doc.data();
-        html += `
-        <div style="background: var(--bg-card); padding: 24px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-card);">
-            <h3 style="font-size: 1.3rem; margin-bottom: 12px;">🚪 ${room.name}</h3>
-            <span style="background: var(--accent-glow); color: var(--accent-light); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">${room.tagline}</span>
-            <p style="margin-top: 16px; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">${room.description}</p>
-        </div>`;
-    });
-    grid.innerHTML = html;
-});
-    </script>
 </body>
 </html>
