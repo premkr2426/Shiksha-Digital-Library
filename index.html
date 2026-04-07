@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Premium study library and reading room with AC, WiFi, and peaceful environment. Book your seat today for focused studying.">
+    <meta name="keywords" content="study library, reading room, co-working, study space, library near me">
+    <title>Shiksha Digital Library — Premium Study Library & Reading Room</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">Shiksha Digital Library</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#booking">Booking</a></li>
+                <li><a href="#facilities">Facilities</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="btn btn-primary" id="navJoinBtn" onclick="openBookingModal()" style="padding: 8px 16px; font-size: 0.9rem; border-radius: 6px; margin-right: 15px;">Join Now</button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon" id="themeIcon">🌙</span>
+                </button>
+                <button class="hamburger" id="hamburger" aria-label="Open menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section class="hero" id="hero">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="container hero-content">
+            <div class="hero-badge">✨ Your Focus Zone Awaits</div>
+            <h1 class="hero-title">
+                Study Smarter.<br>
+                <span class="gradient-text">Achieve More.</span>
+            </h1>
+            <p class="hero-subtitle">
+                A premium, distraction-free study library designed for students who are serious about their goals. Air-conditioned, high-speed WiFi, and the perfect environment to excel.
+            </p>
+            <div class="hero-actions">
+                <button class="btn btn-primary btn-lg" id="joinNowBtn" onclick="openBookingModal()">
+                    Join Now
+                    <span class="btn-arrow">→</span>
+                </button>
+                <a href="#facilities" class="btn btn-outline btn-lg" id="exploreFacilitiesBtn">
+                    Explore Facilities
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Happy Students</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">4.9★</span>
+                    <span class="stat-label">Average Rating</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">365</span>
+                    <span class="stat-label">Days Open / Year</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== LIVE SEAT COUNTER ========== -->
+    <section class="seat-counter-section" id="seats">
+        <div class="container">
+            <div class="seat-card" id="seatCard">
+                <div class="seat-card-glow"></div>
+                <div class="seat-card-content">
+                    <div class="seat-icon-wrap">
+                        <div class="pulse-ring"></div>
+                        <div class="seat-icon">💺</div>
+                    </div>
+                    <div class="seat-info">
+                        <span class="seat-label">Available Seats Right Now</span>
+                        <span class="seat-number" id="seatCount">—</span>
+                    </div>
+                    <div class="seat-status" id="seatStatus">
+                        <span class="status-dot live"></span>
+                        <span>Live</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== OUR ROOMS ========== -->
+    <section class="rooms-section" id="rooms">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">✨ Explore Our Spaces</span>
+                <h2 class="section-title">Premium <span class="gradient-text">Study Rooms</span></h2>
+                <p class="section-subtitle">Find the perfect study ambiance tailored to your needs. Click 'Join Now' to book.</p>
+            </div>
+            
+            <div class="dynamic-rooms-grid" id="dynamicRoomsGrid">
+                <div class="loader"><div class="loader-spinner"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FACILITIES ========== -->
+    <section class="facilities-section" id="facilities">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">🏛️ World-Class Amenities</span>
+                <h2 class="section-title">Everything You Need to <span class="gradient-text">Stay Focused</span></h2>
+                <p class="section-subtitle">We've thought of everything so you can focus on what matters — your studies.</p>
+            </div>
+            <div class="facilities-grid">
+                <div class="facility-card" id="facilityWifi">
+                    <div class="facility-icon-wrap">
+                        <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="32" cy="48" r="4" fill="currentColor"/>
+                            <path d="M22 38c5.5-5.5 14.5-5.5 20 0" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M14 30c9.9-9.9 26.1-9.9 36 0" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M6 22c14.4-14.4 37.6-14.4 52 0" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="facility-name">High-Speed WiFi</h3>
+                    <p class="facility-desc">100 Mbps dedicated internet for seamless browsing and online study.</p>
+                </div>
+                <div class="facility-card" id="facilityAC">
+                    <div class="facility-icon-wrap">
+                        <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="8" y="12" width="48" height="28" rx="4" stroke="currentColor" stroke-width="3"/>
+                            <line x1="20" y1="40" x2="20" y2="52" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4"/>
+                            <line x1="32" y1="40" x2="32" y2="56" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4"/>
+                            <line x1="44" y1="40" x2="44" y2="52" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4"/>
+                            <line x1="16" y1="22" x2="48" y2="22" stroke="currentColor" stroke-width="2"/>
+                            <line x1="16" y1="28" x2="48" y2="28" stroke="currentColor" stroke-width="2"/>
+                            <line x1="16" y1="34" x2="48" y2="34" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="facility-name">Air Conditioned</h3>
+                    <p class="facility-desc">Perfectly climate-controlled environment for year-round comfort.</p>
+                </div>
+                <div class="facility-card" id="facilityWater">
+                    <div class="facility-icon-wrap">
+                        <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M32 8C32 8 16 28 16 40c0 8.8 7.2 16 16 16s16-7.2 16-16C48 28 32 8 32 8z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M24 42c0 4.4 3.6 8 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+                        </svg>
+                    </div>
+                    <h3 class="facility-name">RO Purified Water</h3>
+                    <p class="facility-desc">Free unlimited access to clean, RO-purified drinking water.</p>
+                </div>
+                <div class="facility-card" id="facilityPeaceful">
+                    <div class="facility-icon-wrap">
+                        <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="32" cy="32" r="20" stroke="currentColor" stroke-width="3"/>
+                            <path d="M32 12c0 11 9 20 20 20-11 0-20 9-20 20 0-11-9-20-20-20 11 0 20-9 20-20z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="facility-name">Peaceful Environment</h3>
+                    <p class="facility-desc">A strictly silent zone ensuring deep focus and zero distractions.</p>
+                </div>
+                <div class="facility-card" id="facilityPower">
+                    <div class="facility-icon-wrap">
+                        <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M36 8L20 34h12L28 56l20-30H34L36 8z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity="0.1"/>
+                        </svg>
+                    </div>
+                    <h3 class="facility-name">Power Backup</h3>
+                    <p class="facility-desc">Uninterrupted power supply with instant inverter backup.</p>
+                </div>
+                <div class="facility-card" id="facilityLocker">
+                    <div class="facility-icon-wrap">
+                        <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="12" y="26" width="40" height="30" rx="4" stroke="currentColor" stroke-width="3"/>
+                            <path d="M20 26V20c0-6.6 5.4-12 12-12s12 5.4 12 12v6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="32" cy="40" r="4" fill="currentColor"/>
+                            <line x1="32" y1="44" x2="32" y2="49" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="facility-name">Personal Lockers</h3>
+                    <p class="facility-desc">Secure personal lockers to safely store your books and belongings.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== TESTIMONIALS ========== -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">💬 Student Love</span>
+                <h2 class="section-title">What Our <span class="gradient-text">Students Say</span></h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"This library literally changed my study habits. The silent environment and AC is a blessing during summers!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">R</div>
+                        <div>
+                            <strong>Rahul Sharma</strong>
+                            <span>UPSC Aspirant</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"Best study library in the city. Worth every rupee. The WiFi is super fast and the environment is perfect."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">P</div>
+                        <div>
+                            <strong>Priya Patel</strong>
+                            <span>CA Student</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"I cleared my GATE exam while studying here. The peaceful environment really helped me stay focused for hours."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">A</div>
+                        <div>
+                            <strong>Amit Verma</strong>
+                            <span>GATE Qualifier</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo footer-logo">
+                        <span class="logo-icon">📚</span>
+                        <span class="logo-text">Shiksha Digital Library</span>
+                    </a>
+                    <p class="footer-tagline">Your premium destination for focused, distraction-free studying.</p>
+                    <div class="footer-socials">
+                        <a href="#" class="social-link" aria-label="Instagram">📷</a>
+                        <a href="#" class="social-link" aria-label="Facebook">📘</a>
+                        <a href="#" class="social-link" aria-label="Twitter">🐦</a>
+                    </div>
+                </div>
+                <div class="footer-info">
+                    <h4>Contact Us</h4>
+                    <ul class="footer-list">
+                        <li>
+                            <span class="footer-icon">📞</span>
+                            <a href="tel:+919876543210">+91 98765 43210</a>
+                        </li>
+                        <li>
+                            <span class="footer-icon">✉️</span>
+                            <a href="mailto:hello@shikshadigitallibrary.in">hello@shikshadigitallibrary.in</a>
+                        </li>
+                        <li>
+                            <span class="footer-icon">📍</span>
+                            <span>123, Library Lane, Near City Center,<br>New Delhi — 110001</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="footer-hours">
+                    <h4>Opening Hours</h4>
+                    <ul class="footer-list">
+                        <li><span class="footer-icon">🕐</span> Mon – Sat: 6:00 AM — 10:00 PM</li>
+                        <li><span class="footer-icon">🕐</span> Sunday: 8:00 AM — 8:00 PM</li>
+                        <li><span class="footer-icon">📅</span> Open 365 days a year</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-map">
+                <h4>📍 Find Us Here</h4>
+                <div class="map-container">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3630.3587118853275!2d86.69703167514014!3d24.50766707816132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f1177b19f30dbd%3A0xe10a7950a04422b5!2sSiksha%20Digital%20Library!5e0!3m2!1sen!2sin!4v1775477721652!5m2!1sen!2sin"
+                        width="100%"
+                        height="300"
+                        style="border:0; border-radius: 16px;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="Shiksha Digital Library Location Map">
+                    </iframe>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Shiksha Digital Library. All rights reserved. Made with ❤️ for students.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+
+
+    <!-- ========== BOOKING MODAL ========== -->
+    <div class="modal-overlay" id="bookingModal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeBookingModal()" aria-label="Close modal">✖</button>
+            <div class="modal-header" style="text-align: center; margin-bottom: 24px;">
+                <span class="section-badge" style="display:inline-block; margin-bottom:8px;">🎯 Live Seat Booking</span>
+                <h2 class="section-title" style="font-size: 1.8rem;">Reserve Your <span class="gradient-text">Focus Zone</span></h2>
+            </div>
+            
+            <div class="wizard-container">
+                <!-- Step 1: Select Room -->
+                <div class="wizard-step" id="step1">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h3 class="step-title">Select Room</h3>
+                    </div>
+                    <div class="step-content">
+                        <div class="room-selector">
+                            <button class="room-btn" onclick="wizardSelectRoom(1)" id="roomBtn1">
+                                <span class="room-icon">🚪</span>
+                                <span class="room-name">Room 1</span>
+                                <span class="room-desc">Quiet Zone</span>
+                            </button>
+                            <button class="room-btn" onclick="wizardSelectRoom(2)" id="roomBtn2">
+                                <span class="room-icon">🚪</span>
+                                <span class="room-name">Room 2</span>
+                                <span class="room-desc">Discussion Allowed</span>
+                            </button>
+                            <button class="room-btn" onclick="wizardSelectRoom(3)" id="roomBtn3">
+                                <span class="room-icon">🚪</span>
+                                <span class="room-name">Room 3</span>
+                                <span class="room-desc">VIP / Personal Lockers</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Select Duration -->
+                <div class="wizard-step disabled" id="step2">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h3 class="step-title">Select Duration/Shift</h3>
+                    </div>
+                    <div class="step-content" id="step2Content" style="display: none;">
+                        <div class="duration-selector">
+                            <button class="duration-btn" onclick="wizardSelectDuration('5 Hours', '₹500/month')" id="duration5">
+                                <span class="duration-time">5 Hours</span>
+                                <span class="duration-price">₹500 / month</span>
+                            </button>
+                            <button class="duration-btn" onclick="wizardSelectDuration('10 Hours', '₹900/month')" id="duration10">
+                                <span class="duration-time">10 Hours</span>
+                                <span class="duration-price">₹900 / month</span>
+                                <span class="duration-badge">Popular</span>
+                            </button>
+                            <button class="duration-btn" onclick="wizardSelectDuration('Full Shift', '₹1500/month')" id="durationFull">
+                                <span class="duration-time">Full Shift</span>
+                                <span class="duration-price">₹1500 / month</span>
+                                <span class="duration-badge">Best Value</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Select Seat -->
+                <div class="wizard-step disabled" id="step3">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <h3 class="step-title">Choose Your Seat</h3>
+                    </div>
+                    <div class="step-content" id="step3Content" style="display: none;">
+                        <div class="modal-legend">
+                            <div class="legend-item"><span class="seat-badge available"></span> Available</div>
+                            <div class="legend-item"><span class="seat-badge selected"></span> Selected</div>
+                            <div class="legend-item"><span class="seat-badge booked"></span> Booked</div>
+                        </div>
+
+                        <div class="wizard-seat-layout">
+                            <div class="seat-layout" id="wizardSeatGrid">
+                                <!-- Seats generated via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wizard Action / Step 4 -->
+            <div class="wizard-action-section hidden" id="wizardActionSection" style="display: none;">
+                <div class="wizard-summary">
+                    <div class="summary-item"><strong>Room:</strong> <span id="summaryRoom">—</span></div>
+                    <div class="summary-item"><strong>Duration:</strong> <span id="summaryDuration">—</span></div>
+                    <div class="summary-item"><strong>Seat:</strong> <span id="summarySeat">—</span></div>
+                </div>
+                <button class="btn btn-primary btn-lg" id="wizardConfirmBtn" onclick="wizardConfirmBooking()">
+                    Confirm Booking <span class="btn-arrow">→</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

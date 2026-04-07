@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Shiksha Digital Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════
+           ADMIN DASHBOARD — Complete Styles
+           ═══════════════════════════════════════════ */
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-primary: #0b0f1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --bg-card-hover: #1f2b42;
+            --bg-input: #0f1629;
+            --border-color: rgba(99, 102, 241, 0.15);
+            --border-glow: rgba(99, 102, 241, 0.4);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.2);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.2);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.2);
+            --cyan: #06b6d4;
+            --cyan-glow: rgba(6, 182, 212, 0.2);
+            --gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+            --gradient-success: linear-gradient(135deg, #10b981, #06b6d4);
+            --gradient-warning: linear-gradient(135deg, #f59e0b, #ef4444);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ─── LOGIN SCREEN ─────────────────────────── */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .login-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .login-bg-shapes {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .login-bg-shapes .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: orbFloat 8s ease-in-out infinite alternate;
+        }
+        .login-bg-shapes .orb:nth-child(1) { width: 400px; height: 400px; background: #6366f1; top: -100px; left: -100px; }
+        .login-bg-shapes .orb:nth-child(2) { width: 300px; height: 300px; background: #a855f7; bottom: -80px; right: -80px; animation-delay: -3s; }
+        .login-bg-shapes .orb:nth-child(3) { width: 200px; height: 200px; background: #06b6d4; top: 50%; left: 60%; animation-delay: -5s; }
+
+        @keyframes orbFloat {
+            to { transform: translate(40px, -30px) scale(1.1); }
+        }
+
+        .login-card {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 48px 40px;
+            width: 420px;
+            max-width: 90vw;
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .login-input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .login-input-group .lock-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            opacity: 0.5;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .login-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .login-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 12px;
+            min-height: 20px;
+            font-weight: 500;
+        }
+
+        /* ─── DASHBOARD LAYOUT ─────────────────────── */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .dashboard.visible {
+            display: block;
+            animation: fadeInDash 0.6s ease;
+        }
+
+        @keyframes fadeInDash {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── TOP BAR ──────────────────────────────── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 15, 26, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .topbar-logo {
+            font-size: 1.6rem;
+        }
+
+        .topbar-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .topbar-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: var(--accent-glow);
+            color: var(--accent-light);
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 15px var(--danger-glow);
+        }
+
+        /* ─── MAIN CONTENT ─────────────────────────── */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ─── STATS CARDS ──────────────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .stat-card.total::before { background: var(--gradient-primary); }
+        .stat-card.today::before { background: var(--gradient-success); }
+        .stat-card.available::before { background: linear-gradient(135deg, var(--cyan), #3b82f6); }
+        .stat-card.occupancy::before { background: var(--gradient-warning); }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+            border-color: var(--border-glow);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-card.total .stat-icon { background: var(--accent-glow); }
+        .stat-card.today .stat-icon { background: var(--success-glow); }
+        .stat-card.available .stat-icon { background: var(--cyan-glow); }
+        .stat-card.occupancy .stat-icon { background: var(--warning-glow); }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .stat-card.total .stat-value { color: var(--accent-light); }
+        .stat-card.today .stat-value { color: var(--success); }
+        .stat-card.available .stat-value { color: var(--cyan); }
+        .stat-card.occupancy .stat-value { color: var(--warning); }
+
+        .stat-sub {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* ─── LIVE SEAT MAP ────────────────────────── */
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .section-title .badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            animation: pulse-badge 2s ease-in-out infinite;
+        }
+
+        .badge.live {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .room-map-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .room-map-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .room-map-card:hover {
+            border-color: var(--border-glow);
+        }
+
+        .room-map-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .room-map-name {
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .room-tag {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .room-map-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .room-map-stats .avail {
+            color: var(--success);
+        }
+        .room-map-stats .booked-count {
+            color: var(--danger);
+        }
+
+        /* Progress Bar */
+        .room-progress {
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--gradient-primary);
+        }
+
+        .progress-fill.high { background: var(--gradient-warning); }
+        .progress-fill.mid { background: var(--gradient-success); }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Mini Seat Grid */
+        .mini-seat-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+        }
+
+        .mini-seat {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            transition: var(--transition);
+        }
+
+        .mini-seat.available {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .mini-seat.booked {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        .seat-map-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-dot.avail-dot {
+            background: rgba(16, 185, 129, 0.3);
+            border: 1px solid var(--success);
+        }
+        .legend-dot.booked-dot {
+            background: rgba(239, 68, 68, 0.3);
+            border: 1px solid var(--danger);
+        }
+
+        /* ─── BOOKINGS TABLE ───────────────────────── */
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .table-search {
+            position: relative;
+        }
+
+        .table-search input {
+            padding: 10px 14px 10px 40px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            font-family: inherit;
+            width: 280px;
+            max-width: 100%;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .table-search input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .table-search .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.95rem;
+            opacity: 0.4;
+        }
+
+        .refresh-btn {
+            background: var(--accent-glow);
+            border: 1px solid var(--border-color);
+            color: var(--accent-light);
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent);
+        }
+
+        .refresh-btn.spinning .refresh-icon {
+            animation: spin 0.8s linear;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-secondary);
+        }
+
+        th {
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 18px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.06);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cell-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .cell-phone {
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .cell-room {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: var(--accent-glow);
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--accent-light);
+        }
+
+        .cell-seat {
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .cell-shift {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .cell-date {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        .cancel-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .cancel-btn:hover {
+            background: rgba(239, 68, 68, 0.25);
+            box-shadow: 0 0 12px var(--danger-glow);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+
+        /* ─── LOADING SPINNER ──────────────────────── */
+        .loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* ─── TOAST ────────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+            min-width: 280px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.4s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ─── RESPONSIVE ───────────────────────────── */
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 12px 16px;
+            }
+            .topbar-title { font-size: 1rem; }
+            .topbar-badge { display: none; }
+            .topbar-time { display: none; }
+
+            .main-content {
+                padding: 20px 16px;
+            }
+
+            .page-header h1 { font-size: 1.4rem; }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-card { padding: 16px; }
+            .stat-value { font-size: 1.5rem; }
+            .stat-icon { width: 42px; height: 42px; font-size: 1.2rem; }
+
+            .room-map-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-card {
+                padding: 20px 16px;
+            }
+
+            .table-search input {
+                width: 100%;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            th, td {
+                padding: 10px 12px;
+                font-size: 0.82rem;
+            }
+
+            .login-card {
+                padding: 36px 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mini-seat-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        /* ─── ROOM MANAGEMENT ──────────────────────── */
+        .room-form-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .room-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .room-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .btn-add-room {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-add-room:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .room-list-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-list-info h4 {
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .room-list-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════ LOGIN SCREEN ═══════ -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-bg-shapes">
+            <div class="orb"></div>
+            <div class="orb"></div>
+            <div class="orb"></div>
+        </div>
+        <div class="login-card">
+            <div class="login-logo">🛡️</div>
+            <h2 class="login-title">Admin Access</h2>
+            <p class="login-subtitle">Enter your password to access the dashboard</p>
+            <div class="login-input-group">
+                <span class="lock-icon">🔒</span>
+                <input
+                    type="password"
+                    class="login-input"
+                    id="loginPassword"
+                    placeholder="Enter admin password"
+                    autocomplete="off"
+                >
+            </div>
+            <button class="login-btn" id="loginBtn" onclick="attemptLogin()">
+                Unlock Dashboard
+            </button>
+            <p class="login-error" id="loginError"></p>
+        </div>
+    </div>
+
+    <!-- ═══════ DASHBOARD ═══════ -->
+    <div class="dashboard" id="dashboard">
+
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-logo">📚</span>
+                <span class="topbar-title">Shiksha Digital Library</span>
+                <span class="topbar-badge">Admin Panel</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-time" id="liveTime"></span>
+                <button class="logout-btn" onclick="doLogout()">⬅ Logout</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>📊 Dashboard Overview</h1>
+                <p>Real-time stats and seat management for your library.</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Bookings</span>
+                        <span class="stat-value" id="statTotal">—</span>
+                        <span class="stat-sub">All time</span>
+                    </div>
+                </div>
+                <div class="stat-card today">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Today's Bookings</span>
+                        <span class="stat-value" id="statToday">—</span>
+                        <span class="stat-sub" id="statTodayDate"></span>
+                    </div>
+                </div>
+                <div class="stat-card available">
+                    <div class="stat-icon">💺</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Seats Available</span>
+                        <span class="stat-value" id="statAvailable">—</span>
+                        <span class="stat-sub">Out of 90 total</span>
+                    </div>
+                </div>
+                <div class="stat-card occupancy">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Occupancy Rate</span>
+                        <span class="stat-value" id="statOccupancy">—</span>
+                        <span class="stat-sub">Across all rooms</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Seat Map -->
+            <div class="section-card">
+                <div class="section-title">
+                    🗺️ Live Seat Map
+                    <span class="badge live">● LIVE</span>
+                </div>
+                <div class="room-map-grid" id="roomMapGrid">
+                    <div class="loader"><div class="loader-spinner"></div></div>
+                </div>
+                <div class="seat-map-legend">
+                    <div class="legend-item"><span class="legend-dot avail-dot"></span> Available</div>
+                    <div class="legend-item"><span class="legend-dot booked-dot"></span> Booked</div>
+                </div>
+            </div>
+
+            <!-- Recent Bookings Table -->
+            <div class="section-card">
+                <div class="table-header">
+                    <div class="section-title" style="margin-bottom:0;">📒 Recent Bookings</div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                        <div class="table-search">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchInput" placeholder="Search by name or phone..." oninput="filterTable()">
+                        </div>
+                        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+                            <span class="refresh-icon">🔄</span> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="bookingsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Phone</th>
+                                <th>Room</th>
+                                <th>Seat</th>
+                                <th>Shift / Duration</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsBody">
+                            <tr><td colspan="8"><div class="loader"><div class="loader-spinner"></div></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+
+            <!-- Manage Rooms Section -->
+            <div class="section-card">
+                <div class="section-title">
+                    🚪 Manage Rooms
+                </div>
+                <!-- Add Room Form -->
+                <form id="addRoomForm" onsubmit="handleAddRoom(event)">
+                    <div class="room-form-group">
+                        <input type="text" id="roomName" class="room-input" placeholder="Room Name (e.g. Room 4)" required>
+                        <input type="text" id="roomTag" class="room-input" placeholder="Tagline (e.g. Creator Space)" required>
+                        <input type="text" id="roomDesc" class="room-input" placeholder="Short Description..." required>
+                        <button type="submit" class="btn-add-room" id="submitRoomBtn">Add Room</button>
+                    </div>
+                </form>
+
+                <!-- Saved Rooms List -->
+                <div id="roomsListContainer" style="margin-top: 20px;">
+                    <div class="loader"><div class="loader-spinner"></div></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+    /* ═══════════════════════════════════════════
+       ADMIN DASHBOARD — Firebase Firestore v9
+       ═══════════════════════════════════════════ */
+
+    // ─── Firebase v9 Modular Imports ────────────
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+        getFirestore,
+        collection,
+        onSnapshot,
+        deleteDoc,
+        addDoc,
+        doc,
+        query,
+        orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ─── 🔥 Firebase Configuration ─────────────
+    const firebaseConfig = {
+        apiKey: "AIzaSyA9nATGsp8x_nIEF-i27waTj5gMEjbNrRQ",
+        authDomain: "shiksha-digital-library.firebaseapp.com",
+        databaseURL: "https://shiksha-digital-library-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "shiksha-digital-library",
+        storageBucket: "shiksha-digital-library.firebasestorage.app",
+        messagingSenderId: "162891971459",
+        appId: "1:162891971459:web:719b671bfed9c76aba14b6"
+    };
+
+    // Initialize Firebase
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getFirestore(firebaseApp);
+    const bookingsRef = collection(db, 'bookings');
+    const roomsRef = collection(db, 'rooms');
+
+    // ─── CONSTANTS ──────────────────────────────
+    const TOTAL_SEATS = 90; // Default assumption for live seat map calculations
+    const ADMIN_PASSWORD = 'admin123';
+
+    let allBookings = [];
+    let allRooms = [];
+    let unsubscribeBookings = null;
+    let unsubscribeRooms = null;
+
+    // ─── LOGIN ──────────────────────────────────
+    const loginOverlay = document.getElementById('loginOverlay');
+    const dashboard = document.getElementById('dashboard');
+    const loginPassword = document.getElementById('loginPassword');
+    const loginError = document.getElementById('loginError');
+
+    // Allow Enter key to login
+    loginPassword.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') attemptLogin();
+    });
+
+    // Check if already logged in
+    if (sessionStorage.getItem('shiksha-admin-auth') === 'true') {
+        showDashboard();
+    }
+
+    // Expose to onclick handlers
+    window.attemptLogin = attemptLogin;
+    window.doLogout = doLogout;
+    window.filterTable = filterTable;
+    window.refreshData = refreshData;
+    window.cancelBooking = cancelBooking;
+    window.handleAddRoom = handleAddRoom;
+    window.deleteRoom = deleteRoom;
+
+    function attemptLogin() {
+        const pwd = loginPassword.value.trim();
+        if (!pwd) {
+            loginError.textContent = 'Please enter the password.';
+            return;
+        }
+        if (pwd === ADMIN_PASSWORD) {
+            sessionStorage.setItem('shiksha-admin-auth', 'true');
+            loginError.textContent = '';
+            showDashboard();
+        } else {
+            loginError.textContent = '❌ Incorrect password. Try again.';
+            loginPassword.value = '';
+            loginPassword.focus();
+        }
+    }
+
+    function showDashboard() {
+        loginOverlay.classList.add('hidden');
+        dashboard.classList.add('visible');
+        initDashboard();
+    }
+
+    function doLogout() {
+        sessionStorage.removeItem('shiksha-admin-auth');
+        if (unsubscribeBookings) unsubscribeBookings();
+        if (unsubscribeRooms) unsubscribeRooms();
+        location.reload();
+    }
+
+    // ─── DASHBOARD INIT ─────────────────────────
+    function initDashboard() {
+        updateLiveTime();
+        setInterval(updateLiveTime, 1000);
+        startRealtimeListener();
+    }
+
+    function updateLiveTime() {
+        const now = new Date();
+        const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        document.getElementById('liveTime').textContent = now.toLocaleString('en-IN', options);
+    }
+
+    // ─── FIRESTORE REAL-TIME LISTENER ───────────
+    function startRealtimeListener() {
+        // Bookings Listener
+        const qBookings = query(bookingsRef, orderBy('date', 'desc'));
+        unsubscribeBookings = onSnapshot(qBookings, (snapshot) => {
+            allBookings = [];
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                allBookings.push({
+                    id: docSnap.id,
+                    ...data,
+                    date: data.date?.toDate ? data.date.toDate() : new Date(data.date)
+                });
+            });
+            updateStatsCards(allBookings);
+            renderBookingsTable(allBookings);
+            renderRoomMaps(allBookings);
+        }, (error) => {
+            console.error('Firestore bookings onSnapshot error:', error);
+            showToast('Failed to connect to bookings database.', 'error');
+        });
+
+        // Rooms Listener
+        unsubscribeRooms = onSnapshot(roomsRef, (snapshot) => {
+            allRooms = [];
+            snapshot.forEach(docSnap => {
+                allRooms.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            renderRoomsList(allRooms);
+        }, (error) => {
+            console.error('Firestore rooms onSnapshot error:', error);
+            showToast('Failed to fetch rooms.', 'error');
+        });
+    }
+
+    // ─── UPDATE STATS CARDS ─────────────────────
+    function updateStatsCards(bookings) {
+        const totalBookings = bookings.length;
+        const totalBooked = totalBookings;
+        const totalAvailable = Math.max(0, TOTAL_SEATS - totalBooked);
+        const occupancyPct = TOTAL_SEATS > 0 ? Math.round((totalBooked / TOTAL_SEATS) * 100) : 0;
+
+        // Count today's bookings
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+
+        const todaysBookings = bookings.filter(b => {
+            const d = b.date;
+            return d >= todayStart && d <= todayEnd;
+        }).length;
+
+        document.getElementById('statTotal').textContent = totalBookings;
+        document.getElementById('statToday').textContent = todaysBookings;
+        document.getElementById('statAvailable').textContent = totalAvailable;
+        document.getElementById('statOccupancy').textContent = occupancyPct + '%';
+
+        // Today's date label
+        document.getElementById('statTodayDate').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // ─── RENDER ROOM MAPS ───────────────────────
+    function renderRoomMaps(bookings) {
+        const grid = document.getElementById('roomMapGrid');
+
+        const roomNames = {
+            1: { name: 'Room 1', tag: 'Quiet Zone', icon: '🤫' },
+            2: { name: 'Room 2', tag: 'Discussion', icon: '💬' },
+            3: { name: 'Room 3', tag: 'VIP Lockers', icon: '🔐' },
+        };
+
+        // Build a set of booked seat IDs per room
+        const bookedSeats = { 1: new Set(), 2: new Set(), 3: new Set() };
+        bookings.forEach(b => {
+            const roomId = b.roomSelected;
+            if (bookedSeats[roomId]) {
+                bookedSeats[roomId].add(b.seatNumber);
+            }
+        });
+
+        let html = '';
+
+        for (let roomId = 1; roomId <= 3; roomId++) {
+            const info = roomNames[roomId];
+            const booked = bookedSeats[roomId].size;
+            const total = 30;
+            const available = total - booked;
+            const pct = Math.round((booked / total) * 100);
+            let progressClass = '';
+            if (pct > 75) progressClass = 'high';
+            else if (pct > 40) progressClass = 'mid';
+
+            // Build mini seat grid (3 cols × 10 rows = 30 seats)
+            let seatHtml = '';
+            for (let col = 1; col <= 3; col++) {
+                for (let row = 1; row <= 10; row++) {
+                    const letter = String.fromCharCode(64 + row);
+                    const label = `${letter}${col}`;
+                    const status = bookedSeats[roomId].has(label) ? 'booked' : 'available';
+                    seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
+                }
+            }
+
+            html += `
+            <div class="room-map-card">
+                <div class="room-map-header">
+                    <div class="room-map-name">
+                        ${info.icon} ${info.name}
+                        <span class="room-tag">${info.tag}</span>
+                    </div>
+                    <div class="room-map-stats">
+                        <span class="avail">✓ ${available} free</span>
+                        <span class="booked-count">✗ ${booked} booked</span>
+                    </div>
+                </div>
+                <div class="room-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill ${progressClass}" style="width: ${pct}%"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>${pct}% occupied</span>
+                        <span>${total} seats</span>
+                    </div>
+                </div>
+                <div class="mini-seat-grid">${seatHtml}</div>
+            </div>`;
+        }
+
+        grid.innerHTML = html;
+    }
+
+    // ─── RENDER BOOKINGS TABLE ──────────────────
+    function renderBookingsTable(bookings) {
+        const tbody = document.getElementById('bookingsBody');
+
+        if (!bookings || bookings.length === 0) {
+            tbody.innerHTML = `
+                <tr><td colspan="8">
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>No bookings found yet.</p>
+                    </div>
+                </td></tr>`;
+            return;
+        }
+
+        let html = '';
+        bookings.forEach((b, idx) => {
+            const date = b.date;
+            const dateStr = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const timeStr = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+            html += `
+            <tr>
+                <td style="color:var(--text-muted);font-weight:600;">${idx + 1}</td>
+                <td class="cell-name">${escapeHtml(b.name)}</td>
+                <td class="cell-phone">${escapeHtml(b.phone)}</td>
+                <td><span class="cell-room">🚪 Room ${b.roomSelected}</span></td>
+                <td class="cell-seat">${escapeHtml(b.seatNumber)}</td>
+                <td class="cell-shift">${escapeHtml(b.shiftDuration)}</td>
+                <td class="cell-date">${dateStr}<br>${timeStr}</td>
+                <td><button class="cancel-btn" onclick="cancelBooking('${b.id}')">✗ Cancel</button></td>
+            </tr>`;
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    // ─── ROOM MANAGEMENT LOGIC ──────────────────
+    async function handleAddRoom(event) {
+        event.preventDefault();
+        const rName = document.getElementById('roomName').value.trim();
+        const rTag = document.getElementById('roomTag').value.trim();
+        const rDesc = document.getElementById('roomDesc').value.trim();
+        const btn = document.getElementById('submitRoomBtn');
+
+        if (!rName || !rTag || !rDesc) return;
+        btn.disabled = true;
+        btn.textContent = 'Adding...';
+
+        try {
+            await addDoc(roomsRef, {
+                name: rName,
+                tagline: rTag,
+                description: rDesc,
+                createdAt: new Date()
+            });
+            showToast('Room added successfully!', 'success');
+            document.getElementById('addRoomForm').reset();
+        } catch (err) {
+            console.error('Failed to add room:', err);
+            showToast('Failed to add room.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Add Room';
+        }
+    }
+
+    async function deleteRoom(id) {
+        if (!confirm('Are you sure you want to delete this room?')) return;
+        try {
+            await deleteDoc(doc(db, 'rooms', id));
+            showToast('Room deleted.', 'success');
+        } catch (err) {
+            console.error('Failed to delete room:', err);
+            showToast('Failed to delete room.', 'error');
+        }
+    }
+
+    function renderRoomsList(rooms) {
+        const container = document.getElementById('roomsListContainer');
+        if (rooms.length === 0) {
+            container.innerHTML = `<div class="empty-state"><p>No custom rooms added yet.</p></div>`;
+            return;
+        }
+
+        let html = '';
+        rooms.forEach((room) => {
+            html += `
+            <div class="room-list-item">
+                <div class="room-list-info">
+                    <h4>${escapeHtml(room.name)} <span class="room-tag">${escapeHtml(room.tagline)}</span></h4>
+                    <p class="room-list-desc">${escapeHtml(room.description)}</p>
+                </div>
+                <button class="cancel-btn" onclick="deleteRoom('${room.id}')">🗑️ Delete</button>
+            </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // ─── CANCEL BOOKING ─────────────────────────
+    async function cancelBooking(docId) {
+        if (!confirm('Are you sure you want to cancel this booking? The seat will become available again.')) return;
+
+        try {
+            await deleteDoc(doc(db, 'bookings', docId));
+            showToast('Booking cancelled successfully!', 'success');
+            // onSnapshot will automatically refresh the UI
+        } catch (err) {
+            console.error('Failed to cancel booking:', err);
+            showToast('Failed to cancel booking.', 'error');
+        }
+    }
+
+    // ─── SEARCH / FILTER ────────────────────────
+    function filterTable() {
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+        if (!searchQuery) {
+            renderBookingsTable(allBookings);
+            return;
+        }
+        const filtered = allBookings.filter(b =>
+            b.name.toLowerCase().includes(searchQuery) ||
+            b.phone.includes(searchQuery)
+        );
+        renderBookingsTable(filtered);
+    }
+
+    // ─── REFRESH ────────────────────────────────
+    function refreshData() {
+        const btn = document.getElementById('refreshBtn');
+        btn.classList.add('spinning');
+        // onSnapshot handles live data, but re-render from cache
+        updateStatsCards(allBookings);
+        renderBookingsTable(allBookings);
+        renderRoomMaps(allBookings);
+        setTimeout(() => {
+            btn.classList.remove('spinning');
+            showToast('Data refreshed!', 'success');
+        }, 600);
+    }
+
+    // ─── TOAST NOTIFICATION ─────────────────────
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(60px)';
+            toast.style.transition = 'all 0.4s ease';
+            setTimeout(() => toast.remove(), 400);
+        }, 3500);
+    }
+
+    // ─── UTILITY ────────────────────────────────
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+    </script>
+</body>
+</html>
