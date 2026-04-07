@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const totalBooked = snapshot.size;
             const availableSeats = Math.max(0, TOTAL_SEATS - totalBooked);
             seatCountEl.textContent = availableSeats;
+            seatCountEl.removeAttribute('style'); // Clear loading state inline CSS
         }, (error) => {
             console.error('Failed to listen to seat count:', error);
             seatCountEl.textContent = '—';
@@ -172,40 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ==========================================
-    //  9. DYNAMIC ROOMS FETCHING
-    // ==========================================
-    const dynamicRoomsGrid = document.getElementById('dynamicRoomsGrid');
-    if (dynamicRoomsGrid) {
-        onSnapshot(roomsRef, (snapshot) => {
-            if (snapshot.empty) {
-                dynamicRoomsGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No premium rooms available at the moment.</div>';
-                return;
-            }
-            
-            let html = '';
-            snapshot.forEach((docSnap) => {
-                const room = docSnap.data();
-                // Escape simple HTML
-                const safeName = (room.name || '').replace(/</g, '&lt;');
-                const safeTag = (room.tagline || '').replace(/</g, '&lt;');
-                const safeDesc = (room.description || '').replace(/</g, '&lt;');
-                
-                html += `
-                <div class="dynamic-room-card" onclick="openBookingModal()">
-                    <div class="room-icon" style="font-size: 3rem; margin-bottom: 12px;">🚪</div>
-                    <h3>${safeName}</h3>
-                    <div class="room-tagline">${safeTag}</div>
-                    <p>${safeDesc}</p>
-                    <button class="btn btn-outline btn-book-room">Join Now</button>
-                </div>`;
-            });
-            dynamicRoomsGrid.innerHTML = html;
-        }, (err) => {
-            console.error('Error fetching rooms:', err);
-            dynamicRoomsGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: red;">Failed to load premium rooms.</div>';
-        });
-    }
+
 
 });
 
