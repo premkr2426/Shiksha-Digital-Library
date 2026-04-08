@@ -957,6 +957,221 @@
             font-size: 0.85rem;
             color: var(--text-secondary);
         }
+
+        /* ─── SUBSCRIPTION EXPIRY ALERTS ───────────── */
+        .alerts-section {
+            margin-bottom: 28px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.08));
+            border: 1.5px solid rgba(245, 158, 11, 0.35);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alerts-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+            border-radius: 4px 4px 0 0;
+        }
+
+        .alerts-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--warning);
+            margin-bottom: 16px;
+        }
+
+        .alerts-section-title .alert-count {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            animation: pulse-badge 2s ease-in-out infinite;
+        }
+
+        .alert-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: var(--transition);
+            flex-wrap: wrap;
+        }
+
+        .alert-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-card:hover {
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.08);
+        }
+
+        .alert-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .alert-card-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .alert-card-details {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .alert-card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .alert-card-status.expires-today {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .alert-card-status.expired {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert-clear-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .alert-clear-btn:hover {
+            background: rgba(239, 68, 68, 0.25);
+            box-shadow: 0 0 12px var(--danger-glow);
+        }
+
+        /* ─── OFFLINE STUDENT FORM ─────────────────── */
+        .offline-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .offline-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .offline-form-group label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .offline-form-group input,
+        .offline-form-group select {
+            padding: 12px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .offline-form-group input:focus,
+        .offline-form-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .offline-form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .btn-add-offline {
+            background: var(--gradient-success);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add-offline:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--success-glow);
+        }
+
+        .btn-add-offline:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 768px) {
+            .alert-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .offline-form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1010,6 +1225,15 @@
             <div class="page-header">
                 <h1>📊 Dashboard Overview</h1>
                 <p>Real-time stats and seat management for your library.</p>
+            </div>
+
+            <!-- Subscription Expiry Alerts -->
+            <div class="alerts-section" id="alertsSection" style="display: none;">
+                <div class="alerts-section-title">
+                    ⚠️ Subscription Expiry Alerts
+                    <span class="alert-count" id="alertCount"></span>
+                </div>
+                <div id="alertsContainer"></div>
             </div>
 
             <!-- Stats Cards -->
@@ -1099,6 +1323,49 @@
                 </div>
             </div>
 
+            <!-- Add Offline / Existing Student -->
+            <div class="section-card">
+                <div class="section-title">
+                    📝 Add Offline / Existing Student
+                </div>
+                <form id="offlineStudentForm">
+                    <div class="offline-form-grid">
+                        <div class="offline-form-group">
+                            <label for="offlineName">Student Name</label>
+                            <input type="text" id="offlineName" placeholder="Full name" required>
+                        </div>
+                        <div class="offline-form-group">
+                            <label for="offlinePhone">Phone Number</label>
+                            <input type="tel" id="offlinePhone" placeholder="e.g. 9876543210" required>
+                        </div>
+                        <div class="offline-form-group">
+                            <label for="offlineRoom">Room</label>
+                            <select id="offlineRoom" required>
+                                <option value="" disabled selected>Select Room</option>
+                                <option value="1">Room 1</option>
+                                <option value="2">Room 2</option>
+                                <option value="3">Room 3</option>
+                            </select>
+                        </div>
+                        <div class="offline-form-group">
+                            <label for="offlineSeat">Seat Number</label>
+                            <input type="text" id="offlineSeat" placeholder="e.g. A1, B3" required>
+                        </div>
+                        <div class="offline-form-group">
+                            <label for="offlineJoining">Joining Date</label>
+                            <input type="date" id="offlineJoining" required>
+                        </div>
+                        <div class="offline-form-group">
+                            <label for="offlineExpiry">Expiry Date</label>
+                            <input type="date" id="offlineExpiry" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-add-offline" id="offlineSubmitBtn">
+                        ➕ Add Student
+                    </button>
+                </form>
+            </div>
+
             <!-- Manage Rooms Section -->
             <div class="section-card">
                 <div class="section-title">
@@ -1152,7 +1419,8 @@
         addDoc,
         doc,
         query,
-        orderBy
+        orderBy,
+        Timestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // ─── 🔥 Firebase Configuration ─────────────
@@ -1204,6 +1472,7 @@
     window.refreshData = refreshData;
     window.cancelBooking = cancelBooking;
     window.handleAddRoom = handleAddRoom;
+    window.handleOfflineStudent = handleOfflineStudent;
     window.deleteRoom = deleteRoom;
 
     function attemptLogin() {
@@ -1266,6 +1535,7 @@
             updateStatsCards(allBookings);
             renderBookingsTable(allBookings);
             renderRoomMaps(allBookings);
+            renderAlerts(allBookings);
         }, (error) => {
             console.error('Firestore bookings onSnapshot error:', error);
             showToast('Failed to connect to bookings database.', 'error');
@@ -1556,6 +1826,108 @@
             toast.style.transition = 'all 0.4s ease';
             setTimeout(() => toast.remove(), 400);
         }, 3500);
+    }
+
+    // ─── SUBSCRIPTION EXPIRY ALERTS ────────────
+    function renderAlerts(bookings) {
+        const section = document.getElementById('alertsSection');
+        const container = document.getElementById('alertsContainer');
+        const countBadge = document.getElementById('alertCount');
+
+        // Today at midnight for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let alertHtml = '';
+        let alertCount = 0;
+
+        bookings.forEach(b => {
+            if (!b.expiryDate) return;
+
+            const expiry = (b.expiryDate.toDate ? b.expiryDate.toDate() : new Date(b.expiryDate));
+            const expiryMidnight = new Date(expiry);
+            expiryMidnight.setHours(0, 0, 0, 0);
+
+            if (expiryMidnight > today) return; // not yet expired
+
+            alertCount++;
+            const isToday = expiryMidnight.getTime() === today.getTime();
+            const statusClass = isToday ? 'expires-today' : 'expired';
+            const statusLabel = isToday ? '⏰ Expires Today' : '🔴 Expired';
+            const expiryStr = expiry.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            alertHtml += `
+            <div class="alert-card">
+                <div class="alert-card-info">
+                    <div class="alert-card-name">${escapeHtml(b.name)}</div>
+                    <div class="alert-card-details">
+                        <span>🚪 Room ${b.roomSelected}</span>
+                        <span>💺 Seat ${escapeHtml(b.seatNumber)}</span>
+                        <span>📞 ${escapeHtml(b.phone)}</span>
+                        <span>📅 ${expiryStr}</span>
+                    </div>
+                </div>
+                <span class="alert-card-status ${statusClass}">${statusLabel}</span>
+                <button class="alert-clear-btn" onclick="cancelBooking('${b.id}')">✗ Clear Seat</button>
+            </div>`;
+        });
+
+        if (alertCount > 0) {
+            container.innerHTML = alertHtml;
+            countBadge.textContent = `${alertCount} alert${alertCount > 1 ? 's' : ''}`;
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+            container.innerHTML = '';
+        }
+    }
+
+    // ─── OFFLINE STUDENT FORM ───────────────────
+    const offlineForm = document.getElementById('offlineStudentForm');
+    if (offlineForm) {
+        offlineForm.addEventListener('submit', handleOfflineStudent);
+    }
+
+    async function handleOfflineStudent(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('offlineName').value.trim();
+        const phone = document.getElementById('offlinePhone').value.trim();
+        const room = parseInt(document.getElementById('offlineRoom').value);
+        const seat = document.getElementById('offlineSeat').value.trim();
+        const joiningStr = document.getElementById('offlineJoining').value;
+        const expiryStr = document.getElementById('offlineExpiry').value;
+
+        if (!name || !phone || !room || !seat || !joiningStr || !expiryStr) {
+            showToast('Please fill in all fields.', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('offlineSubmitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Adding...';
+
+        try {
+            await addDoc(bookingsRef, {
+                name: name,
+                phone: phone,
+                roomSelected: room,
+                seatNumber: seat,
+                date: Timestamp.fromDate(new Date(joiningStr)),
+                expiryDate: Timestamp.fromDate(new Date(expiryStr)),
+                shiftDuration: 'Offline Entry',
+                isOfflineEntry: true
+            });
+
+            showToast(`Student "${name}" added successfully!`, 'success');
+            offlineForm.reset();
+        } catch (err) {
+            console.error('Failed to add offline student:', err);
+            showToast('Failed to add student. Please try again.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '➕ Add Student';
+        }
     }
 
     // ─── UTILITY ────────────────────────────────
