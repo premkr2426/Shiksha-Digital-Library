@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 //  10. MODAL TOGGLE LOGIC
 // ==========================================
-window.openBookingModal = function() {
+window.openBookingModal = function () {
     const modal = document.getElementById('bookingModal');
     if (modal) {
         modal.classList.add('active');
@@ -188,7 +188,7 @@ window.openBookingModal = function() {
     }
 };
 
-window.closeBookingModal = function() {
+window.closeBookingModal = function () {
     const modal = document.getElementById('bookingModal');
     if (modal) {
         modal.classList.remove('active');
@@ -265,10 +265,10 @@ async function fetchRoomSeats(roomId) {
     }
 }
 
-window.wizardSelectRoom = function(roomId) {
+window.wizardSelectRoom = function (roomId) {
     wizardRoom = roomId;
     summaryRoom.textContent = `Room ${roomId}`;
-    
+
     // Highlight selected
     roomBtns.forEach((btn, idx) => {
         if (idx === roomId - 1) btn.classList.add('selected');
@@ -278,18 +278,18 @@ window.wizardSelectRoom = function(roomId) {
     // Reveal Step 2
     step2.classList.remove('disabled');
     step2Content.style.display = 'block';
-    
+
     // If seat was previously selected but room changed, reset seat
     if (wizardSeatId) {
         wizardSeatId = null;
         updateWizardSummary();
     }
-    
+
     // If Step 3 is open, re-render seats for the new room
     if (!step3.classList.contains('disabled')) {
         fetchRoomSeats(roomId).then(() => renderWizardSeats());
     }
-    
+
     // Scroll to Step 2
     setTimeout(() => {
         const offset = step2.getBoundingClientRect().top + window.scrollY - 100;
@@ -297,11 +297,11 @@ window.wizardSelectRoom = function(roomId) {
     }, 100);
 }
 
-window.wizardSelectDuration = function(duration, price) {
+window.wizardSelectDuration = function (duration, price) {
     wizardDuration = duration;
     wizardPrice = price;
     summaryDuration.textContent = `${duration} (${price})`;
-    
+
     // Highlight selected
     durationBtns.forEach((btn) => {
         const btnDuration = btn.querySelector('.duration-time').textContent;
@@ -314,13 +314,13 @@ window.wizardSelectDuration = function(duration, price) {
     if (duration === '5 Hours') {
         wizardTimeSlot = null;
         document.querySelectorAll('.timeslot-btn').forEach(btn => btn.classList.remove('selected'));
-        
+
         // Hide step 3 until time slot is selected
         step3.classList.add('disabled');
         step3Content.style.display = 'none';
-        
+
         step25.style.display = 'block';
-        
+
         // Scroll to Step 2.5
         setTimeout(() => {
             const offset = step25.getBoundingClientRect().top + window.scrollY - 100;
@@ -329,14 +329,14 @@ window.wizardSelectDuration = function(duration, price) {
     } else {
         wizardTimeSlot = 'N/A';
         step25.style.display = 'none';
-        
+
         // Reveal Step 3
         step3.classList.remove('disabled');
         step3Content.style.display = 'block';
-        
+
         // Fetch live seat data then render
         fetchRoomSeats(wizardRoom).then(() => renderWizardSeats());
-        
+
         // Scroll to Step 3
         setTimeout(() => {
             const offset = step3.getBoundingClientRect().top + window.scrollY - 100;
@@ -345,9 +345,9 @@ window.wizardSelectDuration = function(duration, price) {
     }
 }
 
-window.wizardSelectTimeSlot = function(slot) {
+window.wizardSelectTimeSlot = function (slot) {
     wizardTimeSlot = slot;
-    
+
     // Highlight selected
     document.querySelectorAll('.timeslot-btn').forEach(btn => {
         if (btn.querySelector('.duration-time').textContent === slot) btn.classList.add('selected');
@@ -357,10 +357,10 @@ window.wizardSelectTimeSlot = function(slot) {
     // Reveal Step 3
     step3.classList.remove('disabled');
     step3Content.style.display = 'block';
-    
+
     // Fetch live seat data then render
     fetchRoomSeats(wizardRoom).then(() => renderWizardSeats());
-    
+
     // Scroll to Step 3
     setTimeout(() => {
         const offset = step3.getBoundingClientRect().top + window.scrollY - 100;
@@ -370,24 +370,24 @@ window.wizardSelectTimeSlot = function(slot) {
 
 function renderWizardSeats() {
     wizardSeatGrid.innerHTML = '';
-    
+
     for (let c = 1; c <= 3; c++) {
         const colDiv = document.createElement('div');
         colDiv.className = 'seat-column';
-        
+
         for (let s = 1; s <= 10; s++) {
             const rowLetter = String.fromCharCode(64 + s);
             const seatId = `${wizardRoom}-${rowLetter}${c}`;
             const status = wizardSeatsData[wizardRoom][seatId];
             const displayId = `${rowLetter}${c}`;
-            
+
             const seatDiv = document.createElement('div');
             let stateClass = status;
             if (seatId === wizardSeatId) stateClass = 'selected';
-            
+
             seatDiv.className = `seat ${stateClass}`;
             seatDiv.textContent = displayId;
-            
+
             if (status === 'available') {
                 seatDiv.addEventListener('click', () => handleWizardSeatClick(seatId));
             }
@@ -407,11 +407,11 @@ function updateWizardSummary() {
     if (wizardSeatId) {
         const [room, seat] = wizardSeatId.split('-');
         summarySeat.textContent = seat;
-        
+
         // Reveal action section
         wizardActionSection.classList.remove('hidden');
         wizardActionSection.style.display = 'flex';
-        
+
         // Scroll to button
         setTimeout(() => {
             const offset = wizardActionSection.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2;
@@ -425,26 +425,26 @@ function updateWizardSummary() {
 }
 
 // ─── Confirm Booking → Save to Firestore ────────────
-window.wizardConfirmBooking = async function() {
+window.wizardConfirmBooking = async function () {
     if (!wizardRoom || !wizardDuration || !wizardSeatId) return;
     if (wizardDuration === '5 Hours' && !wizardTimeSlot) {
         alert('Please select a time slot.');
         return;
     }
-    
+
     const [room, seat] = wizardSeatId.split('-');
-    
+
     // Prompt user for name and phone
     const userName = prompt('Enter your full name:');
     if (!userName || !userName.trim()) { alert('Name is required!'); return; }
-    
+
     const userPhone = prompt('Enter your phone number:');
     if (!userPhone || !userPhone.trim()) { alert('Phone number is required!'); return; }
-    
+
     const confirmBtn = document.getElementById('wizardConfirmBtn');
     confirmBtn.disabled = true;
     confirmBtn.innerHTML = 'Booking... ⏳';
-    
+
     try {
         // Save booking directly to Firestore 'bookings' collection
         await addDoc(bookingsRef, {
@@ -458,13 +458,13 @@ window.wizardConfirmBooking = async function() {
         });
 
         alert(`✅ Booking Confirmed!\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName.trim()}!`);
-        
+
         // Mark seat as booked locally and re-render
         wizardSeatsData[wizardRoom][wizardSeatId] = 'booked';
         wizardSeatId = null;
         renderWizardSeats();
         updateWizardSummary();
-        
+
         // Refresh the live seat counter
         const seatCountEl = document.getElementById('seatCount');
         if (seatCountEl && window._fetchSeatCount) {
@@ -525,7 +525,7 @@ onSnapshot(roomsRef, (snapshot) => {
 });
 
 // Open Room Details Modal
-window.openRoomDetailsModal = function(roomId) {
+window.openRoomDetailsModal = function (roomId) {
     const room = window.allDynamicRooms.find(r => r.id === roomId);
     if (!room) return;
 
@@ -562,40 +562,126 @@ window.openRoomDetailsModal = function(roomId) {
 
     // Features
     const featEl = document.getElementById('roomDetailFeatures');
-    const features = room.features && room.features.length > 0
-        ? room.features
-        : ['No features listed'];
+    let features = [];
+    if (typeof room.features === 'string') {
+        features = room.features.split(',').map(f => f.trim()).filter(f => f !== '');
+    } else if (Array.isArray(room.features)) {
+        features = room.features;
+    }
+
+    if (features.length === 0) features = ['No features listed'];
+
     featEl.innerHTML = features.map(f => `<li>✅ ${f.replace(/</g, '&lt;')}</li>`).join('');
 
     // Show modal
     const modal = document.getElementById('roomDetailsModal');
-    modal.classList.add('active');
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.classList.add('active'); }, 10);
     document.body.style.overflow = 'hidden';
 };
 
 // Close Room Details Modal
-window.closeRoomDetailsModal = function() {
+window.closeRoomDetailsModal = function () {
     const modal = document.getElementById('roomDetailsModal');
     modal.classList.remove('active');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
     document.body.style.overflow = '';
 };
 
+// ==========================================
+// 11. BOOKING MODAL TOGGLE LOGIC (BULLETPROOF)
+// ==========================================
+window.openBookingModal = function () {
+    const modal = document.getElementById('bookingModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Thoda delay taaki display block hone ke baad animation trigger ho
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+    } else {
+        console.error("Error: 'bookingModal' ID nahi mili.");
+    }
+};
+
+window.closeBookingModal = function () {
+    const modal = document.getElementById('bookingModal');
+    if (modal) {
+        modal.classList.remove('active');
+        // Animation khatam hone ke baad display none karo
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+        document.body.style.overflow = '';
+
+        // Modal band hote hi forms reset kar dena acchi practice hai
+        resetBookingWizard();
+    }
+};
+
 // Proceed to Book — close details modal, open booking modal, auto-select room
-window.proceedToBookFromDetails = function() {
-    // Close details modal
-    closeRoomDetailsModal();
+window.proceedToBookFromDetails = function () {
+    // 1. Close Details Modal
+    const detailModal = document.getElementById('roomDetailsModal');
+    if (detailModal) {
+        detailModal.classList.remove('active');
+        setTimeout(() => {
+            detailModal.style.display = 'none';
+        }, 300);
+    }
 
     // Find the index of the selected room among cached rooms
     const roomIndex = window.allDynamicRooms.findIndex(r => r.id === selectedRoomIdForBooking);
     const roomNumber = roomIndex + 1; // 1-based index for wizardSelectRoom
 
-    // Open booking modal
-    openBookingModal();
-
-    // Auto-select the room in the wizard (after a brief delay for modal to render)
+    // 2. Fir booking wala modal khol do thode delay ke baad
     setTimeout(() => {
-        if (typeof wizardSelectRoom === 'function') {
-            wizardSelectRoom(roomNumber);
-        }
-    }, 150);
+        openBookingModal();
+
+        // Auto-select the room in the wizard
+        setTimeout(() => {
+            if (typeof wizardSelectRoom === 'function') {
+                wizardSelectRoom(roomNumber);
+            }
+        }, 150);
+    }, 350);
 };
+
+// Wizard ko fresh state mein lane ka function
+function resetBookingWizard() {
+    // Ye variables existing codebase mein pehle se define hone chahiye
+    if (typeof wizardRoom !== 'undefined') wizardRoom = null;
+    if (typeof wizardDuration !== 'undefined') wizardDuration = null;
+    if (typeof wizardPrice !== 'undefined') wizardPrice = null;
+    if (typeof wizardSeatId !== 'undefined') wizardSeatId = null;
+    window.wizardTimeSlot = null;
+
+    const step2 = document.getElementById('step2');
+    const step2Content = document.getElementById('step2Content');
+    const step25 = document.getElementById('step25');
+    const step3 = document.getElementById('step3');
+    const step3Content = document.getElementById('step3Content');
+    const actionSec = document.getElementById('wizardActionSection');
+
+    if (step2) step2.classList.add('disabled');
+    if (step2Content) step2Content.style.display = 'none';
+    if (step25) step25.style.display = 'none';
+    if (step3) step3.classList.add('disabled');
+    if (step3Content) step3Content.style.display = 'none';
+    if (actionSec) {
+        actionSec.classList.add('hidden');
+        actionSec.style.display = 'none';
+    }
+
+    document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
+
+    const sumRoom = document.getElementById('summaryRoom');
+    const sumDur = document.getElementById('summaryDuration');
+    const sumSeat = document.getElementById('summarySeat');
+
+    if (sumRoom) sumRoom.textContent = '—';
+    if (sumDur) sumDur.textContent = '—';
+    if (sumSeat) sumSeat.textContent = '—';
+}
