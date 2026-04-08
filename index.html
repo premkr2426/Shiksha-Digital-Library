@@ -373,23 +373,7 @@
                         <h3 class="step-title">Select Room</h3>
                     </div>
                     <div class="step-content">
-                        <div class="room-selector">
-                            <button class="room-btn" onclick="wizardSelectRoom(1)" id="roomBtn1">
-                                <span class="room-icon">🚪</span>
-                                <span class="room-name">Room 1</span>
-                                <span class="room-desc">Quiet Zone</span>
-                            </button>
-                            <button class="room-btn" onclick="wizardSelectRoom(2)" id="roomBtn2">
-                                <span class="room-icon">🚪</span>
-                                <span class="room-name">Room 2</span>
-                                <span class="room-desc">Discussion Allowed</span>
-                            </button>
-                            <button class="room-btn" onclick="wizardSelectRoom(3)" id="roomBtn3">
-                                <span class="room-icon">🚪</span>
-                                <span class="room-name">Room 3</span>
-                                <span class="room-desc">VIP / Personal Lockers</span>
-                            </button>
-                        </div>
+                        <div class="room-selector" id="wizardDynamicRooms"></div>
                     </div>
                 </div>
 
@@ -400,22 +384,7 @@
                         <h3 class="step-title">Select Duration/Shift</h3>
                     </div>
                     <div class="step-content" id="step2Content" style="display: none;">
-                        <div class="duration-selector">
-                            <button class="duration-btn" onclick="wizardSelectDuration('5 Hours', '₹500/month')" id="duration5">
-                                <span class="duration-time">5 Hours</span>
-                                <span class="duration-price">₹500 / month</span>
-                            </button>
-                            <button class="duration-btn" onclick="wizardSelectDuration('10 Hours', '₹900/month')" id="duration10">
-                                <span class="duration-time">10 Hours</span>
-                                <span class="duration-price">₹900 / month</span>
-                                <span class="duration-badge">Popular</span>
-                            </button>
-                            <button class="duration-btn" onclick="wizardSelectDuration('Full Shift', '₹1500/month')" id="durationFull">
-                                <span class="duration-time">Full Shift</span>
-                                <span class="duration-price">₹1500 / month</span>
-                                <span class="duration-badge">Best Value</span>
-                            </button>
-                        </div>
+                        <div class="duration-selector" id="wizardDynamicDurations"></div>
                     </div>
                 </div>
 

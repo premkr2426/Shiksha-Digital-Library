@@ -265,15 +265,43 @@ async function fetchRoomSeats(roomId) {
     }
 }
 
-window.wizardSelectRoom = function (roomId) {
+window.wizardSelectRoom = function (roomId, roomName) {
     wizardRoom = roomId;
-    summaryRoom.textContent = `Room ${roomId}`;
+    summaryRoom.textContent = roomName || `Room ${roomId}`;
 
     // Highlight selected
-    roomBtns.forEach((btn, idx) => {
-        if (idx === roomId - 1) btn.classList.add('selected');
+    const allRoomBtns = document.querySelectorAll('.room-btn');
+    allRoomBtns.forEach((btn) => {
+        if (btn.id === `roomBtn${roomId}`) btn.classList.add('selected');
         else btn.classList.remove('selected');
     });
+
+    // Populate Dynamic Durations
+    const room = window.allDynamicRooms.find(r => r.id === roomId);
+    const wizardDynamicDurations = document.getElementById('wizardDynamicDurations');
+    
+    if (room && wizardDynamicDurations) {
+        const p5 = room.price5 || 0;
+        const p10 = room.price10 || 0;
+        const pFull = room.priceFull || 0;
+        
+        wizardDynamicDurations.innerHTML = `
+            <button class="duration-btn" onclick="wizardSelectDuration('5 Hours', '₹${p5}/month')" id="duration5">
+                <span class="duration-time">5 Hours</span>
+                <span class="duration-price">₹${p5} / month</span>
+            </button>
+            <button class="duration-btn" onclick="wizardSelectDuration('10 Hours', '₹${p10}/month')" id="duration10">
+                <span class="duration-time">10 Hours</span>
+                <span class="duration-price">₹${p10} / month</span>
+                <span class="duration-badge">Popular</span>
+            </button>
+            <button class="duration-btn" onclick="wizardSelectDuration('Full Shift', '₹${pFull}/month')" id="durationFull">
+                <span class="duration-time">Full Shift</span>
+                <span class="duration-price">₹${pFull} / month</span>
+                <span class="duration-badge">Best Value</span>
+            </button>
+        `;
+    }
 
     // Reveal Step 2
     step2.classList.remove('disabled');
@@ -501,6 +529,8 @@ onSnapshot(roomsRef, (snapshot) => {
 
     window.allDynamicRooms = [];
     let html = '';
+    let wizardRoomsHtml = '';
+    
     snapshot.forEach(docSnap => {
         const room = { id: docSnap.id, ...docSnap.data() };
         window.allDynamicRooms.push(room);
@@ -520,8 +550,21 @@ onSnapshot(roomsRef, (snapshot) => {
             ${priceLabel ? `<span style="font-size:0.9rem; font-weight:700; color:var(--accent-1); margin-top:8px; display:inline-block;">${priceLabel}</span>` : ''}
             <button class="btn btn-outline btn-book-room" style="margin-top:16px;">View Details</button>
         </div>`;
+
+        wizardRoomsHtml += `
+        <button class="room-btn" onclick="wizardSelectRoom('${room.id}', '${safeName}')" id="roomBtn${room.id}">
+            <span class="room-icon">🚪</span>
+            <span class="room-name">${safeName}</span>
+            <span class="room-desc">${safeTag}</span>
+        </button>`;
     });
+    
     grid.innerHTML = html;
+    
+    const wizardDynamicRooms = document.getElementById('wizardDynamicRooms');
+    if (wizardDynamicRooms) {
+        wizardDynamicRooms.innerHTML = wizardRoomsHtml;
+    }
 });
 
 // Open Room Details Modal
@@ -642,7 +685,10 @@ window.proceedToBookFromDetails = function () {
         // Auto-select the room in the wizard
         setTimeout(() => {
             if (typeof wizardSelectRoom === 'function') {
-                wizardSelectRoom(roomNumber);
+                const room = window.allDynamicRooms.find(r => r.id === selectedRoomIdForBooking);
+                if (room) {
+                    wizardSelectRoom(room.id, room.name);
+                }
             }
         }, 150);
     }, 350);
@@ -655,7 +701,7 @@ function resetBookingWizard() {
     if (typeof wizardDuration !== 'undefined') wizardDuration = null;
     if (typeof wizardPrice !== 'undefined') wizardPrice = null;
     if (typeof wizardSeatId !== 'undefined') wizardSeatId = null;
-    window.wizardTimeSlot = null;
+    if (typeof wizardTimeSlot !== 'undefined') wizardTimeSlot = null;
 
     const step2 = document.getElementById('step2');
     const step2Content = document.getElementById('step2Content');
@@ -675,7 +721,9 @@ function resetBookingWizard() {
     }
 
     document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('selected'));
+    // Since duration buttons are now dynamic, we might query selector them similarly
     document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.timeslot-btn').forEach(b => b.classList.remove('selected'));
 
     const sumRoom = document.getElementById('summaryRoom');
     const sumDur = document.getElementById('summaryDuration');
