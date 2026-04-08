@@ -21,7 +21,7 @@
             </a>
             <ul class="nav-links" id="navLinks">
                 <li><a href="#hero">Home</a></li>
-                <li><a href="#booking">Booking</a></li>
+                <li><a href="#rooms">Room Details</a></li>
                 <li><a href="#facilities">Facilities</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
@@ -414,6 +414,27 @@
                                 <span class="duration-time">Full Shift</span>
                                 <span class="duration-price">₹1500 / month</span>
                                 <span class="duration-badge">Best Value</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2.5: Select Time Slot (Conditional) -->
+                <div class="wizard-step" id="step25" style="display: none; margin-top: 24px;">
+                    <div class="step-header">
+                        <span class="step-number">2.5</span>
+                        <h3 class="step-title">Select a Time Slot</h3>
+                    </div>
+                    <div class="step-content">
+                        <div class="duration-selector" id="timeSlotContainer">
+                            <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('6:00 AM - 11:00 AM')" id="slotA">
+                                <span class="duration-time">6:00 AM - 11:00 AM</span>
+                            </button>
+                            <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 4:00 PM')" id="slotB">
+                                <span class="duration-time">11:00 AM - 4:00 PM</span>
+                            </button>
+                            <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('4:00 PM - 9:00 PM')" id="slotC">
+                                <span class="duration-time">4:00 PM - 9:00 PM</span>
                             </button>
                         </div>
                     </div>

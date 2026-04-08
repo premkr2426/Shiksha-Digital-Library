@@ -204,6 +204,7 @@ window.closeBookingModal = function() {
 let wizardRoom = null;
 let wizardDuration = null;
 let wizardPrice = null;
+let wizardTimeSlot = null;
 let wizardSeatId = null;
 
 const step2 = document.getElementById('step2');
@@ -308,6 +309,51 @@ window.wizardSelectDuration = function(duration, price) {
         else btn.classList.remove('selected');
     });
 
+    const step25 = document.getElementById('step25');
+
+    if (duration === '5 Hours') {
+        wizardTimeSlot = null;
+        document.querySelectorAll('.timeslot-btn').forEach(btn => btn.classList.remove('selected'));
+        
+        // Hide step 3 until time slot is selected
+        step3.classList.add('disabled');
+        step3Content.style.display = 'none';
+        
+        step25.style.display = 'block';
+        
+        // Scroll to Step 2.5
+        setTimeout(() => {
+            const offset = step25.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+        }, 100);
+    } else {
+        wizardTimeSlot = 'N/A';
+        step25.style.display = 'none';
+        
+        // Reveal Step 3
+        step3.classList.remove('disabled');
+        step3Content.style.display = 'block';
+        
+        // Fetch live seat data then render
+        fetchRoomSeats(wizardRoom).then(() => renderWizardSeats());
+        
+        // Scroll to Step 3
+        setTimeout(() => {
+            const offset = step3.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+        }, 100);
+    }
+}
+
+window.wizardSelectTimeSlot = function(slot) {
+    wizardTimeSlot = slot;
+    
+    // Highlight selected
+    document.querySelectorAll('.timeslot-btn').forEach(btn => {
+        if (btn.querySelector('.duration-time').textContent === slot) btn.classList.add('selected');
+        else btn.classList.remove('selected');
+    });
+
     // Reveal Step 3
     step3.classList.remove('disabled');
     step3Content.style.display = 'block';
@@ -381,6 +427,10 @@ function updateWizardSummary() {
 // ─── Confirm Booking → Save to Firestore ────────────
 window.wizardConfirmBooking = async function() {
     if (!wizardRoom || !wizardDuration || !wizardSeatId) return;
+    if (wizardDuration === '5 Hours' && !wizardTimeSlot) {
+        alert('Please select a time slot.');
+        return;
+    }
     
     const [room, seat] = wizardSeatId.split('-');
     
@@ -402,11 +452,12 @@ window.wizardConfirmBooking = async function() {
             phone: userPhone.trim(),
             roomSelected: wizardRoom,
             shiftDuration: wizardDuration,
+            selectedShiftTime: wizardTimeSlot || 'N/A',
             seatNumber: seat,
             date: Timestamp.now()
         });
 
-        alert(`✅ Booking Confirmed!\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n\nThank you, ${userName.trim()}!`);
+        alert(`✅ Booking Confirmed!\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName.trim()}!`);
         
         // Mark seat as booked locally and re-render
         wizardSeatsData[wizardRoom][wizardSeatId] = 'booked';
