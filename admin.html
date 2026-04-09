@@ -1259,7 +1259,7 @@
                     <div class="stat-info">
                         <span class="stat-label">Seats Available</span>
                         <span class="stat-value" id="statAvailable">—</span>
-                        <span class="stat-sub">Out of 90 total</span>
+                        <span class="stat-sub" id="statAvailableTotal">Out of 90 total</span>
                     </div>
                 </div>
                 <div class="stat-card occupancy">
@@ -1383,6 +1383,7 @@
                         <input type="number" id="roomPrice5" class="room-input" placeholder="5 Hours Price (₹)" min="0">
                         <input type="number" id="roomPrice10" class="room-input" placeholder="10 Hours Price (₹)" min="0">
                         <input type="number" id="roomPriceFull" class="room-input" placeholder="Full Shift Price (₹)" min="0">
+                        <input type="number" id="roomSeats" class="room-input" placeholder="Total Seats (e.g. 30)" min="1">
                     </div>
                     <div class="room-form-group" style="margin-top: 12px;">
                         <textarea id="roomFeatures" class="room-input" placeholder="Features (comma-separated, e.g. AC, Personal Desk, Free WiFi, Locker)" rows="3" style="resize: vertical; width: 100%;"></textarea>
@@ -1548,6 +1549,8 @@
                 allRooms.push({ id: docSnap.id, ...docSnap.data() });
             });
             renderRoomsList(allRooms);
+            updateStatsCards(allBookings);
+            renderRoomMaps(allBookings);
         }, (error) => {
             console.error('Firestore rooms onSnapshot error:', error);
             showToast('Failed to fetch rooms.', 'error');
@@ -1556,10 +1559,13 @@
 
     // ─── UPDATE STATS CARDS ─────────────────────
     function updateStatsCards(bookings) {
+        const dynamicTotalSeats = allRooms.reduce((sum, room) => sum + (parseInt(room.totalSeats) || 30), 0);
+        const effectiveTotal = dynamicTotalSeats > 0 ? dynamicTotalSeats : TOTAL_SEATS;
+
         const totalBookings = bookings.length;
         const totalBooked = totalBookings;
-        const totalAvailable = Math.max(0, TOTAL_SEATS - totalBooked);
-        const occupancyPct = TOTAL_SEATS > 0 ? Math.round((totalBooked / TOTAL_SEATS) * 100) : 0;
+        const totalAvailable = Math.max(0, effectiveTotal - totalBooked);
+        const occupancyPct = effectiveTotal > 0 ? Math.round((totalBooked / effectiveTotal) * 100) : 0;
 
         // Count today's bookings
         const todayStart = new Date();
@@ -1576,6 +1582,9 @@
         document.getElementById('statToday').textContent = todaysBookings;
         document.getElementById('statAvailable').textContent = totalAvailable;
         document.getElementById('statOccupancy').textContent = occupancyPct + '%';
+        if (document.getElementById('statAvailableTotal')) {
+            document.getElementById('statAvailableTotal').textContent = `Out of ${effectiveTotal} total`;
+        }
 
         // Today's date label
         document.getElementById('statTodayDate').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -1585,50 +1594,57 @@
     function renderRoomMaps(bookings) {
         const grid = document.getElementById('roomMapGrid');
 
-        const roomNames = {
-            1: { name: 'Room 1', tag: 'Quiet Zone', icon: '🤫' },
-            2: { name: 'Room 2', tag: 'Discussion', icon: '💬' },
-            3: { name: 'Room 3', tag: 'VIP Lockers', icon: '🔐' },
-        };
+        if (allRooms.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><p>No rooms available.</p></div>';
+            return;
+        }
 
         // Build a set of booked seat IDs per room
-        const bookedSeats = { 1: new Set(), 2: new Set(), 3: new Set() };
+        const bookedSeats = {};
         bookings.forEach(b => {
             const roomId = b.roomSelected;
-            if (bookedSeats[roomId]) {
-                bookedSeats[roomId].add(b.seatNumber);
-            }
+            if (!bookedSeats[roomId]) bookedSeats[roomId] = new Set();
+            bookedSeats[roomId].add(b.seatNumber);
         });
 
         let html = '';
 
-        for (let roomId = 1; roomId <= 3; roomId++) {
-            const info = roomNames[roomId];
-            const booked = bookedSeats[roomId].size;
-            const total = 30;
-            const available = total - booked;
-            const pct = Math.round((booked / total) * 100);
+        allRooms.forEach((room) => {
+            const roomId = room.id;
+            const roomName = escapeHtml(room.name);
+            const roomTag = escapeHtml(room.tagline || 'Room');
+            const total = parseInt(room.totalSeats) || 30;
+            const bookedSet = bookedSeats[roomId] || new Set();
+            
+            // Legacy data support matching rooms by names like "1", "2"
+            const matchedBookings = bookedSeats[room.name.replace('Room ', '')] || new Set();
+            const booked = bookedSet.size + matchedBookings.size;
+
+            const mergedBookedSet = new Set([...bookedSet, ...matchedBookings]);
+
+            const available = Math.max(0, total - booked);
+            const pct = total > 0 ? Math.round((booked / total) * 100) : 0;
             let progressClass = '';
             if (pct > 75) progressClass = 'high';
             else if (pct > 40) progressClass = 'mid';
 
-            // Build mini seat grid (3 cols × 10 rows = 30 seats)
+            // Build mini seat grid dynamically based on total capacity
             let seatHtml = '';
-            for (let col = 1; col <= 3; col++) {
-                for (let row = 1; row <= 10; row++) {
-                    const letter = String.fromCharCode(64 + row);
-                    const label = `${letter}${col}`;
-                    const status = bookedSeats[roomId].has(label) ? 'booked' : 'available';
-                    seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
-                }
+            for (let i = 0; i < total; i++) {
+                let col = Math.floor(i / 10) + 1;
+                let row = (i % 10) + 1;
+                const letter = String.fromCharCode(64 + row);
+                const label = `${letter}${col}`;
+                const status = mergedBookedSet.has(label) ? 'booked' : 'available';
+                seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
             }
 
             html += `
             <div class="room-map-card">
                 <div class="room-map-header">
                     <div class="room-map-name">
-                        ${info.icon} ${info.name}
-                        <span class="room-tag">${info.tag}</span>
+                        🚪 ${roomName}
+                        <span class="room-tag">${roomTag}</span>
                     </div>
                     <div class="room-map-stats">
                         <span class="avail">✓ ${available} free</span>
@@ -1646,7 +1662,7 @@
                 </div>
                 <div class="mini-seat-grid">${seatHtml}</div>
             </div>`;
-        }
+        });
 
         grid.innerHTML = html;
     }
@@ -1672,12 +1688,18 @@
             const dateStr = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
             const timeStr = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
+            let displayRoom = `Room ${b.roomSelected}`;
+            const matchedRoom = allRooms.find(r => r.id === b.roomSelected || r.id === String(b.roomSelected));
+            if (matchedRoom) {
+                displayRoom = escapeHtml(matchedRoom.name);
+            }
+
             html += `
             <tr>
                 <td style="color:var(--text-muted);font-weight:600;">${idx + 1}</td>
                 <td class="cell-name">${escapeHtml(b.name)}</td>
                 <td class="cell-phone">${escapeHtml(b.phone)}</td>
-                <td><span class="cell-room">🚪 Room ${b.roomSelected}</span></td>
+                <td><span class="cell-room">🚪 ${displayRoom}</span></td>
                 <td class="cell-seat">${escapeHtml(b.seatNumber)}</td>
                 <td class="cell-shift">${escapeHtml(b.shiftDuration)}</td>
                 <td class="cell-date">${dateStr}<br>${timeStr}</td>
@@ -1698,6 +1720,7 @@
         const rPrice5 = parseInt(document.getElementById('roomPrice5').value) || 0;
         const rPrice10 = parseInt(document.getElementById('roomPrice10').value) || 0;
         const rPriceFull = parseInt(document.getElementById('roomPriceFull').value) || 0;
+        const rSeats = parseInt(document.getElementById('roomSeats').value) || 30;
         const rFeatures = document.getElementById('roomFeatures').value.trim();
         const btn = document.getElementById('submitRoomBtn');
 
@@ -1719,6 +1742,7 @@
                 price5: rPrice5,
                 price10: rPrice10,
                 priceFull: rPriceFull,
+                totalSeats: rSeats,
                 features: featuresArray,
                 createdAt: new Date()
             });
@@ -1746,6 +1770,17 @@
 
     function renderRoomsList(rooms) {
         const container = document.getElementById('roomsListContainer');
+        const offlineRoomSelect = document.getElementById('offlineRoom');
+        
+        // Update Add Student Dropdown
+        if (offlineRoomSelect) {
+            let optionsHtml = '<option value="" disabled selected>Select Room</option>';
+            rooms.forEach(room => {
+                optionsHtml += `<option value="${room.id}">${escapeHtml(room.name)}</option>`;
+            });
+            offlineRoomSelect.innerHTML = optionsHtml;
+        }
+
         if (rooms.length === 0) {
             container.innerHTML = `<div class="empty-state"><p>No custom rooms added yet.</p></div>`;
             return;
@@ -1856,12 +1891,18 @@
             const statusLabel = isToday ? '⏰ Expires Today' : '🔴 Expired';
             const expiryStr = expiry.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
+            let displayRoom = `Room ${b.roomSelected}`;
+            const matchedRoom = allRooms.find(r => r.id === b.roomSelected || r.id === String(b.roomSelected));
+            if (matchedRoom) {
+                displayRoom = escapeHtml(matchedRoom.name);
+            }
+
             alertHtml += `
             <div class="alert-card">
                 <div class="alert-card-info">
                     <div class="alert-card-name">${escapeHtml(b.name)}</div>
                     <div class="alert-card-details">
-                        <span>🚪 Room ${b.roomSelected}</span>
+                        <span>🚪 ${displayRoom}</span>
                         <span>💺 Seat ${escapeHtml(b.seatNumber)}</span>
                         <span>📞 ${escapeHtml(b.phone)}</span>
                         <span>📅 ${expiryStr}</span>
@@ -1893,7 +1934,8 @@
 
         const name = document.getElementById('offlineName').value.trim();
         const phone = document.getElementById('offlinePhone').value.trim();
-        const room = parseInt(document.getElementById('offlineRoom').value);
+        const roomVal = document.getElementById('offlineRoom').value;
+        const room = isNaN(parseInt(roomVal)) ? roomVal : parseInt(roomVal);
         const seat = document.getElementById('offlineSeat').value.trim();
         const joiningStr = document.getElementById('offlineJoining').value;
         const expiryStr = document.getElementById('offlineExpiry').value;
