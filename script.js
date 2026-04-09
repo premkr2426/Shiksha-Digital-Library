@@ -36,7 +36,7 @@ const bookingsRef = collection(db, 'bookings');
 const roomsRef = collection(db, 'rooms');
 
 // ─── CONSTANTS ──────────────────────────────────────
-const TOTAL_SEATS = 90; // 3 rooms × 30 seats each
+const TOTAL_SEATS = 90; // Default fallback
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -124,11 +124,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const seatCountEl = document.getElementById('seatCount');
 
     if (seatCountEl) {
+        let currentBookingsCount = 0;
+
+        window.updateFrontendSeatCount = function() {
+            let totalSeats = 0;
+            if (window.allDynamicRooms && window.allDynamicRooms.length > 0) {
+                window.allDynamicRooms.forEach(r => totalSeats += (r.totalSeats || 30));
+            } else {
+                totalSeats = TOTAL_SEATS; // Default
+            }
+            const availableSeats = Math.max(0, totalSeats - currentBookingsCount);
+            if (seatCountEl) {
+                seatCountEl.textContent = availableSeats;
+                seatCountEl.removeAttribute('style');
+            }
+        };
+
         onSnapshot(bookingsRef, (snapshot) => {
-            const totalBooked = snapshot.size;
-            const availableSeats = Math.max(0, TOTAL_SEATS - totalBooked);
-            seatCountEl.textContent = availableSeats;
-            seatCountEl.removeAttribute('style'); // Clear loading state inline CSS
+            currentBookingsCount = snapshot.size;
+            window.updateFrontendSeatCount();
         }, (error) => {
             console.error('Failed to listen to seat count:', error);
             seatCountEl.textContent = '—';
@@ -223,28 +237,27 @@ const summaryDuration = document.getElementById('summaryDuration');
 const summarySeat = document.getElementById('summarySeat');
 const wizardConfirmBtn = document.getElementById('wizardConfirmBtn');
 
-// Data structure to hold seat states: 3 rooms, 30 seats each
+// Data structure to hold seat states
 const wizardSeatsData = {};
-for (let r = 1; r <= 3; r++) {
-    wizardSeatsData[r] = {};
-    for (let c = 1; c <= 3; c++) {
-        for (let s = 1; s <= 10; s++) {
-            const rowLetter = String.fromCharCode(64 + s);
-            const seatId = `${r}-${rowLetter}${c}`;
-            wizardSeatsData[r][seatId] = 'available';
-        }
-    }
-}
 
 // ─── Fetch booked seats for a room from Firestore ───
 async function fetchRoomSeats(roomId) {
     try {
+        const room = window.allDynamicRooms.find(r => r.id === roomId);
+        const total = room && room.totalSeats ? room.totalSeats : 30;
+        const rowsPerCol = Math.ceil(total / 3);
+
+        wizardSeatsData[roomId] = {};
+        
         // Reset all seats to available first
+        let seatCount = 0;
         for (let c = 1; c <= 3; c++) {
-            for (let s = 1; s <= 10; s++) {
+            for (let s = 1; s <= rowsPerCol; s++) {
+                if (seatCount >= total) break;
                 const rowLetter = String.fromCharCode(64 + s);
                 const seatId = `${roomId}-${rowLetter}${c}`;
                 wizardSeatsData[roomId][seatId] = 'available';
+                seatCount++;
             }
         }
 
@@ -399,14 +412,21 @@ window.wizardSelectTimeSlot = function (slot) {
 function renderWizardSeats() {
     wizardSeatGrid.innerHTML = '';
 
+    const room = window.allDynamicRooms.find(r => r.id === wizardRoom);
+    const total = room && room.totalSeats ? room.totalSeats : 30;
+    const rowsPerCol = Math.ceil(total / 3);
+
+    let seatCount = 0;
     for (let c = 1; c <= 3; c++) {
         const colDiv = document.createElement('div');
         colDiv.className = 'seat-column';
 
-        for (let s = 1; s <= 10; s++) {
+        for (let s = 1; s <= rowsPerCol; s++) {
+            if (seatCount >= total) break;
             const rowLetter = String.fromCharCode(64 + s);
             const seatId = `${wizardRoom}-${rowLetter}${c}`;
             const status = wizardSeatsData[wizardRoom][seatId];
+            if (!status) { seatCount++; continue; } 
             const displayId = `${rowLetter}${c}`;
 
             const seatDiv = document.createElement('div');
@@ -420,6 +440,7 @@ function renderWizardSeats() {
                 seatDiv.addEventListener('click', () => handleWizardSeatClick(seatId));
             }
             colDiv.appendChild(seatDiv);
+            seatCount++;
         }
         wizardSeatGrid.appendChild(colDiv);
     }
@@ -565,6 +586,9 @@ onSnapshot(roomsRef, (snapshot) => {
     if (wizardDynamicRooms) {
         wizardDynamicRooms.innerHTML = wizardRoomsHtml;
     }
+    
+    // Update live seat count grand total when rooms change
+    if (window.updateFrontendSeatCount) window.updateFrontendSeatCount();
 });
 
 // Open Room Details Modal
