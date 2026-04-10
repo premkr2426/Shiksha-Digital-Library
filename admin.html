@@ -1710,6 +1710,17 @@
         const targetElement = document.getElementById(`view-${targetView}`);
         if (targetElement) targetElement.classList.add('active');
 
+        // Auto-load first room in explorer if none selected
+        if (targetView === 'explorer') {
+            const select = document.getElementById('exploreRoomSelect');
+            if (select && !select.value && typeof allRooms !== 'undefined' && allRooms.length > 0) {
+                select.value = allRooms[0].name;
+                if (typeof renderExplorerSeatMap === 'function') {
+                    renderExplorerSeatMap();
+                }
+            }
+        }
+
         // Close sidebar on mobile
         if (window.innerWidth <= 768) {
             const sidebar = document.getElementById('leftSidebar');
@@ -1927,14 +1938,14 @@
     function renderExplorerSeatMap() {
         const container = document.getElementById('exploreSeatMapContainer');
         const select = document.getElementById('exploreRoomSelect');
-        const roomId = select ? select.value : '';
+        const selectedVal = select ? select.value : '';
 
-        if (!roomId || !allRooms || allRooms.length === 0) {
+        if (!selectedVal || !allRooms || allRooms.length === 0) {
             if (container) container.innerHTML = `<div class="empty-state"><p>Select a room to view its seat map.</p></div>`;
             return;
         }
 
-        const room = allRooms.find(r => r.id === roomId);
+        const room = allRooms.find(r => r.name === selectedVal || r.id === selectedVal);
         if (!room) {
             container.innerHTML = `<div class="empty-state"><p>Room not found.</p></div>`;
             return;
@@ -2127,7 +2138,8 @@
         
         let optionsHtml = '<option value="" disabled selected>Select Room</option>';
         rooms.forEach((room) => {
-            optionsHtml += `<option value="${escapeHtml(room.name)}">${escapeHtml(room.name)}</option>`;
+            const val = room.name ? room.name.replace(/"/g, '&quot;') : room.id;
+            optionsHtml += `<option value="${val}">${escapeHtml(room.name)}</option>`;
         });
 
         if (offlineRoomSelect) offlineRoomSelect.innerHTML = optionsHtml;
