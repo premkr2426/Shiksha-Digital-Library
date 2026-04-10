@@ -1643,9 +1643,14 @@
 
     // ─── MODAL LOGIC ────────────────────────────
     function openStudentModal(roomId, seatStr) {
-        roomId = String(roomId);
-        seatStr = String(seatStr);
-        const b = allBookings.find(bo => String(bo.roomSelected) === roomId && String(bo.seatNumber) === seatStr);
+        roomId = String(roomId).trim();
+        const seatNum = parseInt(seatStr);
+        const b = allBookings.find(bo => {
+            const bRoom = String(bo.roomSelected).trim();
+            const bRoomLegacy = bRoom.replace('Room ', '').trim();
+            const matchRoom = (bRoom === roomId) || (bRoom === String(allRooms.find(r=>r.name===roomId)?.id)) || (bRoomLegacy === roomId.replace('Room ', '').trim());
+            return matchRoom && parseInt(bo.seatNumber) === seatNum;
+        });
         if (!b) {
             showToast('Student details not found.', 'error');
             return;
@@ -1654,8 +1659,9 @@
         document.getElementById('sdName').textContent = b.name || 'N/A';
         document.getElementById('sdPhone').textContent = b.phone || 'N/A';
         
-        let displayRoom = `Room ${roomId}`;
-        const matchedRoom = allRooms.find(r => r.id === roomId);
+        let displayRoom = roomId;
+        if (roomId.match(/^\d+$/)) displayRoom = `Room ${roomId}`;
+        const matchedRoom = allRooms.find(r => r.id === roomId || r.name === roomId);
         if (matchedRoom) displayRoom = matchedRoom.name;
 
         document.getElementById('sdRoom').textContent = displayRoom;
@@ -1839,12 +1845,12 @@
             return;
         }
 
-        // Build a set of booked seat IDs per room
+        // Build a set of booked seat IDs per room (using parseInt for seats)
         const bookedSeats = {};
         bookings.forEach(b => {
-            const roomId = b.roomSelected;
-            if (!bookedSeats[roomId]) bookedSeats[roomId] = new Set();
-            bookedSeats[roomId].add(b.seatNumber);
+            const roomIdStr = b.roomSelected ? String(b.roomSelected).trim() : '';
+            if (!bookedSeats[roomIdStr]) bookedSeats[roomIdStr] = new Set();
+            if (b.seatNumber) bookedSeats[roomIdStr].add(parseInt(b.seatNumber));
         });
 
         let html = '';
@@ -1854,15 +1860,17 @@
             const roomName = escapeHtml(room.name);
             const roomTag = escapeHtml(room.tagline || 'Room');
             const total = parseInt(room.totalSeats) || 30;
-            const bookedSet = bookedSeats[roomId] || new Set();
             
-            // Legacy data support matching rooms by names like "1", "2"
-            const matchedBookings = bookedSeats[room.name.replace('Room ', '')] || new Set();
-            const booked = bookedSet.size + matchedBookings.size;
+            const bookedSet = bookedSeats[room.name] || new Set();
+            const legacyIdMatch = bookedSeats[roomId] || new Set();
+            const legacyNumMatch = bookedSeats[room.name.replace('Room ', '').trim()] || new Set();
+            
+            const Math_max = Math.max;
+            const mergedBookedSet = new Set([...bookedSet, ...legacyIdMatch, ...legacyNumMatch]);
 
-            const mergedBookedSet = new Set([...bookedSet, ...matchedBookings]);
+            const booked = mergedBookedSet.size;
 
-            const available = Math.max(0, total - booked);
+            const available = Math_max(0, total - booked);
             const pct = total > 0 ? Math.round((booked / total) * 100) : 0;
             let progressClass = '';
             if (pct > 75) progressClass = 'high';
@@ -1875,10 +1883,10 @@
             for (let i = 0; i < total; i++) {
                 const seatNum = startSeat + i;
                 const label = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
-                const status = mergedBookedSet.has(label) ? 'booked' : 'available';
+                const status = mergedBookedSet.has(seatNum) ? 'booked' : 'available';
                 
                 if (status === 'booked') {
-                    seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="openStudentModal('${room.id}', '${label}')">${label}</div>`;
+                    seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="openStudentModal('${room.name}', '${seatNum}')">${label}</div>`;
                 } else {
                     seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
                 }
@@ -1936,17 +1944,21 @@
         const startSeat = parseInt(room.startSeatNumber) || 1;
         
         // Find bookings for this room
-        const roomBookings = allBookings.filter(b => String(b.roomSelected) === String(roomId));
-        const bookedSet = new Set(roomBookings.map(b => String(b.seatNumber)));
+        const roomBookings = allBookings.filter(b => {
+            const bRoom = String(b.roomSelected).trim();
+            const bRoomLegacy = bRoom.replace('Room ', '').trim();
+            return bRoom === room.name || bRoom === room.id || bRoomLegacy === room.name.replace('Room ', '').trim();
+        });
+        const bookedSet = new Set(roomBookings.map(b => parseInt(b.seatNumber)));
 
         let seatHtml = '';
         for (let i = 0; i < total; i++) {
             const seatNum = startSeat + i;
             const label = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
-            const status = bookedSet.has(label) ? 'booked' : 'available';
+            const status = bookedSet.has(seatNum) ? 'booked' : 'available';
 
             if (status === 'booked') {
-                seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="openStudentModal('${room.id}', '${label}')">${label}</div>`;
+                seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="openStudentModal('${room.name}', '${seatNum}')">${label}</div>`;
             } else {
                 seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
             }
@@ -2115,7 +2127,7 @@
         
         let optionsHtml = '<option value="" disabled selected>Select Room</option>';
         rooms.forEach((room) => {
-            optionsHtml += `<option value="${room.id}">${escapeHtml(room.name)}</option>`;
+            optionsHtml += `<option value="${escapeHtml(room.name)}">${escapeHtml(room.name)}</option>`;
         });
 
         if (offlineRoomSelect) offlineRoomSelect.innerHTML = optionsHtml;
@@ -2284,16 +2296,26 @@
 
         const name = document.getElementById('offlineName').value.trim();
         const phone = document.getElementById('offlinePhone').value.trim();
-        const roomVal = document.getElementById('offlineRoom').value;
-        const room = isNaN(parseInt(roomVal)) ? roomVal : parseInt(roomVal);
+        const roomName = document.getElementById('offlineRoom').value.trim();
         const plan = document.getElementById('offlinePlan').value;
-        const seat = document.getElementById('offlineSeat').value.trim();
+        const seatStr = document.getElementById('offlineSeat').value.trim();
+        const seat = parseInt(seatStr.replace(/\D/g, '')); // extract numeric part safely
         const joiningStr = document.getElementById('offlineJoining').value;
         const expiryStr = document.getElementById('offlineExpiry').value;
 
-        if (!name || !phone || !room || !plan || !seat || !joiningStr || !expiryStr) {
-            showToast('Please fill in all fields.', 'error');
+        if (!name || !phone || !roomName || !plan || isNaN(seat) || !joiningStr || !expiryStr) {
+            showToast('Please fill in all fields correctly.', 'error');
             return;
+        }
+
+        const matchedRoom = allRooms.find(r => r.name === roomName);
+        if (matchedRoom) {
+            const start = parseInt(matchedRoom.startSeatNumber) || 1;
+            const total = parseInt(matchedRoom.totalSeats) || 30;
+            if (seat < start || seat >= start + total) {
+                showToast(`Seat ${seat} does not exist in ${roomName}. (Valid: ${start} to ${start + total - 1})`, 'error');
+                return;
+            }
         }
 
         const btn = document.getElementById('offlineSubmitBtn');
@@ -2304,8 +2326,8 @@
             await addDoc(bookingsRef, {
                 name: name,
                 phone: phone,
-                roomSelected: room,
-                seatNumber: seat,
+                roomSelected: roomName,
+                seatNumber: String(seat),
                 date: Timestamp.fromDate(new Date(joiningStr)),
                 expiryDate: Timestamp.fromDate(new Date(expiryStr)),
                 shiftDuration: plan,
