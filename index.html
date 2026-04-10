@@ -447,22 +447,20 @@
                                 <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Phone Number</label>
                                 <input type="tel" id="wizardPhone" placeholder="e.g. 9876543210" style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
                             </div>
+                            <!-- Wizard Action Section -->
+                            <div class="wizard-action-section hidden" id="wizardActionSection" style="display: none; width: 100%; margin-top: 24px; padding: 20px; box-sizing: border-box;">
+                                <div class="wizard-summary" style="gap: 16px; flex-direction: column; font-size: 1rem;">
+                                    <div class="summary-item"><strong>Room:</strong> <span id="summaryRoom">—</span></div>
+                                    <div class="summary-item"><strong>Duration:</strong> <span id="summaryDuration">—</span></div>
+                                    <div class="summary-item"><strong>Seat:</strong> <span id="summarySeat">—</span></div>
+                                </div>
+                                <button class="btn btn-primary btn-lg" id="wizardConfirmBtn" style="width: 100%; margin-top: 16px;">
+                                    Submit Booking <span class="btn-arrow">→</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-            <!-- Wizard Action Section -->
-            <div class="wizard-action-section hidden" id="wizardActionSection" style="display: none;">
-                <div class="wizard-summary">
-                    <div class="summary-item"><strong>Room:</strong> <span id="summaryRoom">—</span></div>
-                    <div class="summary-item"><strong>Duration:</strong> <span id="summaryDuration">—</span></div>
-                    <div class="summary-item"><strong>Seat:</strong> <span id="summarySeat">—</span></div>
-                </div>
-                <button class="btn btn-primary btn-lg" id="wizardConfirmBtn">
-                    Submit Booking <span class="btn-arrow">→</span>
-                </button>
-            </div>
         </div>
     </div>
 
