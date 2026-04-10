@@ -1325,6 +1325,7 @@
                 <li><button onclick="switchView('dashboard')" class="nav-btn active" data-target="dashboard">📊 Dashboard</button></li>
                 <li><button onclick="switchView('rooms')" class="nav-btn" data-target="rooms">🚪 Manage Rooms</button></li>
                 <li><button onclick="switchView('students')" class="nav-btn" data-target="students">👥 All Students</button></li>
+                <li><button onclick="switchView('explorer')" class="nav-btn" data-target="explorer">🗺️ Seat Map & Profiles</button></li>
                 <li><button onclick="switchView('bookings')" class="nav-btn" data-target="bookings">📒 Recent Bookings</button></li>
             </ul>
         </aside>
@@ -1526,6 +1527,22 @@
             </div>
             </div> <!-- End Rooms View -->
 
+            <!-- 5. Student Explorer View -->
+            <div id="view-explorer" class="view-section">
+                <div class="section-card">
+                    <div class="section-title">🗺️ Student Explorer</div>
+                    <div style="margin-bottom: 24px;">
+                        <label for="exploreRoomSelect" style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-secondary);">Select a Room</label>
+                        <select id="exploreRoomSelect" class="room-input" style="max-width: 300px; cursor: pointer;" onchange="renderExplorerSeatMap()">
+                            <option value="" disabled selected>Select Room to Explore</option>
+                        </select>
+                    </div>
+                    <div id="exploreSeatMapContainer" class="room-map-grid" style="grid-template-columns: 1fr;">
+                        <div class="empty-state"><p>Select a room to view its seat map.</p></div>
+                    </div>
+                </div>
+            </div> <!-- End Explorer View -->
+
         </div>
     </div>
 
@@ -1622,6 +1639,7 @@
     window.toggleSidebar = toggleSidebar;
     window.openStudentModal = openStudentModal;
     window.closeStudentModal = closeStudentModal;
+    window.renderExplorerSeatMap = renderExplorerSeatMap;
 
     // ─── MODAL LOGIC ────────────────────────────
     function openStudentModal(roomId, seatStr) {
@@ -1892,6 +1910,61 @@
         });
 
         grid.innerHTML = html;
+        
+        // Also update explorer map if active
+        renderExplorerSeatMap();
+    }
+
+    // ─── STUDENT EXPLORER LOGIC ─────────────────
+    function renderExplorerSeatMap() {
+        const container = document.getElementById('exploreSeatMapContainer');
+        const select = document.getElementById('exploreRoomSelect');
+        const roomId = select ? select.value : '';
+
+        if (!roomId || !allRooms || allRooms.length === 0) {
+            if (container) container.innerHTML = `<div class="empty-state"><p>Select a room to view its seat map.</p></div>`;
+            return;
+        }
+
+        const room = allRooms.find(r => r.id === roomId);
+        if (!room) {
+            container.innerHTML = `<div class="empty-state"><p>Room not found.</p></div>`;
+            return;
+        }
+
+        const total = parseInt(room.totalSeats) || 30;
+        const startSeat = parseInt(room.startSeatNumber) || 1;
+        
+        // Find bookings for this room
+        const roomBookings = allBookings.filter(b => String(b.roomSelected) === String(roomId));
+        const bookedSet = new Set(roomBookings.map(b => String(b.seatNumber)));
+
+        let seatHtml = '';
+        for (let i = 0; i < total; i++) {
+            const seatNum = startSeat + i;
+            const label = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
+            const status = bookedSet.has(label) ? 'booked' : 'available';
+
+            if (status === 'booked') {
+                seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="openStudentModal('${room.id}', '${label}')">${label}</div>`;
+            } else {
+                seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
+            }
+        }
+
+        container.innerHTML = `
+        <div class="room-map-card" style="box-shadow: none; border: 1px solid var(--border-color);">
+            <div class="room-map-header">
+                <div class="room-map-name">
+                    🚪 ${escapeHtml(room.name)} Explorer
+                </div>
+            </div>
+            <div class="mini-seat-grid">${seatHtml}</div>
+            <div class="seat-map-legend" style="margin-top: 20px;">
+                <div class="legend-item"><span class="legend-dot avail-dot"></span> Available</div>
+                <div class="legend-item"><span class="legend-dot booked-dot"></span> Booked</div>
+            </div>
+        </div>`;
     }
 
     // ─── RENDER BOOKINGS TABLE ──────────────────
@@ -2038,14 +2111,21 @@
     function renderRoomsList(rooms) {
         const container = document.getElementById('roomsListContainer');
         const offlineRoomSelect = document.getElementById('offlineRoom');
+        const exploreRoomSelect = document.getElementById('exploreRoomSelect');
         
-        // Update Add Student Dropdown
-        if (offlineRoomSelect) {
-            let optionsHtml = '<option value="" disabled selected>Select Room</option>';
-            rooms.forEach(room => {
-                optionsHtml += `<option value="${room.id}">${escapeHtml(room.name)}</option>`;
-            });
-            offlineRoomSelect.innerHTML = optionsHtml;
+        let optionsHtml = '<option value="" disabled selected>Select Room</option>';
+        rooms.forEach((room) => {
+            optionsHtml += `<option value="${room.id}">${escapeHtml(room.name)}</option>`;
+        });
+
+        if (offlineRoomSelect) offlineRoomSelect.innerHTML = optionsHtml;
+        if (exploreRoomSelect) {
+            // retain selection if one is already made
+            const currentVal = exploreRoomSelect.value;
+            exploreRoomSelect.innerHTML = optionsHtml;
+            if (currentVal && rooms.some(r => r.id === currentVal)) {
+                exploreRoomSelect.value = currentVal;
+            }
         }
 
         if (rooms.length === 0) {
