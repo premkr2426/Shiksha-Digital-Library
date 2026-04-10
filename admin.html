@@ -1258,6 +1258,117 @@
             transform: none;
         }
 
+        /* ─── FULL PAGE PROFILE VIEW ──────────────────────── */
+        .profile-header-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: white;
+            font-weight: bold;
+        }
+        .profile-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+        .profile-info p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        .profile-tabs {
+            display: flex;
+            gap: 30px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .profile-tab {
+            padding: 12px 6px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .profile-tab:hover {
+            color: var(--text-primary);
+        }
+        .profile-tab.active {
+            color: var(--text-primary);
+        }
+        .profile-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px 3px 0 0;
+        }
+        .profile-tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .profile-tab-panel.active {
+            display: block;
+        }
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .profile-field {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .profile-field-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .profile-field-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .btn-view-profile {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+        .btn-view-profile:hover {
+            background: var(--accent);
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .alert-card {
                 flex-direction: column;
@@ -1543,23 +1654,69 @@
                 </div>
             </div> <!-- End Explorer View -->
 
-        </div>
-    </div>
+        <!-- 6. Student Profile View -->
+        <div id="view-profile" class="view-section">
+            <div class="profile-header-card">
+                <div class="profile-avatar" id="profileInitials">ST</div>
+                <div class="profile-info">
+                    <h2 id="pfHeaderName">-</h2>
+                    <p>📞 <span id="pfHeaderPhone">-</span></p>
+                </div>
+            </div>
 
-    <!-- Student Details Modal -->
-    <div class="modal-overlay" id="studentDetailsModal" style="display: none; align-items:center; justify-content:center;">
-        <div class="modal-content" style="max-width: 400px; text-align: left; padding: 24px; position:relative;">
-            <button class="modal-close" onclick="closeStudentModal()">✖</button>
-            <h3 style="margin-bottom: 20px; font-weight:700;">👤 Student Details</h3>
-            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Name:</strong> <span id="sdName" style="color:var(--text-primary);"></span></p>
-            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Phone:</strong> <span id="sdPhone" style="color:var(--text-primary);"></span></p>
-            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Room:</strong> <span id="sdRoom" style="color:var(--text-primary);"></span></p>
-            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Seat:</strong> <span id="sdSeat" style="color:var(--text-primary);"></span></p>
-            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Plan:</strong> <span id="sdPlan" style="color:var(--text-primary);"></span></p>
-            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Join Date:</strong> <span id="sdJoin" style="color:var(--text-primary);"></span></p>
-            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Expiry Date:</strong> <span id="sdExpiry" style="color:var(--text-primary);"></span></p>
-        </div>
-    </div>
+            <div class="profile-tabs">
+                <div class="profile-tab active" data-tab="overview" onclick="switchProfileTab('overview')">Overview</div>
+                <div class="profile-tab" data-tab="history" onclick="switchProfileTab('history')">Activity History</div>
+                <div class="profile-tab" data-tab="settings" onclick="switchProfileTab('settings')">Settings</div>
+            </div>
+
+            <div id="profileTab-overview" class="profile-tab-panel active">
+                <div class="profile-grid">
+                    <div class="profile-field">
+                        <div class="profile-field-label">Full Name</div>
+                        <div class="profile-field-value" id="pfName">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">Phone Number</div>
+                        <div class="profile-field-value" id="pfPhone">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">Room Allocated</div>
+                        <div class="profile-field-value" id="pfRoom">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">Seat Number</div>
+                        <div class="profile-field-value" id="pfSeat">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">Subscription Plan</div>
+                        <div class="profile-field-value" id="pfPlan">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">Join Date</div>
+                        <div class="profile-field-value" id="pfJoin">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">Expiry Date</div>
+                        <div class="profile-field-value" id="pfExpiry">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profileTab-history" class="profile-tab-panel">
+                <div class="empty-state">
+                    <p>No activity history logged yet.</p>
+                </div>
+            </div>
+
+            <div id="profileTab-settings" class="profile-tab-panel">
+                <div class="empty-state">
+                    <p>Advanced profile settings coming soon.</p>
+                </div>
+            </div>
+        </div> <!-- End Profile View -->
+
+    </div> </div>
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
@@ -1637,12 +1794,13 @@
     window.editRoom = editRoom;
     window.switchView = switchView;
     window.toggleSidebar = toggleSidebar;
-    window.openStudentModal = openStudentModal;
-    window.closeStudentModal = closeStudentModal;
+    window.viewStudentProfile = viewStudentProfile;
+    window.switchProfileTab = switchProfileTab;
+    window.findAndOpenProfile = findAndOpenProfile;
     window.renderExplorerSeatMap = renderExplorerSeatMap;
 
-    // ─── MODAL LOGIC ────────────────────────────
-    function openStudentModal(roomId, seatStr) {
+    // ─── PROFILE LOGIC ────────────────────────────
+    function findAndOpenProfile(roomId, seatStr) {
         roomId = String(roomId).trim();
         const seatNum = parseInt(seatStr);
         const b = allBookings.find(bo => {
@@ -1655,42 +1813,57 @@
             showToast('Student details not found.', 'error');
             return;
         }
+        viewStudentProfile(b.id);
+    }
 
-        document.getElementById('sdName').textContent = b.name || 'N/A';
-        document.getElementById('sdPhone').textContent = b.phone || 'N/A';
+    function viewStudentProfile(bookingId) {
+        const b = allBookings.find(bo => bo.id === bookingId);
+        if (!b) return;
         
-        let displayRoom = roomId;
-        if (roomId.match(/^\d+$/)) displayRoom = `Room ${roomId}`;
-        const matchedRoom = allRooms.find(r => r.id === roomId || r.name === roomId);
+        let displayRoom = b.roomSelected;
+        if (String(displayRoom).match(/^\d+$/)) displayRoom = `Room ${displayRoom}`;
+        const matchedRoom = allRooms.find(r => r.id === b.roomSelected || r.name === b.roomSelected);
         if (matchedRoom) displayRoom = matchedRoom.name;
 
-        document.getElementById('sdRoom').textContent = displayRoom;
-        document.getElementById('sdSeat').textContent = b.seatNumber || 'N/A';
-        document.getElementById('sdPlan').textContent = b.shiftDuration || 'Offline Entry';
+        const initials = b.name ? b.name.substring(0, 2).toUpperCase() : '??';
+        document.getElementById('profileInitials').textContent = initials;
+        document.getElementById('pfHeaderName').textContent = b.name || 'N/A';
+        document.getElementById('pfHeaderPhone').textContent = b.phone || 'N/A';
+
+        document.getElementById('pfName').textContent = b.name || 'N/A';
+        document.getElementById('pfPhone').textContent = b.phone || 'N/A';
+        document.getElementById('pfRoom').textContent = displayRoom;
+        document.getElementById('pfSeat').textContent = b.seatNumber || 'N/A';
+        document.getElementById('pfPlan').textContent = b.shiftDuration || 'Offline Entry';
 
         let joinStr = 'N/A';
         if (b.date) {
             const jd = b.date.toDate ? b.date.toDate() : new Date(b.date);
             joinStr = jd.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
         }
-        document.getElementById('sdJoin').textContent = joinStr;
+        document.getElementById('pfJoin').textContent = joinStr;
 
         let expStr = 'N/A';
         if (b.expiryDate) {
             const ed = b.expiryDate.toDate ? b.expiryDate.toDate() : new Date(b.expiryDate);
             expStr = ed.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
         }
-        document.getElementById('sdExpiry').textContent = expStr;
+        document.getElementById('pfExpiry').textContent = expStr;
 
-        const modal = document.getElementById('studentDetailsModal');
-        modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('active'), 10);
+        switchProfileTab('overview');
+        switchView('profile');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function closeStudentModal() {
-        const modal = document.getElementById('studentDetailsModal');
-        modal.classList.remove('active');
-        setTimeout(() => modal.style.display = 'none', 300);
+    function switchProfileTab(tabTarget) {
+        document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.profile-tab-panel').forEach(p => p.classList.remove('active'));
+        
+        const activeTab = document.querySelector(`.profile-tab[data-tab="${tabTarget}"]`);
+        if (activeTab) activeTab.classList.add('active');
+        
+        const activePanel = document.getElementById(`profileTab-${tabTarget}`);
+        if (activePanel) activePanel.classList.add('active');
     }
 
     // ─── SIDEBAR LOGIC ──────────────────────────
@@ -1897,7 +2070,7 @@
                 const status = mergedBookedSet.has(seatNum) ? 'booked' : 'available';
                 
                 if (status === 'booked') {
-                    seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="openStudentModal('${room.name}', '${seatNum}')">${label}</div>`;
+                    seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="findAndOpenProfile('${room.name}', '${seatNum}')">${label}</div>`;
                 } else {
                     seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
                 }
@@ -1969,7 +2142,7 @@
             const status = bookedSet.has(seatNum) ? 'booked' : 'available';
 
             if (status === 'booked') {
-                seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="openStudentModal('${room.name}', '${seatNum}')">${label}</div>`;
+                seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="findAndOpenProfile('${room.name}', '${seatNum}')">${label}</div>`;
             } else {
                 seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
             }
@@ -2026,7 +2199,12 @@
                 <td class="cell-seat">${escapeHtml(b.seatNumber)}</td>
                 <td class="cell-shift">${escapeHtml(b.shiftDuration)}</td>
                 <td class="cell-date">${dateStr}<br>${timeStr}</td>
-                <td><button class="cancel-btn" onclick="cancelBooking('${b.id}')">✗ Cancel</button></td>
+                <td>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-view-profile" onclick="viewStudentProfile('${b.id}')">👤 Profile</button>
+                        <button class="cancel-btn" onclick="cancelBooking('${b.id}')">✗ Cancel</button>
+                    </div>
+                </td>
             </tr>`;
         });
 
