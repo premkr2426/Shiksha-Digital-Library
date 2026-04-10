@@ -515,31 +515,53 @@ function updateWizardSummary() {
 }
 
 // ─── Confirm Booking → Save to Firestore ────────────
-window.wizardConfirmBooking = async function () {
+window.wizardConfirmBooking = function () {
     if (!wizardRoom || !wizardDuration || !wizardSeatId) return;
     if (wizardDuration === '5 Hours' && !wizardTimeSlot) {
         alert('Please select a time slot.');
         return;
     }
 
+    const step4 = document.getElementById('step4');
+    const step4Content = document.getElementById('step4Content');
+    const wizardNameInput = document.getElementById('wizardName');
+
+    if (step4) {
+        step4.classList.remove('disabled');
+        if (step4Content) step4Content.style.display = 'block';
+
+        const confirmBtn = document.getElementById('wizardConfirmBtn');
+        confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
+        confirmBtn.onclick = window.wizardSubmitBooking;
+
+        setTimeout(() => {
+            const offset = step4.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+            if (wizardNameInput) wizardNameInput.focus();
+        }, 100);
+    }
+};
+
+window.wizardSubmitBooking = async function () {
+    const userName = document.getElementById('wizardName').value.trim();
+    const userPhone = document.getElementById('wizardPhone').value.trim();
+    const userEmail = document.getElementById('wizardEmail').value.trim();
+
+    if (!userName || !userPhone) {
+        alert('Name and Phone Number are required!');
+        return;
+    }
+
     const [room, seat] = wizardSeatId.split('-');
-
-    // Prompt user for name and phone
-    const userName = prompt('Enter your full name:');
-    if (!userName || !userName.trim()) { alert('Name is required!'); return; }
-
-    const userPhone = prompt('Enter your phone number:');
-    if (!userPhone || !userPhone.trim()) { alert('Phone number is required!'); return; }
-
     const confirmBtn = document.getElementById('wizardConfirmBtn');
     confirmBtn.disabled = true;
     confirmBtn.innerHTML = 'Booking... ⏳';
 
     try {
-        // Save booking directly to Firestore 'bookings' collection
         await addDoc(bookingsRef, {
-            name: userName.trim(),
-            phone: userPhone.trim(),
+            name: userName,
+            phone: userPhone,
+            email: userEmail || '',
             roomSelected: wizardRoom,
             shiftDuration: wizardDuration,
             selectedShiftTime: wizardTimeSlot || 'N/A',
@@ -547,27 +569,25 @@ window.wizardConfirmBooking = async function () {
             date: Timestamp.now()
         });
 
-        alert(`✅ Booking Confirmed!\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName.trim()}!`);
+        alert(`✅ Booking Confirmed!\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName}!`);
 
-        // Mark seat as booked locally and re-render
         wizardSeatsData[wizardRoom][wizardSeatId] = 'booked';
         wizardSeatId = null;
         renderWizardSeats();
         updateWizardSummary();
 
-        // Refresh the live seat counter
         const seatCountEl = document.getElementById('seatCount');
         if (seatCountEl && window._fetchSeatCount) {
             const count = await window._fetchSeatCount();
             if (count !== null) seatCountEl.textContent = count;
         }
 
+        if (window.closeBookingModal) window.closeBookingModal();
     } catch (err) {
         console.error('Firestore booking error:', err);
         alert('❌ Failed to save booking. Please check your connection and try again.');
-    } finally {
         confirmBtn.disabled = false;
-        confirmBtn.innerHTML = 'Confirm Booking <span class="btn-arrow">→</span>';
+        confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
     }
 }
 
@@ -596,7 +616,14 @@ onSnapshot(roomsRef, (snapshot) => {
     snapshot.forEach(docSnap => {
         const room = { id: docSnap.id, ...docSnap.data() };
         window.allDynamicRooms.push(room);
+    });
 
+    window.allDynamicRooms.sort((a, b) => {
+        const getNo = (str) => { const m = (str||'').match(/\d+/); return m ? parseInt(m[0]) : 999; };
+        return getNo(a.name) - getNo(b.name);
+    });
+
+    window.allDynamicRooms.forEach(room => {
         const imgSrc = room.imageUrl || 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&q=80';
         const safeName = (room.name || '').replace(/</g, '&lt;');
         const safeTag = (room.tagline || '').replace(/</g, '&lt;');
@@ -780,13 +807,31 @@ function resetBookingWizard() {
     if (step25) step25.style.display = 'none';
     if (step3) step3.classList.add('disabled');
     if (step3Content) step3Content.style.display = 'none';
+    
+    const step4 = document.getElementById('step4');
+    const step4Content = document.getElementById('step4Content');
+    const wizardName = document.getElementById('wizardName');
+    const wizardPhone = document.getElementById('wizardPhone');
+    const wizardEmail = document.getElementById('wizardEmail');
+    const confirmBtn = document.getElementById('wizardConfirmBtn');
+    
+    if (step4) step4.classList.add('disabled');
+    if (step4Content) step4Content.style.display = 'none';
+    if (wizardName) wizardName.value = '';
+    if (wizardPhone) wizardPhone.value = '';
+    if (wizardEmail) wizardEmail.value = '';
+    
+    if (confirmBtn) {
+        confirmBtn.innerHTML = 'Confirm Booking <span class="btn-arrow">→</span>';
+        confirmBtn.onclick = wizardConfirmBooking;
+    }
+
     if (actionSec) {
         actionSec.classList.add('hidden');
         actionSec.style.display = 'none';
     }
 
     document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('selected'));
-    // Since duration buttons are now dynamic, we might query selector them similarly
     document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
     document.querySelectorAll('.timeslot-btn').forEach(b => b.classList.remove('selected'));
 

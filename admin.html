@@ -1552,6 +1552,11 @@
             snapshot.forEach(docSnap => {
                 allRooms.push({ id: docSnap.id, ...docSnap.data() });
             });
+
+            allRooms.sort((a, b) => {
+                const getNo = (str) => { const m = (str||'').match(/\d+/); return m ? parseInt(m[0]) : 999; };
+                return getNo(a.name) - getNo(b.name);
+            });
             renderRoomsList(allRooms);
             updateStatsCards(allBookings);
             renderRoomMaps(allBookings);
@@ -1634,11 +1639,11 @@
 
             // Build mini seat grid dynamically based on total capacity
             let seatHtml = '';
+            const startSeat = room.startSeatNumber ? parseInt(room.startSeatNumber) : 1;
+            
             for (let i = 0; i < total; i++) {
-                let col = Math.floor(i / 10) + 1;
-                let row = (i % 10) + 1;
-                const letter = String.fromCharCode(64 + row);
-                const label = `${letter}${col}`;
+                const seatNum = startSeat + i;
+                const label = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
                 const status = mergedBookedSet.has(label) ? 'booked' : 'available';
                 seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
             }
