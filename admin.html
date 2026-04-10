@@ -1384,6 +1384,7 @@
                         <input type="number" id="roomPrice10" class="room-input" placeholder="10 Hours Price (₹)" min="0">
                         <input type="number" id="roomPriceFull" class="room-input" placeholder="Full Shift Price (₹)" min="0">
                         <input type="number" id="roomSeats" class="room-input" placeholder="Total Seats (e.g. 30)" min="1">
+                        <input type="number" id="startSeatNumber" class="room-input" placeholder="Starting Seat Num (e.g. 1)" min="1">
                     </div>
                     <div class="room-form-group" style="margin-top: 12px;">
                         <textarea id="roomFeatures" class="room-input" placeholder="Features (comma-separated, e.g. AC, Personal Desk, Free WiFi, Locker)" rows="3" style="resize: vertical; width: 100%;"></textarea>
@@ -1418,6 +1419,7 @@
         onSnapshot,
         deleteDoc,
         addDoc,
+        updateDoc,
         doc,
         query,
         orderBy,
@@ -1449,6 +1451,7 @@
     let allRooms = [];
     let unsubscribeBookings = null;
     let unsubscribeRooms = null;
+    let editingRoomId = null;
 
     // ─── LOGIN ──────────────────────────────────
     const loginOverlay = document.getElementById('loginOverlay');
@@ -1475,6 +1478,7 @@
     window.handleAddRoom = handleAddRoom;
     window.handleOfflineStudent = handleOfflineStudent;
     window.deleteRoom = deleteRoom;
+    window.editRoom = editRoom;
 
     function attemptLogin() {
         const pwd = loginPassword.value.trim();
@@ -1721,40 +1725,80 @@
         const rPrice10 = parseInt(document.getElementById('roomPrice10').value) || 0;
         const rPriceFull = parseInt(document.getElementById('roomPriceFull').value) || 0;
         const rSeats = parseInt(document.getElementById('roomSeats').value) || 30;
+        const rStartSeat = parseInt(document.getElementById('startSeatNumber').value) || 1;
         const rFeatures = document.getElementById('roomFeatures').value.trim();
         const btn = document.getElementById('submitRoomBtn');
 
         if (!rName || !rTag || !rDesc) return;
         btn.disabled = true;
-        btn.textContent = 'Adding...';
 
-        // Split features by comma into an array
         const featuresArray = rFeatures
             ? rFeatures.split(',').map(f => f.trim()).filter(f => f.length > 0)
             : [];
 
         try {
-            await addDoc(roomsRef, {
-                name: rName,
-                tagline: rTag,
-                description: rDesc,
-                imageUrl: rImage || '',
-                price5: rPrice5,
-                price10: rPrice10,
-                priceFull: rPriceFull,
-                totalSeats: rSeats,
-                features: featuresArray,
-                createdAt: new Date()
-            });
-            showToast('Room added successfully!', 'success');
+            if (editingRoomId) {
+                btn.textContent = 'Updating...';
+                await updateDoc(doc(db, 'rooms', editingRoomId), {
+                    name: rName,
+                    tagline: rTag,
+                    description: rDesc,
+                    imageUrl: rImage || '',
+                    price5: rPrice5,
+                    price10: rPrice10,
+                    priceFull: rPriceFull,
+                    totalSeats: rSeats,
+                    startSeatNumber: rStartSeat,
+                    features: featuresArray
+                });
+                showToast('Room updated successfully!', 'success');
+                editingRoomId = null;
+            } else {
+                btn.textContent = 'Adding...';
+                await addDoc(roomsRef, {
+                    name: rName,
+                    tagline: rTag,
+                    description: rDesc,
+                    imageUrl: rImage || '',
+                    price5: rPrice5,
+                    price10: rPrice10,
+                    priceFull: rPriceFull,
+                    totalSeats: rSeats,
+                    startSeatNumber: rStartSeat,
+                    features: featuresArray,
+                    createdAt: new Date()
+                });
+                showToast('Room added successfully!', 'success');
+            }
             document.getElementById('addRoomForm').reset();
         } catch (err) {
-            console.error('Failed to add room:', err);
-            showToast('Failed to add room.', 'error');
+            console.error('Failed to save room:', err);
+            showToast('Failed to save room.', 'error');
         } finally {
             btn.disabled = false;
             btn.textContent = 'Add Room';
         }
+    }
+
+    function editRoom(id) {
+        const room = allRooms.find(r => r.id === id);
+        if (!room) return;
+        editingRoomId = id;
+        document.getElementById('roomName').value = room.name || '';
+        document.getElementById('roomTag').value = room.tagline || '';
+        document.getElementById('roomDesc').value = room.description || '';
+        document.getElementById('roomImage').value = room.imageUrl || '';
+        document.getElementById('roomPrice5').value = room.price5 || '';
+        document.getElementById('roomPrice10').value = room.price10 || '';
+        document.getElementById('roomPriceFull').value = room.priceFull || '';
+        document.getElementById('roomSeats').value = room.totalSeats || '';
+        document.getElementById('startSeatNumber').value = room.startSeatNumber || 1;
+        document.getElementById('roomFeatures').value = (room.features || []).join(', ');
+
+        const btn = document.getElementById('submitRoomBtn');
+        btn.textContent = 'Update Room';
+        
+        document.getElementById('addRoomForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     async function deleteRoom(id) {
@@ -1799,7 +1843,10 @@
                     <p class="room-list-desc">${escapeHtml(room.description)}</p>
                     <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">💰 ${priceInfo} &nbsp;|&nbsp; ✨ ${featList}</p>
                 </div>
-                <button class="cancel-btn" onclick="deleteRoom('${room.id}')">🗑️ Delete</button>
+                <div style="display:flex; gap: 8px;">
+                    <button class="btn-outline" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-sm); cursor: pointer;" onclick="editRoom('${room.id}')">✏️ Edit</button>
+                    <button class="cancel-btn" onclick="deleteRoom('${room.id}')">🗑️ Delete</button>
+                </div>
             </div>
             `;
         });

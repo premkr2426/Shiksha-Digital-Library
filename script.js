@@ -244,7 +244,8 @@ const wizardSeatsData = {};
 async function fetchRoomSeats(roomId) {
     try {
         const room = window.allDynamicRooms.find(r => r.id === roomId);
-        const total = room && room.totalSeats ? room.totalSeats : 30;
+        const total = room && room.totalSeats ? parseInt(room.totalSeats) : 30;
+        const startSeat = room && room.startSeatNumber ? parseInt(room.startSeatNumber) : 1;
         const rowsPerCol = Math.ceil(total / 3);
 
         wizardSeatsData[roomId] = {};
@@ -254,8 +255,9 @@ async function fetchRoomSeats(roomId) {
         for (let c = 1; c <= 3; c++) {
             for (let s = 1; s <= rowsPerCol; s++) {
                 if (seatCount >= total) break;
-                const rowLetter = String.fromCharCode(64 + s);
-                const seatId = `${roomId}-${rowLetter}${c}`;
+                const seatNum = startSeat + seatCount;
+                const displayId = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
+                const seatId = `${roomId}-${displayId}`;
                 wizardSeatsData[roomId][seatId] = 'available';
                 seatCount++;
             }
@@ -351,8 +353,22 @@ window.wizardSelectDuration = function (duration, price) {
     });
 
     const step25 = document.getElementById('step25');
+    const timeSlotContainer = document.getElementById('timeSlotContainer');
 
     if (duration === '5 Hours') {
+        if (timeSlotContainer) {
+            timeSlotContainer.innerHTML = `
+                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('6:00 AM - 11:00 AM')" id="slotA">
+                    <span class="duration-time">6:00 AM - 11:00 AM</span>
+                </button>
+                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 4:00 PM')" id="slotB">
+                    <span class="duration-time">11:00 AM - 4:00 PM</span>
+                </button>
+                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('4:00 PM - 9:00 PM')" id="slotC">
+                    <span class="duration-time">4:00 PM - 9:00 PM</span>
+                </button>
+            `;
+        }
         wizardTimeSlot = null;
         document.querySelectorAll('.timeslot-btn').forEach(btn => btn.classList.remove('selected'));
 
@@ -367,8 +383,32 @@ window.wizardSelectDuration = function (duration, price) {
             const offset = step25.getBoundingClientRect().top + window.scrollY - 100;
             window.scrollTo({ top: offset, behavior: 'smooth' });
         }, 100);
-    } else {
-        wizardTimeSlot = 'N/A';
+    } else if (duration === '10 Hours') {
+        if (timeSlotContainer) {
+            timeSlotContainer.innerHTML = `
+                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('6:00 AM - 4:00 PM')" id="slotA">
+                    <span class="duration-time">6:00 AM - 4:00 PM</span>
+                </button>
+                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 9:00 PM')" id="slotB">
+                    <span class="duration-time">11:00 AM - 9:00 PM</span>
+                </button>
+            `;
+        }
+        wizardTimeSlot = null;
+        document.querySelectorAll('.timeslot-btn').forEach(btn => btn.classList.remove('selected'));
+
+        step3.classList.add('disabled');
+        step3Content.style.display = 'none';
+
+        step25.style.display = 'block';
+
+        // Scroll to Step 2.5
+        setTimeout(() => {
+            const offset = step25.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+        }, 100);
+    } else if (duration === 'Full Shift') {
+        wizardTimeSlot = '6:00 AM - 9:00 PM';
         step25.style.display = 'none';
 
         // Reveal Step 3
@@ -413,7 +453,8 @@ function renderWizardSeats() {
     wizardSeatGrid.innerHTML = '';
 
     const room = window.allDynamicRooms.find(r => r.id === wizardRoom);
-    const total = room && room.totalSeats ? room.totalSeats : 30;
+    const total = room && room.totalSeats ? parseInt(room.totalSeats) : 30;
+    const startSeat = room && room.startSeatNumber ? parseInt(room.startSeatNumber) : 1;
     const rowsPerCol = Math.ceil(total / 3);
 
     let seatCount = 0;
@@ -423,11 +464,11 @@ function renderWizardSeats() {
 
         for (let s = 1; s <= rowsPerCol; s++) {
             if (seatCount >= total) break;
-            const rowLetter = String.fromCharCode(64 + s);
-            const seatId = `${wizardRoom}-${rowLetter}${c}`;
+            const seatNum = startSeat + seatCount;
+            const displayId = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
+            const seatId = `${wizardRoom}-${displayId}`;
             const status = wizardSeatsData[wizardRoom][seatId];
             if (!status) { seatCount++; continue; } 
-            const displayId = `${rowLetter}${c}`;
 
             const seatDiv = document.createElement('div');
             let stateClass = status;
