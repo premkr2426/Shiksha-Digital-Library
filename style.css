@@ -1156,6 +1156,27 @@ img { max-width: 100%; display: block; }
     .pricing-grid {
         max-width: 100%;
     }
+
+    .logo-text {
+        font-size: 1.1rem;
+        white-space: nowrap;
+    }
+
+    .wizard-action-section {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        border-radius: 20px 20px 0 0;
+        z-index: 9999;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .booking-section {
+        padding-bottom: 240px;
+    }
 }
 
 @media (max-width: 480px) {
