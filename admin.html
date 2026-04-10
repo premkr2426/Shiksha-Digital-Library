@@ -1458,9 +1458,15 @@
                             <label for="offlineRoom">Room</label>
                             <select id="offlineRoom" required>
                                 <option value="" disabled selected>Select Room</option>
-                                <option value="1">Room 1</option>
-                                <option value="2">Room 2</option>
-                                <option value="3">Room 3</option>
+                            </select>
+                        </div>
+                        <div class="offline-form-group">
+                            <label for="offlinePlan">Subscription Plan</label>
+                            <select id="offlinePlan" required>
+                                <option value="" disabled selected>Select Plan</option>
+                                <option value="5 Hours">5 Hours</option>
+                                <option value="10 Hours">10 Hours</option>
+                                <option value="Full Shift">Full Shift</option>
                             </select>
                         </div>
                         <div class="offline-form-group">
@@ -1520,6 +1526,21 @@
             </div>
             </div> <!-- End Rooms View -->
 
+        </div>
+    </div>
+
+    <!-- Student Details Modal -->
+    <div class="modal-overlay" id="studentDetailsModal" style="display: none; align-items:center; justify-content:center;">
+        <div class="modal-content" style="max-width: 400px; text-align: left; padding: 24px; position:relative;">
+            <button class="modal-close" onclick="closeStudentModal()">✖</button>
+            <h3 style="margin-bottom: 20px; font-weight:700;">👤 Student Details</h3>
+            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Name:</strong> <span id="sdName" style="color:var(--text-primary);"></span></p>
+            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Phone:</strong> <span id="sdPhone" style="color:var(--text-primary);"></span></p>
+            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Room:</strong> <span id="sdRoom" style="color:var(--text-primary);"></span></p>
+            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Seat:</strong> <span id="sdSeat" style="color:var(--text-primary);"></span></p>
+            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Plan:</strong> <span id="sdPlan" style="color:var(--text-primary);"></span></p>
+            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Join Date:</strong> <span id="sdJoin" style="color:var(--text-primary);"></span></p>
+            <p style="margin-bottom:8px; font-size:0.95rem; color:var(--text-secondary);"><strong>Expiry Date:</strong> <span id="sdExpiry" style="color:var(--text-primary);"></span></p>
         </div>
     </div>
 
@@ -1596,11 +1617,57 @@
     window.refreshData = refreshData;
     window.cancelBooking = cancelBooking;
     window.handleAddRoom = handleAddRoom;
-    window.handleOfflineStudent = handleOfflineStudent;
-    window.deleteRoom = deleteRoom;
     window.editRoom = editRoom;
     window.switchView = switchView;
     window.toggleSidebar = toggleSidebar;
+    window.openStudentModal = openStudentModal;
+    window.closeStudentModal = closeStudentModal;
+
+    // ─── MODAL LOGIC ────────────────────────────
+    function openStudentModal(roomId, seatStr) {
+        roomId = String(roomId);
+        seatStr = String(seatStr);
+        const b = allBookings.find(bo => String(bo.roomSelected) === roomId && String(bo.seatNumber) === seatStr);
+        if (!b) {
+            showToast('Student details not found.', 'error');
+            return;
+        }
+
+        document.getElementById('sdName').textContent = b.name || 'N/A';
+        document.getElementById('sdPhone').textContent = b.phone || 'N/A';
+        
+        let displayRoom = `Room ${roomId}`;
+        const matchedRoom = allRooms.find(r => r.id === roomId);
+        if (matchedRoom) displayRoom = matchedRoom.name;
+
+        document.getElementById('sdRoom').textContent = displayRoom;
+        document.getElementById('sdSeat').textContent = b.seatNumber || 'N/A';
+        document.getElementById('sdPlan').textContent = b.shiftDuration || 'Offline Entry';
+
+        let joinStr = 'N/A';
+        if (b.date) {
+            const jd = b.date.toDate ? b.date.toDate() : new Date(b.date);
+            joinStr = jd.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+        }
+        document.getElementById('sdJoin').textContent = joinStr;
+
+        let expStr = 'N/A';
+        if (b.expiryDate) {
+            const ed = b.expiryDate.toDate ? b.expiryDate.toDate() : new Date(b.expiryDate);
+            expStr = ed.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+        }
+        document.getElementById('sdExpiry').textContent = expStr;
+
+        const modal = document.getElementById('studentDetailsModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+
+    function closeStudentModal() {
+        const modal = document.getElementById('studentDetailsModal');
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
 
     // ─── SIDEBAR LOGIC ──────────────────────────
     function toggleSidebar() {
@@ -1791,7 +1858,12 @@
                 const seatNum = startSeat + i;
                 const label = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
                 const status = mergedBookedSet.has(label) ? 'booked' : 'available';
-                seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
+                
+                if (status === 'booked') {
+                    seatHtml += `<div class="mini-seat ${status}" title="Booked Seat - Click for details" style="cursor: pointer;" onclick="openStudentModal('${room.id}', '${label}')">${label}</div>`;
+                } else {
+                    seatHtml += `<div class="mini-seat ${status}" title="${label} — ${status}">${label}</div>`;
+                }
             }
 
             html += `
@@ -2134,11 +2206,12 @@
         const phone = document.getElementById('offlinePhone').value.trim();
         const roomVal = document.getElementById('offlineRoom').value;
         const room = isNaN(parseInt(roomVal)) ? roomVal : parseInt(roomVal);
+        const plan = document.getElementById('offlinePlan').value;
         const seat = document.getElementById('offlineSeat').value.trim();
         const joiningStr = document.getElementById('offlineJoining').value;
         const expiryStr = document.getElementById('offlineExpiry').value;
 
-        if (!name || !phone || !room || !seat || !joiningStr || !expiryStr) {
+        if (!name || !phone || !room || !plan || !seat || !joiningStr || !expiryStr) {
             showToast('Please fill in all fields.', 'error');
             return;
         }
@@ -2155,7 +2228,7 @@
                 seatNumber: seat,
                 date: Timestamp.fromDate(new Date(joiningStr)),
                 expiryDate: Timestamp.fromDate(new Date(expiryStr)),
-                shiftDuration: 'Offline Entry',
+                shiftDuration: plan,
                 isOfflineEntry: true
             });
 
