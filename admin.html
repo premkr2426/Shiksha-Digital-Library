@@ -227,12 +227,24 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-left: 250px;
+            transition: var(--transition);
         }
 
         .topbar-left {
             display: flex;
             align-items: center;
             gap: 14px;
+        }
+
+        .hamburger {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 12px;
         }
 
         .topbar-logo {
@@ -290,11 +302,83 @@
             box-shadow: 0 0 15px var(--danger-glow);
         }
 
+        /* ─── SIDEBAR ──────────────────────────────── */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 40px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-menu li button {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-menu li button:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-light);
+        }
+
+        .sidebar-menu li button.active {
+            background: var(--gradient-primary);
+            color: #fff;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
         /* ─── MAIN CONTENT ─────────────────────────── */
         .main-content {
             max-width: 1400px;
-            margin: 0 auto;
+            margin-left: 250px;
             padding: 32px;
+            transition: var(--transition);
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeInDash 0.4s ease;
+        }
+
+        .view-section.active {
+            display: block;
         }
 
         .page-header {
@@ -834,16 +918,27 @@
 
         /* ─── RESPONSIVE ───────────────────────────── */
         @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+                box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+            }
+            .hamburger {
+                display: block;
+            }
             .topbar {
+                margin-left: 0;
                 padding: 12px 16px;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px 16px;
             }
             .topbar-title { font-size: 1rem; }
             .topbar-badge { display: none; }
             .topbar-time { display: none; }
-
-            .main-content {
-                padding: 20px 16px;
-            }
 
             .page-header h1 { font-size: 1.4rem; }
 
@@ -1210,6 +1305,7 @@
         <!-- Top Bar -->
         <div class="topbar">
             <div class="topbar-left">
+                <button id="menuToggle" class="hamburger" onclick="toggleSidebar()">☰</button>
                 <span class="topbar-logo">📚</span>
                 <span class="topbar-title">Shiksha Digital Library</span>
                 <span class="topbar-badge">Admin Panel</span>
@@ -1220,8 +1316,23 @@
             </div>
         </div>
 
+        <!-- Sidebar -->
+        <aside id="leftSidebar" class="sidebar">
+            <div class="sidebar-logo">
+                📚 Shiksha Admin
+            </div>
+            <ul class="sidebar-menu">
+                <li><button onclick="switchView('dashboard')" class="nav-btn active" data-target="dashboard">📊 Dashboard</button></li>
+                <li><button onclick="switchView('rooms')" class="nav-btn" data-target="rooms">🚪 Manage Rooms</button></li>
+                <li><button onclick="switchView('students')" class="nav-btn" data-target="students">👥 All Students</button></li>
+                <li><button onclick="switchView('bookings')" class="nav-btn" data-target="bookings">📒 Recent Bookings</button></li>
+            </ul>
+        </aside>
+
         <!-- Main Content -->
         <div class="main-content">
+            <!-- 1. Dashboard View -->
+            <div id="view-dashboard" class="view-section active">
             <div class="page-header">
                 <h1>📊 Dashboard Overview</h1>
                 <p>Real-time stats and seat management for your library.</p>
@@ -1286,7 +1397,10 @@
                     <div class="legend-item"><span class="legend-dot booked-dot"></span> Booked</div>
                 </div>
             </div>
+            </div> <!-- End Dashboard View -->
 
+            <!-- 2. Recent Bookings View -->
+            <div id="view-bookings" class="view-section">
             <!-- Recent Bookings Table -->
             <div class="section-card">
                 <div class="table-header">
@@ -1320,9 +1434,11 @@
                         </tbody>
                     </table>
                 </div>
-                </div>
-            </div>
+                </div> <!-- section-card -->
+            </div> <!-- End Bookings View -->
 
+            <!-- 3. All Students View -->
+            <div id="view-students" class="view-section">
             <!-- Add Offline / Existing Student -->
             <div class="section-card">
                 <div class="section-title">
@@ -1365,7 +1481,10 @@
                     </button>
                 </form>
             </div>
+            </div> <!-- End Students View -->
 
+            <!-- 4. Manage Rooms View -->
+            <div id="view-rooms" class="view-section">
             <!-- Manage Rooms Section -->
             <div class="section-card">
                 <div class="section-title">
@@ -1399,6 +1518,7 @@
                     <div class="loader"><div class="loader-spinner"></div></div>
                 </div>
             </div>
+            </div> <!-- End Rooms View -->
 
         </div>
     </div>
@@ -1479,6 +1599,32 @@
     window.handleOfflineStudent = handleOfflineStudent;
     window.deleteRoom = deleteRoom;
     window.editRoom = editRoom;
+    window.switchView = switchView;
+    window.toggleSidebar = toggleSidebar;
+
+    // ─── SIDEBAR LOGIC ──────────────────────────
+    function toggleSidebar() {
+        const sidebar = document.getElementById('leftSidebar');
+        if (sidebar) sidebar.classList.toggle('active');
+    }
+
+    function switchView(targetView) {
+        // Update nav buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.querySelector(`.nav-btn[data-target="${targetView}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Update views
+        document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
+        const targetElement = document.getElementById(`view-${targetView}`);
+        if (targetElement) targetElement.classList.add('active');
+
+        // Close sidebar on mobile
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('leftSidebar');
+            if (sidebar) sidebar.classList.remove('active');
+        }
+    }
 
     function attemptLogin() {
         const pwd = loginPassword.value.trim();
