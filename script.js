@@ -494,6 +494,10 @@ function handleWizardSeatClick(seatId) {
 }
 
 function updateWizardSummary() {
+    const step4 = document.getElementById('step4');
+    const step4Content = document.getElementById('step4Content');
+    const confirmBtn = document.getElementById('wizardConfirmBtn');
+
     if (wizardSeatId) {
         const [room, seat] = wizardSeatId.split('-');
         summarySeat.textContent = seat;
@@ -502,50 +506,45 @@ function updateWizardSummary() {
         wizardActionSection.classList.remove('hidden');
         wizardActionSection.style.display = 'flex';
 
-        // Scroll to button
+        // Auto-expand step 4
+        if (step4) {
+            step4.classList.remove('disabled');
+            if (step4Content) step4Content.style.display = 'block';
+        }
+
+        // Setup Submit Booking button
+        if (confirmBtn) {
+            confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
+            confirmBtn.onclick = window.wizardSubmitBooking;
+        }
+
+        // Scroll to step 4
         setTimeout(() => {
-            const offset = wizardActionSection.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2;
-            window.scrollTo({ top: offset, behavior: 'smooth' });
+            if (step4) {
+                const offset = step4.getBoundingClientRect().top + window.scrollY - 100;
+                window.scrollTo({ top: offset, behavior: 'smooth' });
+                const wizardNameInput = document.getElementById('wizardName');
+                if (wizardNameInput) wizardNameInput.focus();
+            }
         }, 100);
     } else {
         summarySeat.textContent = '—';
         wizardActionSection.classList.add('hidden');
         wizardActionSection.style.display = 'none';
+
+        // Hide Step 4 if seat un-selected
+        if (step4) step4.classList.add('disabled');
+        if (step4Content) step4Content.style.display = 'none';
+
+        if (confirmBtn) {
+            confirmBtn.onclick = null;
+        }
     }
 }
-
-// ─── Confirm Booking → Save to Firestore ────────────
-window.wizardConfirmBooking = function () {
-    if (!wizardRoom || !wizardDuration || !wizardSeatId) return;
-    if (wizardDuration === '5 Hours' && !wizardTimeSlot) {
-        alert('Please select a time slot.');
-        return;
-    }
-
-    const step4 = document.getElementById('step4');
-    const step4Content = document.getElementById('step4Content');
-    const wizardNameInput = document.getElementById('wizardName');
-
-    if (step4) {
-        step4.classList.remove('disabled');
-        if (step4Content) step4Content.style.display = 'block';
-
-        const confirmBtn = document.getElementById('wizardConfirmBtn');
-        confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
-        confirmBtn.onclick = window.wizardSubmitBooking;
-
-        setTimeout(() => {
-            const offset = step4.getBoundingClientRect().top + window.scrollY - 100;
-            window.scrollTo({ top: offset, behavior: 'smooth' });
-            if (wizardNameInput) wizardNameInput.focus();
-        }, 100);
-    }
-};
 
 window.wizardSubmitBooking = async function () {
     const userName = document.getElementById('wizardName').value.trim();
     const userPhone = document.getElementById('wizardPhone').value.trim();
-    const userEmail = document.getElementById('wizardEmail').value.trim();
 
     if (!userName || !userPhone) {
         alert('Name and Phone Number are required!');
@@ -561,7 +560,6 @@ window.wizardSubmitBooking = async function () {
         await addDoc(bookingsRef, {
             name: userName,
             phone: userPhone,
-            email: userEmail || '',
             roomSelected: wizardRoom,
             shiftDuration: wizardDuration,
             selectedShiftTime: wizardTimeSlot || 'N/A',
@@ -812,18 +810,16 @@ function resetBookingWizard() {
     const step4Content = document.getElementById('step4Content');
     const wizardName = document.getElementById('wizardName');
     const wizardPhone = document.getElementById('wizardPhone');
-    const wizardEmail = document.getElementById('wizardEmail');
     const confirmBtn = document.getElementById('wizardConfirmBtn');
     
     if (step4) step4.classList.add('disabled');
     if (step4Content) step4Content.style.display = 'none';
     if (wizardName) wizardName.value = '';
     if (wizardPhone) wizardPhone.value = '';
-    if (wizardEmail) wizardEmail.value = '';
     
     if (confirmBtn) {
-        confirmBtn.innerHTML = 'Confirm Booking <span class="btn-arrow">→</span>';
-        confirmBtn.onclick = wizardConfirmBooking;
+        confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
+        confirmBtn.onclick = null;
     }
 
     if (actionSec) {
