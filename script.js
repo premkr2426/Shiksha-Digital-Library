@@ -212,20 +212,27 @@ document.addEventListener('DOMContentLoaded', () => {
 //  10. MODAL TOGGLE LOGIC
 // ==========================================
 window.openBookingModal = function () {
+    console.log('[MODAL] Attempting to OPEN Booking Modal...');
+    if (window.closeLiveSeatModal) window.closeLiveSeatModal();
     const modal = document.getElementById('bookingModal');
     if (modal) {
         modal.style.display = 'flex';
         setTimeout(() => modal.classList.add('active'), 10);
         document.body.style.overflow = 'hidden'; 
+        console.log('[MODAL] Booking Modal OPENED successfully.');
+    } else {
+        console.error('[MODAL] ERROR: bookingModal element not found.');
     }
 };
 
 window.closeBookingModal = function () {
+    console.log('[MODAL] Attempting to CLOSE Booking Modal...');
     const modal = document.getElementById('bookingModal');
     if (modal) {
         modal.classList.remove('active');
         setTimeout(() => modal.style.display = 'none', 300);
         document.body.style.overflow = '';
+        console.log('[MODAL] Booking Modal CLOSED successfully.');
     }
 };
 
@@ -628,11 +635,14 @@ window.wizardSubmitBooking = async function () {
 // ==========================================
 
 window.openLiveSeatModal = function() {
+    console.log('[MODAL] Attempting to OPEN Live Seat Modal...');
+    if (window.closeBookingModal) window.closeBookingModal();
     const modal = document.getElementById('liveSeatModal');
     if (modal) {
         modal.style.display = 'flex';
         setTimeout(() => modal.classList.add('active'), 10);
         document.body.style.overflow = 'hidden';
+        console.log('[MODAL] Live Seat Modal OPENED successfully.');
         
         const select = document.getElementById('liveViewerRoomSelect');
         if (select) {
@@ -650,11 +660,13 @@ window.openLiveSeatModal = function() {
 }
 
 window.closeLiveSeatModal = function() {
+    console.log('[MODAL] Attempting to CLOSE Live Seat Modal...');
     const modal = document.getElementById('liveSeatModal');
     if (modal) {
         modal.classList.remove('active');
         setTimeout(() => modal.style.display = 'none', 300);
         document.body.style.overflow = '';
+        console.log('[MODAL] Live Seat Modal CLOSED successfully.');
     }
 }
 
