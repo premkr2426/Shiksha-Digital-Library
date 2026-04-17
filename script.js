@@ -139,13 +139,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        onSnapshot(bookingsRef, (snapshot) => {
-            currentBookingsCount = snapshot.size;
-            window.updateFrontendSeatCount();
-        }, (error) => {
-            console.error('Failed to listen to seat count:', error);
-            seatCountEl.textContent = '—';
-        });
+        // CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
+        const seatFetchTimeout = setTimeout(() => {
+            if (seatCountEl.textContent === 'Fetching live data...' || seatCountEl.textContent === '—') {
+                console.warn('Seat count fetch timed out (5000ms).');
+                seatCountEl.textContent = 'N/A'; // unlock UI
+            }
+        }, 5000);
+
+        try {
+            onSnapshot(bookingsRef, (snapshot) => {
+                clearTimeout(seatFetchTimeout);
+                currentBookingsCount = snapshot.size;
+                window.updateFrontendSeatCount();
+            }, (error) => {
+                clearTimeout(seatFetchTimeout);
+                console.error('Failed to listen to seat count. Firebase permissions issue?', error);
+                seatCountEl.textContent = 'Unavailable';
+            });
+        } catch (e) {
+            clearTimeout(seatFetchTimeout);
+            console.error('Error initiating seat count fetch:', e);
+            seatCountEl.textContent = 'Unavailable';
+        }
     }
 
 
@@ -692,65 +708,86 @@ window.renderLiveViewerSeats = async function() {
 window.allDynamicRooms = [];
 let selectedRoomIdForBooking = null;
 
-onSnapshot(roomsRef, (snapshot) => {
+// CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
+const roomsFetchTimeout = setTimeout(() => {
     const grid = document.getElementById('dynamicRoomsGrid');
-    if (!grid) return;
+    if (grid && window.allDynamicRooms.length === 0) {
+        console.warn('Rooms fetch timed out (5000ms).');
+        grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">Failed to load live rooms. Timeout exceeded.</p>';
+    }
+}, 5000);
 
-    if (snapshot.empty) {
+try {
+    onSnapshot(roomsRef, (snapshot) => {
+        clearTimeout(roomsFetchTimeout);
+        
+        const grid = document.getElementById('dynamicRoomsGrid');
+        if (!grid) return;
+
+        if (snapshot.empty) {
+            window.allDynamicRooms = [];
+            grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">No premium rooms available at the moment. Please check back later.</p>';
+            return;
+        }
+
         window.allDynamicRooms = [];
-        grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">No premium rooms available at the moment. Please check back later.</p>';
-        return;
-    }
+        let html = '';
+        let wizardRoomsHtml = '';
+        
+        snapshot.forEach(docSnap => {
+            const room = { id: docSnap.id, ...docSnap.data() };
+            window.allDynamicRooms.push(room);
+        });
 
-    window.allDynamicRooms = [];
-    let html = '';
-    let wizardRoomsHtml = '';
-    
-    snapshot.forEach(docSnap => {
-        const room = { id: docSnap.id, ...docSnap.data() };
-        window.allDynamicRooms.push(room);
+        window.allDynamicRooms.sort((a, b) => {
+            const getNo = (str) => { const m = (str||'').match(/\\d+/); return m ? parseInt(m[0]) : 999; };
+            return getNo(a.name) - getNo(b.name);
+        });
+
+        window.allDynamicRooms.forEach(room => {
+            const imgSrc = room.imageUrl || 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&q=80';
+            const safeName = (room.name || '').replace(/</g, '&lt;');
+            const safeTag = (room.tagline || '').replace(/</g, '&lt;');
+            const safeDesc = (room.description || '').replace(/</g, '&lt;');
+            const priceLabel = room.price5 ? `From ₹${room.price5}/mo` : '';
+
+            html += `
+            <div class="dynamic-room-card" onclick="openRoomDetailsModal('${room.id}')">
+                <img src="${imgSrc}" alt="${safeName}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:16px;">
+                <h3>${safeName}</h3>
+                <div class="room-tagline">${safeTag}</div>
+                <p>${safeDesc}</p>
+                ${priceLabel ? `<span style="font-size:0.9rem; font-weight:700; color:var(--accent-1); margin-top:8px; display:inline-block;">${priceLabel}</span>` : ''}
+                <button class="btn btn-outline btn-book-room" style="margin-top:16px;">View Details</button>
+            </div>`;
+
+            wizardRoomsHtml += `
+            <button class="room-btn" onclick="wizardSelectRoom('${room.id}', '${safeName}')" id="roomBtn${room.id}">
+                <span class="room-icon">🚪</span>
+                <span class="room-name">${safeName}</span>
+                <span class="room-desc">${safeTag}</span>
+            </button>`;
+        });
+        
+        grid.innerHTML = html;
+        
+        const wizardDynamicRooms = document.getElementById('wizardDynamicRooms');
+        if (wizardDynamicRooms) {
+            wizardDynamicRooms.innerHTML = wizardRoomsHtml;
+        }
+        
+        // Update live seat count grand total when rooms change
+        if (window.updateFrontendSeatCount) window.updateFrontendSeatCount();
+    }, (error) => {
+        clearTimeout(roomsFetchTimeout);
+        console.error('Failed to listen to rooms. Firebase permissions issue?', error);
+        const grid = document.getElementById('dynamicRoomsGrid');
+        if (grid) grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">Failed to load rooms (Permission Denied?).</p>';
     });
-
-    window.allDynamicRooms.sort((a, b) => {
-        const getNo = (str) => { const m = (str||'').match(/\d+/); return m ? parseInt(m[0]) : 999; };
-        return getNo(a.name) - getNo(b.name);
-    });
-
-    window.allDynamicRooms.forEach(room => {
-        const imgSrc = room.imageUrl || 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&q=80';
-        const safeName = (room.name || '').replace(/</g, '&lt;');
-        const safeTag = (room.tagline || '').replace(/</g, '&lt;');
-        const safeDesc = (room.description || '').replace(/</g, '&lt;');
-        const priceLabel = room.price5 ? `From ₹${room.price5}/mo` : '';
-
-        html += `
-        <div class="dynamic-room-card" onclick="openRoomDetailsModal('${room.id}')">
-            <img src="${imgSrc}" alt="${safeName}" style="width:100%; height:160px; object-fit:cover; border-radius:12px; margin-bottom:16px;">
-            <h3>${safeName}</h3>
-            <div class="room-tagline">${safeTag}</div>
-            <p>${safeDesc}</p>
-            ${priceLabel ? `<span style="font-size:0.9rem; font-weight:700; color:var(--accent-1); margin-top:8px; display:inline-block;">${priceLabel}</span>` : ''}
-            <button class="btn btn-outline btn-book-room" style="margin-top:16px;">View Details</button>
-        </div>`;
-
-        wizardRoomsHtml += `
-        <button class="room-btn" onclick="wizardSelectRoom('${room.id}', '${safeName}')" id="roomBtn${room.id}">
-            <span class="room-icon">🚪</span>
-            <span class="room-name">${safeName}</span>
-            <span class="room-desc">${safeTag}</span>
-        </button>`;
-    });
-    
-    grid.innerHTML = html;
-    
-    const wizardDynamicRooms = document.getElementById('wizardDynamicRooms');
-    if (wizardDynamicRooms) {
-        wizardDynamicRooms.innerHTML = wizardRoomsHtml;
-    }
-    
-    // Update live seat count grand total when rooms change
-    if (window.updateFrontendSeatCount) window.updateFrontendSeatCount();
-});
+} catch (e) {
+    clearTimeout(roomsFetchTimeout);
+    console.error('Error initiating rooms fetch:', e);
+}
 
 // Open Room Details Modal
 window.openRoomDetailsModal = function (roomId) {
