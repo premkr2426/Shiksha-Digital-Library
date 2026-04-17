@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.addEventListener('scroll', highlightNav, { passive: true });
 
+    window.allDynamicRooms = window.allDynamicRooms || [];
 
     // ==========================================
     //  5. LIVE SEAT COUNTER (Firebase Firestore)
@@ -126,15 +127,21 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentBookingsCount = 0;
 
         window.updateFrontendSeatCount = function () {
+            console.log('CRITICAL: Seat counter logic started');
             let totalSeats = 0;
             if (window.allDynamicRooms && window.allDynamicRooms.length > 0) {
                 window.allDynamicRooms.forEach(r => totalSeats += (r.totalSeats || 30));
             } else {
-                totalSeats = TOTAL_SEATS; // Default
+                totalSeats = TOTAL_SEATS || 30; // Default
             }
             const availableSeats = Math.max(0, totalSeats - currentBookingsCount);
+            
             if (seatCountEl) {
-                seatCountEl.textContent = availableSeats;
+                if (window.allDynamicRooms.length === 0 && seatCountEl.textContent === 'Fetching live data...') {
+                    seatCountEl.textContent = '0';
+                } else {
+                    seatCountEl.textContent = availableSeats;
+                }
                 seatCountEl.removeAttribute('style');
             }
         };
@@ -142,14 +149,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
         const seatFetchTimeout = setTimeout(() => {
             if (seatCountEl.textContent === 'Fetching live data...' || seatCountEl.textContent === '—') {
-                console.warn('Seat count fetch timed out (4000ms).');
+                console.warn('Seat count fetch timed out (3000ms).');
                 seatCountEl.textContent = '0'; // force unlock UI
             }
-        }, 4000);
+        }, 3000);
 
         try {
             console.log('Fetching live bookings data...');
             onSnapshot(bookingsRef, (snapshot) => {
+                console.log('CRITICAL: Data received from Firebase');
                 console.log('Live bookings fetched:', snapshot.size);
                 clearTimeout(seatFetchTimeout);
                 currentBookingsCount = snapshot.size;
@@ -157,12 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }, (error) => {
                 clearTimeout(seatFetchTimeout);
                 console.error("FIREBASE ERROR:", error);
-                seatCountEl.textContent = 'Error';
+                seatCountEl.textContent = '0';
             });
         } catch (e) {
             clearTimeout(seatFetchTimeout);
             console.error("FIREBASE ERROR:", e);
-            seatCountEl.textContent = 'Error';
+            seatCountEl.textContent = '0';
         }
     }
 
