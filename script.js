@@ -700,8 +700,6 @@ window.renderLiveViewerSeats = async function() {
     }
 }
 
-}
-
 // =========================// CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
 const roomsFetchTimeout = setTimeout(() => {
     const grid = document.getElementById('dynamicRoomsGrid');
