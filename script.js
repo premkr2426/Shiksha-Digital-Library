@@ -18,13 +18,12 @@ import {
 
 // ─── 🔥 Firebase Configuration ─────────────────────
 const firebaseConfig = {
-    apiKey: "AIzaSyA9nATGsp8x_nIEF-i27waTj5gMEjbNrRQ",
-    authDomain: "shiksha-digital-library.firebaseapp.com",
-    databaseURL: "https://shiksha-digital-library-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "shiksha-digital-library",
-    storageBucket: "shiksha-digital-library.firebasestorage.app",
-    messagingSenderId: "162891971459",
-    appId: "1:162891971459:web:719b671bfed9c76aba14b6"
+    apiKey: "AIzaSyBYtPfwJSIcutp6IzVHflZu0RvfCS4vrWw",
+    authDomain: "library-test-cab90.firebaseapp.com",
+    projectId: "library-test-cab90",
+    storageBucket: "library-test-cab90.firebasestorage.app",
+    messagingSenderId: "996632418924",
+    appId: "1:996632418924:web:3070a8220d4e24224fd649"
 };
 
 // Initialize Firebase
