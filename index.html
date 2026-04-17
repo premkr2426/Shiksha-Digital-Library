@@ -62,15 +62,12 @@
             </p>
             <div class="hero-actions">
                 <button class="btn btn-primary btn-lg" id="joinNowBtn" onclick="window.openBookingModal()">
-                    Join Now
-                    <span class="btn-arrow">→</span>
+                    Join Now <span class="btn-arrow">→</span>
                 </button>
-                <button class="btn btn-outline btn-lg" id="checkLiveBtn" onclick="window.openLiveSeatModal();">
+
+                <button class="btn btn-outline btn-lg" id="checkLiveBtn" onclick="window.openLiveSeatModal()">
                     Check Live Seat Availability
                 </button>
-                <a href="#facilities" class="btn btn-outline btn-lg" id="exploreFacilitiesBtn">
-                    Explore Facilities
-                </a>
             </div>
             <div class="hero-stats">
                 <div class="stat-item">
@@ -418,7 +415,8 @@
                     <div class="step-content" id="step2Content" style="display: none;">
                         <div class="modal-legend">
                             <div class="legend-item"><span class="seat-badge available"></span> Available</div>
-                            <div class="legend-item"><span class="seat-badge partially-booked"></span> Partially Booked</div>
+                            <div class="legend-item"><span class="seat-badge partially-booked"></span> Partially Booked
+                            </div>
                             <div class="legend-item"><span class="seat-badge selected"></span> Selected</div>
                             <div class="legend-item"><span class="seat-badge booked"></span> Booked</div>
                         </div>
@@ -474,84 +472,94 @@
                     </div>
                     <div class="step-content" id="step5Content" style="display: none;">
                         <div class="user-details-form" style="max-width: 400px; margin: 0 auto;">
-                        <div style="margin-bottom: 12px; text-align: left;">
-                            <label
-                                style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Full
-                                Name</label>
-                            <input type="text" id="wizardName" placeholder="e.g. John Doe"
-                                style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
-                        </div>
-                        <div style="margin-bottom: 12px; text-align: left;">
-                            <label
-                                style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Phone
-                                Number</label>
-                            <input type="tel" id="wizardPhone" placeholder="e.g. 9876543210"
-                                style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
-                        </div>
-                        <!-- Wizard Action Section -->
-                        <div class="wizard-action-section hidden" id="wizardActionSection"
-                            style="display: none; width: 100%; margin-top: 24px; padding: 20px; box-sizing: border-box;">
-                            <div class="wizard-summary" style="gap: 16px; flex-direction: column; font-size: 1rem;">
-                                <div class="summary-item"><strong>Room:</strong> <span id="summaryRoom">—</span></div>
-                                <div class="summary-item"><strong>Duration:</strong> <span id="summaryDuration">—</span>
+                            <div style="margin-bottom: 12px; text-align: left;">
+                                <label
+                                    style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Full
+                                    Name</label>
+                                <input type="text" id="wizardName" placeholder="e.g. John Doe"
+                                    style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
+                            </div>
+                            <div style="margin-bottom: 12px; text-align: left;">
+                                <label
+                                    style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Phone
+                                    Number</label>
+                                <input type="tel" id="wizardPhone" placeholder="e.g. 9876543210"
+                                    style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
+                            </div>
+                            <!-- Wizard Action Section -->
+                            <div class="wizard-action-section hidden" id="wizardActionSection"
+                                style="display: none; width: 100%; margin-top: 24px; padding: 20px; box-sizing: border-box;">
+                                <div class="wizard-summary" style="gap: 16px; flex-direction: column; font-size: 1rem;">
+                                    <div class="summary-item"><strong>Room:</strong> <span id="summaryRoom">—</span>
+                                    </div>
+                                    <div class="summary-item"><strong>Duration:</strong> <span
+                                            id="summaryDuration">—</span>
+                                    </div>
+                                    <div class="summary-item"><strong>Seat:</strong> <span id="summarySeat">—</span>
+                                    </div>
                                 </div>
-                                <div class="summary-item"><strong>Seat:</strong> <span id="summarySeat">—</span></div>
+                                <button class="btn btn-primary btn-lg" id="wizardConfirmBtn"
+                                    style="width: 100%; margin-top: 16px;">
+                                    Submit Booking <span class="btn-arrow">→</span>
+                                </button>
                             </div>
-                            <button class="btn btn-primary btn-lg" id="wizardConfirmBtn"
-                                style="width: 100%; margin-top: 16px;">
-                                Submit Booking <span class="btn-arrow">→</span>
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ========== LIVE SEAT VIEWER MODAL ========== -->
-    <div class="modal-overlay" id="liveSeatModal" style="display: none;">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeLiveSeatModal()" aria-label="Close modal">✖</button>
-            <div class="modal-header" style="text-align: center; margin-bottom: 24px;">
-                <span class="section-badge" style="display:inline-block; margin-bottom:8px;">🗺️ Live View</span>
-                <h2 class="section-title" style="font-size: 1.8rem;">Current Seat <span class="gradient-text">Availability</span></h2>
-            </div>
-            
-            <div class="wizard-container">
-                <div class="wizard-step" style="opacity: 1; transform: none;">
-                    <div class="step-header">
-                        <h3 class="step-title">Select a Room to View</h3>
-                    </div>
-                    <div class="step-content" style="text-align: center; display: block;">
-                        <select id="liveViewerRoomSelect" onchange="renderLiveViewerSeats()" style="padding: 12px; width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 1rem; margin-bottom: 24px; outline: none; background: transparent; color: inherit;">
-                            <option value="" disabled selected>Loading rooms...</option>
-                        </select>
+        <!-- ========== LIVE SEAT VIEWER MODAL ========== -->
+        <div class="modal-overlay" id="liveSeatModal" style="display: none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeLiveSeatModal()" aria-label="Close modal">✖</button>
+                <div class="modal-header" style="text-align: center; margin-bottom: 24px;">
+                    <span class="section-badge" style="display:inline-block; margin-bottom:8px;">🗺️ Live View</span>
+                    <h2 class="section-title" style="font-size: 1.8rem;">Current Seat <span
+                            class="gradient-text">Availability</span></h2>
+                </div>
 
-                        <div class="modal-legend">
-                            <div class="legend-item"><span class="seat-badge available"></span> Fully Available</div>
-                            <div class="legend-item"><span class="seat-badge partially-booked"></span> Partially Booked</div>
-                            <div class="legend-item"><span class="seat-badge booked"></span> Fully Booked</div>
+                <div class="wizard-container">
+                    <div class="wizard-step" style="opacity: 1; transform: none;">
+                        <div class="step-header">
+                            <h3 class="step-title">Select a Room to View</h3>
                         </div>
+                        <div class="step-content" style="text-align: center; display: block;">
+                            <select id="liveViewerRoomSelect" onchange="renderLiveViewerSeats()"
+                                style="padding: 12px; width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 1rem; margin-bottom: 24px; outline: none; background: transparent; color: inherit;">
+                                <option value="" disabled selected>Loading rooms...</option>
+                            </select>
 
-                        <div class="wizard-seat-layout">
-                            <div class="seat-layout" id="liveViewerSeatGrid">
-                                <!-- Seats generated via JS -->
+                            <div class="modal-legend">
+                                <div class="legend-item"><span class="seat-badge available"></span> Fully Available
+                                </div>
+                                <div class="legend-item"><span class="seat-badge partially-booked"></span> Partially
+                                    Booked</div>
+                                <div class="legend-item"><span class="seat-badge booked"></span> Fully Booked</div>
                             </div>
-                        </div>
-                        
-                        <!-- Empty container for the Quick Shift Details Preview -->
-                        <div id="liveSeatShiftDetails" style="display:none; margin-top:20px; text-align: left;"></div>
-                        
-                        <div style="margin-top: 32px;">
-                            <button class="btn btn-primary" onclick="closeLiveSeatModal(); setTimeout(openBookingModal, 300);">Book visually from Booking Wizard <span class="btn-arrow">→</span></button>
+
+                            <div class="wizard-seat-layout">
+                                <div class="seat-layout" id="liveViewerSeatGrid">
+                                    <!-- Seats generated via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Empty container for the Quick Shift Details Preview -->
+                            <div id="liveSeatShiftDetails" style="display:none; margin-top:20px; text-align: left;">
+                            </div>
+
+                            <div style="margin-top: 32px;">
+                                <button class="btn btn-primary"
+                                    onclick="closeLiveSeatModal(); setTimeout(openBookingModal, 300);">Book visually
+                                    from Booking Wizard <span class="btn-arrow">→</span></button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script type="module" src="script.js"></script>
+        <script type="module" src="script.js"></script>
 </body>
 
 </html>

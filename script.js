@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (seatCountEl) {
         let currentBookingsCount = 0;
 
-        window.updateFrontendSeatCount = function() {
+        window.updateFrontendSeatCount = function () {
             let totalSeats = 0;
             if (window.allDynamicRooms && window.allDynamicRooms.length > 0) {
                 window.allDynamicRooms.forEach(r => totalSeats += (r.totalSeats || 30));
@@ -211,29 +211,57 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 //  10. MODAL TOGGLE LOGIC
 // ==========================================
+// Booking Modal functions
 window.openBookingModal = function () {
-    console.log('[MODAL] Attempting to OPEN Booking Modal...');
-    if (window.closeLiveSeatModal) window.closeLiveSeatModal();
+    console.log("Opening Booking Modal...");
     const modal = document.getElementById('bookingModal');
+    const otherModal = document.getElementById('liveSeatModal');
+
+    if (otherModal) otherModal.classList.remove('active'); // Dusra modal band karo
     if (modal) {
-        modal.style.zIndex = '99999';
         modal.style.display = 'flex';
+        modal.style.zIndex = '99999';
         setTimeout(() => modal.classList.add('active'), 10);
-        document.body.style.overflow = 'hidden'; 
-        console.log('[MODAL] Booking Modal OPENED successfully.');
-    } else {
-        console.error('[MODAL] ERROR: bookingModal element not found.');
+        document.body.style.overflow = 'hidden';
     }
 };
 
 window.closeBookingModal = function () {
-    console.log('[MODAL] Attempting to CLOSE Booking Modal...');
     const modal = document.getElementById('bookingModal');
     if (modal) {
         modal.classList.remove('active');
         setTimeout(() => modal.style.display = 'none', 300);
         document.body.style.overflow = '';
-        console.log('[MODAL] Booking Modal CLOSED successfully.');
+    }
+};
+
+// Live Viewer Modal functions
+window.openLiveSeatModal = function () {
+    console.log("Opening Live Viewer Modal...");
+    const modal = document.getElementById('liveSeatModal');
+    const otherModal = document.getElementById('bookingModal');
+
+    if (otherModal) otherModal.classList.remove('active'); // Dusra modal band karo
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.zIndex = '99999';
+        setTimeout(() => modal.classList.add('active'), 10);
+        document.body.style.overflow = 'hidden';
+
+        // Agar pehle se koi room select hai toh seats render karo
+        const select = document.getElementById('liveViewerRoomSelect');
+        if (select && select.value) {
+            window.renderLiveViewerSeats();
+        }
+    }
+};
+
+window.closeLiveSeatModal = function () {
+    const modal = document.getElementById('liveSeatModal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300);
+        document.body.style.overflow = '';
     }
 };
 
@@ -279,7 +307,7 @@ async function fetchRoomSeats(roomId) {
         const rowsPerCol = Math.ceil(total / 3);
 
         wizardSeatsData[roomId] = {};
-        
+
         let seatCount = 0;
         for (let c = 1; c <= 3; c++) {
             for (let s = 1; s <= rowsPerCol; s++) {
@@ -304,7 +332,7 @@ async function fetchRoomSeats(roomId) {
             if (wizardSeatsData[roomId][seatId]) {
                 const shift = data.selectedShiftTime || 'N/A';
                 const blocks = [];
-                
+
                 if (shift.includes('6:00 AM - 11:00 AM')) blocks.push('A');
                 else if (shift.includes('11:00 AM - 4:00 PM')) blocks.push('B');
                 else if (shift.includes('4:00 PM - 9:00 PM')) blocks.push('C');
@@ -340,21 +368,21 @@ window.wizardSelectRoom = function (roomId, roomName) {
         else btn.classList.remove('selected');
     });
 
-    if(step2) step2.classList.remove('disabled');
-    if(step2Content) step2Content.style.display = 'block';
+    if (step2) step2.classList.remove('disabled');
+    if (step2Content) step2Content.style.display = 'block';
 
-    if(step3) step3.classList.add('disabled');
-    if(step3Content) step3Content.style.display = 'none';
-    if(step4) step4.style.display = 'none';
-    if(step5) { step5.classList.add('disabled'); if(step5Content) step5Content.style.display = 'none'; }
-    
-    if(wizardActionSection){ wizardActionSection.classList.add('hidden'); wizardActionSection.style.display = 'none';}
+    if (step3) step3.classList.add('disabled');
+    if (step3Content) step3Content.style.display = 'none';
+    if (step4) step4.style.display = 'none';
+    if (step5) { step5.classList.add('disabled'); if (step5Content) step5Content.style.display = 'none'; }
+
+    if (wizardActionSection) { wizardActionSection.classList.add('hidden'); wizardActionSection.style.display = 'none'; }
     wizardSeatId = null;
 
     fetchRoomSeats(roomId).then(() => renderWizardSeats());
-    
+
     setTimeout(() => {
-        if(step2){
+        if (step2) {
             const offset = step2.getBoundingClientRect().top + window.scrollY - 100;
             window.scrollTo({ top: offset, behavior: 'smooth' });
         }
@@ -378,9 +406,9 @@ function renderWizardSeats() {
             const seatNum = startSeat + seatCount;
             const displayId = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
             const seatId = `${wizardRoom}-${displayId}`;
-            
+
             const sd = wizardSeatsData[wizardRoom][seatId];
-            if (!sd) { seatCount++; continue; } 
+            if (!sd) { seatCount++; continue; }
 
             const seatDiv = document.createElement('div');
             let stateClass = sd.status;
@@ -402,26 +430,26 @@ function renderWizardSeats() {
 function handleWizardSeatClick(seatId) {
     if (wizardSeatId === seatId) {
         wizardSeatId = null;
-        if(step3) step3.classList.add('disabled');
-        if(step3Content) step3Content.style.display = 'none';
-        if(step4) step4.style.display = 'none';
+        if (step3) step3.classList.add('disabled');
+        if (step3Content) step3Content.style.display = 'none';
+        if (step4) step4.style.display = 'none';
     } else {
         wizardSeatId = seatId;
-        
-        if(step3) step3.classList.remove('disabled');
-        if(step3Content) step3Content.style.display = 'block';
-        if(step4) step4.style.display = 'none'; 
+
+        if (step3) step3.classList.remove('disabled');
+        if (step3Content) step3Content.style.display = 'block';
+        if (step4) step4.style.display = 'none';
 
         const sd = wizardSeatsData[wizardRoom][seatId];
         const taken = sd ? sd.bookedBlocks : [];
-        
+
         const room = window.allDynamicRooms.find(r => r.id === wizardRoom);
         const wizardDynamicDurations = document.getElementById('wizardDynamicDurations');
         if (room && wizardDynamicDurations) {
             const p5 = room.price5 || 0;
             const p10 = room.price10 || 0;
             const pFull = room.priceFull || 0;
-            
+
             let html = "";
             const canBook5 = !taken.includes('A') || !taken.includes('B') || !taken.includes('C');
             const canBook10 = (!taken.includes('A') && !taken.includes('B')) || (!taken.includes('B') && !taken.includes('C'));
@@ -449,19 +477,19 @@ function handleWizardSeatClick(seatId) {
             }
             wizardDynamicDurations.innerHTML = html;
         }
-        
+
         wizardDuration = null;
         wizardTimeSlot = null;
         summaryDuration.textContent = '—';
-        if(step5) step5.classList.add('disabled');
-        if(step5Content) step5Content.style.display = 'none';
-        if(wizardActionSection) {
+        if (step5) step5.classList.add('disabled');
+        if (step5Content) step5Content.style.display = 'none';
+        if (wizardActionSection) {
             wizardActionSection.classList.add('hidden');
             wizardActionSection.style.display = 'none';
         }
 
         setTimeout(() => {
-            if(step3) {
+            if (step3) {
                 const offset = step3.getBoundingClientRect().top + window.scrollY - 100;
                 window.scrollTo({ top: offset, behavior: 'smooth' });
             }
@@ -485,7 +513,7 @@ window.wizardSelectDuration = function (duration, price) {
 
 
     const timeSlotContainer = document.getElementById('timeSlotContainer');
-    
+
     const sd = wizardSeatsData[wizardRoom][wizardSeatId];
     const taken = sd ? sd.bookedBlocks : [];
 
@@ -495,24 +523,24 @@ window.wizardSelectDuration = function (duration, price) {
         if (!taken.includes('B')) html += `<button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 4:00 PM')"><span class="duration-time">11:00 AM - 4:00 PM</span></button>`;
         if (!taken.includes('C')) html += `<button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('4:00 PM - 9:00 PM')"><span class="duration-time">4:00 PM - 9:00 PM</span></button>`;
         timeSlotContainer.innerHTML = html;
-        
+
         wizardTimeSlot = null;
-        if(step4) step4.style.display = 'block';
-        
-        if(step5) step5.classList.add('disabled');
-        if(step5Content) step5Content.style.display = 'none';
-        if(wizardActionSection) {
+        if (step4) step4.style.display = 'block';
+
+        if (step5) step5.classList.add('disabled');
+        if (step5Content) step5Content.style.display = 'none';
+        if (wizardActionSection) {
             wizardActionSection.classList.add('hidden');
             wizardActionSection.style.display = 'none';
         }
 
         setTimeout(() => {
-            if(step4) {
+            if (step4) {
                 const offset = step4.getBoundingClientRect().top + window.scrollY - 100;
                 window.scrollTo({ top: offset, behavior: 'smooth' });
             }
         }, 100);
-        
+
     } else if (duration === '10 Hours') {
         let html = "";
         if (!taken.includes('A') && !taken.includes('B')) {
@@ -522,27 +550,27 @@ window.wizardSelectDuration = function (duration, price) {
             html += `<button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 9:00 PM')"><span class="duration-time">11:00 AM - 9:00 PM</span></button>`;
         }
         timeSlotContainer.innerHTML = html;
-        
+
         wizardTimeSlot = null;
-        if(step4) step4.style.display = 'block';
-        
-        if(step5) step5.classList.add('disabled');
-        if(step5Content) step5Content.style.display = 'none';
-        if(wizardActionSection) {
+        if (step4) step4.style.display = 'block';
+
+        if (step5) step5.classList.add('disabled');
+        if (step5Content) step5Content.style.display = 'none';
+        if (wizardActionSection) {
             wizardActionSection.classList.add('hidden');
             wizardActionSection.style.display = 'none';
         }
 
         setTimeout(() => {
-            if(step4) {
+            if (step4) {
                 const offset = step4.getBoundingClientRect().top + window.scrollY - 100;
                 window.scrollTo({ top: offset, behavior: 'smooth' });
             }
         }, 100);
-        
+
     } else if (duration === 'Full Shift') {
         wizardTimeSlot = '6:00 AM - 9:00 PM';
-        if(step4) step4.style.display = 'none';
+        if (step4) step4.style.display = 'none';
         updateWizardSummaryAction();
     }
 }
@@ -560,7 +588,7 @@ function updateWizardSummaryAction() {
     const confirmBtn = document.getElementById('wizardConfirmBtn');
 
     if (wizardSeatId && wizardDuration && wizardTimeSlot) {
-        if(wizardActionSection) {
+        if (wizardActionSection) {
             wizardActionSection.classList.remove('hidden');
             wizardActionSection.style.display = 'flex';
         }
@@ -620,7 +648,7 @@ window.wizardSubmitBooking = async function () {
         await fetchRoomSeats(wizardRoom);
         wizardSeatId = null;
         renderWizardSeats();
-        
+
         document.getElementById('step4').classList.add('disabled');
         document.getElementById('step4Content').style.display = 'none';
         wizardActionSection.classList.add('hidden');
@@ -645,7 +673,7 @@ window.wizardSubmitBooking = async function () {
 // 10. LIVE SEAT VIEWER MODAL LOGIC
 // ==========================================
 
-window.openLiveSeatModal = function() {
+window.openLiveSeatModal = function () {
     console.log('[MODAL] Attempting to OPEN Live Seat Modal...');
     if (window.closeBookingModal) window.closeBookingModal();
     const modal = document.getElementById('liveSeatModal');
@@ -655,7 +683,7 @@ window.openLiveSeatModal = function() {
         setTimeout(() => modal.classList.add('active'), 10);
         document.body.style.overflow = 'hidden';
         console.log('[MODAL] Live Seat Modal OPENED successfully.');
-        
+
         const select = document.getElementById('liveViewerRoomSelect');
         if (select) {
             if (window.allDynamicRooms && window.allDynamicRooms.length > 0) {
@@ -671,7 +699,7 @@ window.openLiveSeatModal = function() {
     }
 }
 
-window.closeLiveSeatModal = function() {
+window.closeLiveSeatModal = function () {
     console.log('[MODAL] Attempting to CLOSE Live Seat Modal...');
     const modal = document.getElementById('liveSeatModal');
     if (modal) {
@@ -682,7 +710,7 @@ window.closeLiveSeatModal = function() {
     }
 }
 
-window.jumpToBookingFromLiveView = function(roomId, seatId, duration, timeSlot) {
+window.jumpToBookingFromLiveView = function (roomId, seatId, duration, timeSlot) {
     window.closeLiveSeatModal();
     setTimeout(() => {
         window.openBookingModal();
@@ -690,10 +718,10 @@ window.jumpToBookingFromLiveView = function(roomId, seatId, duration, timeSlot) 
             const room = window.allDynamicRooms.find(r => r.id === roomId);
             const roomName = room ? room.name : `Room ${roomId}`;
             if (window.wizardSelectRoom) window.wizardSelectRoom(roomId, roomName);
-            
+
             setTimeout(() => {
                 if (window.handleWizardSeatClick) window.handleWizardSeatClick(seatId);
-                
+
                 setTimeout(() => {
                     let priceLabel = '...';
                     if (room) {
@@ -702,7 +730,7 @@ window.jumpToBookingFromLiveView = function(roomId, seatId, duration, timeSlot) 
                         else if (duration === 'Full Shift') priceLabel = `₹${room.priceFull || 0}/month`;
                     }
                     if (window.wizardSelectDuration) window.wizardSelectDuration(duration, priceLabel);
-                    
+
                     setTimeout(() => {
                         if (window.wizardSelectTimeSlot && duration !== 'Full Shift') {
                             window.wizardSelectTimeSlot(timeSlot);
@@ -719,7 +747,7 @@ window.jumpToBookingFromLiveView = function(roomId, seatId, duration, timeSlot) 
     }, 300);
 };
 
-window.renderLiveViewerSeats = async function() {
+window.renderLiveViewerSeats = async function () {
     const detailsContainer = document.getElementById('liveSeatShiftDetails');
     if (detailsContainer) {
         detailsContainer.style.display = 'none';
@@ -728,15 +756,15 @@ window.renderLiveViewerSeats = async function() {
 
     const roomId = document.getElementById('liveViewerRoomSelect').value;
     if (!roomId) return;
-    
+
     await fetchRoomSeats(roomId);
-    
+
     const grid = document.getElementById('liveViewerSeatGrid');
     grid.innerHTML = '';
-    
+
     const room = window.allDynamicRooms.find(r => r.id === roomId);
     if (!room) return;
-    
+
     const total = room.totalSeats ? parseInt(room.totalSeats) : 30;
     const startSeat = room.startSeatNumber ? parseInt(room.startSeatNumber) : 1;
     const rowsPerCol = Math.ceil(total / 3);
@@ -751,14 +779,14 @@ window.renderLiveViewerSeats = async function() {
             const seatNum = startSeat + seatCount;
             const displayId = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
             const seatId = `${roomId}-${displayId}`;
-            
+
             const sd = wizardSeatsData[roomId][seatId];
-            if (!sd) { seatCount++; continue; } 
+            if (!sd) { seatCount++; continue; }
 
             const seatDiv = document.createElement('div');
             seatDiv.className = `seat ${sd.status}`;
             seatDiv.textContent = displayId;
-            
+
             if (sd.status === 'available' || sd.status === 'partially-booked') {
                 seatDiv.style.cursor = 'pointer';
                 seatDiv.onclick = () => window.showLiveSeatShiftDetails(roomId, seatId);
@@ -773,7 +801,7 @@ window.renderLiveViewerSeats = async function() {
     }
 }
 
-window.showLiveSeatShiftDetails = function(roomId, seatId) {
+window.showLiveSeatShiftDetails = function (roomId, seatId) {
     const detailsContainer = document.getElementById('liveSeatShiftDetails');
     if (!detailsContainer) return;
 
@@ -852,7 +880,7 @@ try {
     onSnapshot(roomsRef, (snapshot) => {
         console.log('Rooms fetched successfully. Doc count:', snapshot.size);
         clearTimeout(roomsFetchTimeout);
-        
+
         const grid = document.getElementById('dynamicRoomsGrid');
         if (!grid) return;
 
@@ -868,7 +896,7 @@ try {
         window.allDynamicRooms = [];
         let html = '';
         let wizardRoomsHtml = '';
-        
+
         snapshot.forEach(docSnap => {
             const room = { id: docSnap.id, ...docSnap.data() };
             window.allDynamicRooms.push(room);
@@ -877,7 +905,7 @@ try {
         console.log('Rooms parsed:', window.allDynamicRooms);
 
         window.allDynamicRooms.sort((a, b) => {
-            const getNo = (str) => { const m = (str||'').match(/\d+/); return m ? parseInt(m[0]) : 999; };
+            const getNo = (str) => { const m = (str || '').match(/\d+/); return m ? parseInt(m[0]) : 999; };
             return getNo(a.name) - getNo(b.name);
         });
 
@@ -905,14 +933,14 @@ try {
                 <span class="room-desc">${safeTag}</span>
             </button>`;
         });
-        
+
         grid.innerHTML = html;
-        
+
         const wizardDynamicRooms = document.getElementById('wizardDynamicRooms');
         if (wizardDynamicRooms) {
             wizardDynamicRooms.innerHTML = wizardRoomsHtml;
         }
-        
+
         // Update live seat count grand total when rooms change
         if (window.updateFrontendSeatCount) window.updateFrontendSeatCount();
     }, (error) => {
@@ -1078,18 +1106,18 @@ function resetBookingWizard() {
     if (step25) step25.style.display = 'none';
     if (step3) step3.classList.add('disabled');
     if (step3Content) step3Content.style.display = 'none';
-    
+
     const step4 = document.getElementById('step4');
     const step4Content = document.getElementById('step4Content');
     const wizardName = document.getElementById('wizardName');
     const wizardPhone = document.getElementById('wizardPhone');
     const confirmBtn = document.getElementById('wizardConfirmBtn');
-    
+
     if (step4) step4.classList.add('disabled');
     if (step4Content) step4Content.style.display = 'none';
     if (wizardName) wizardName.value = '';
     if (wizardPhone) wizardPhone.value = '';
-    
+
     if (confirmBtn) {
         confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
         confirmBtn.onclick = null;
