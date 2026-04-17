@@ -1722,3 +1722,16 @@ img { max-width: 100%; display: block; }
         grid-template-columns: 1fr;
     }
 }
+
+
+/* --- Disabled Shift Modifier --- */
+.disabled-shift {
+    opacity: 0.5;
+    background: var(--surface-bg, #f8fafc) !important;
+    color: var(--text-muted, #94a3b8) !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    box-shadow: none !important;
+    border-color: var(--border-color, #e2e8f0) !important;
+}
+

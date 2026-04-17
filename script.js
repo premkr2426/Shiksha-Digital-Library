@@ -662,7 +662,7 @@ window.closeLiveSeatModal = function() {
     }
 }
 
-window.jumpToBookingFromLiveView = function(roomId, seatId) {
+window.jumpToBookingFromLiveView = function(roomId, seatId, duration, timeSlot) {
     window.closeLiveSeatModal();
     setTimeout(() => {
         window.openBookingModal();
@@ -673,6 +673,26 @@ window.jumpToBookingFromLiveView = function(roomId, seatId) {
             setTimeout(() => {
                 if (window.handleWizardSeatClick) {
                     window.handleWizardSeatClick(seatId);
+                    
+                    if (duration && timeSlot) {
+                        setTimeout(() => {
+                            if (window.wizardSelectDuration) {
+                                let priceLabel = '...';
+                                if (room) {
+                                    if (duration === '5 Hours') priceLabel = `₹${room.price5 || 0}/month`;
+                                    else if (duration === '10 Hours') priceLabel = `₹${room.price10 || 0}/month`;
+                                    else if (duration === 'Full Shift') priceLabel = `₹${room.priceFull || 0}/month`;
+                                }
+                                window.wizardSelectDuration(duration, priceLabel);
+                                
+                                setTimeout(() => {
+                                    if (window.wizardSelectTimeSlot) {
+                                        window.wizardSelectTimeSlot(timeSlot);
+                                    }
+                                }, 150);
+                            }
+                        }, 150);
+                    }
                 }
             }, 300);
         }
@@ -680,6 +700,12 @@ window.jumpToBookingFromLiveView = function(roomId, seatId) {
 };
 
 window.renderLiveViewerSeats = async function() {
+    const detailsContainer = document.getElementById('liveSeatShiftDetails');
+    if (detailsContainer) {
+        detailsContainer.style.display = 'none';
+        detailsContainer.innerHTML = '';
+    }
+
     const roomId = document.getElementById('liveViewerRoomSelect').value;
     if (!roomId) return;
     
@@ -715,7 +741,7 @@ window.renderLiveViewerSeats = async function() {
             
             if (sd.status === 'available' || sd.status === 'partially-booked') {
                 seatDiv.style.cursor = 'pointer';
-                seatDiv.onclick = () => window.jumpToBookingFromLiveView(roomId, seatId);
+                seatDiv.onclick = () => window.showLiveSeatShiftDetails(roomId, seatId);
             } else {
                 seatDiv.style.cursor = 'default';
             }
@@ -726,6 +752,67 @@ window.renderLiveViewerSeats = async function() {
         grid.appendChild(colDiv);
     }
 }
+
+window.showLiveSeatShiftDetails = function(roomId, seatId) {
+    const detailsContainer = document.getElementById('liveSeatShiftDetails');
+    if (!detailsContainer) return;
+
+    const sd = wizardSeatsData[roomId][seatId];
+    if (!sd) return;
+    const taken = sd.bookedBlocks || [];
+
+    const room = window.allDynamicRooms.find(r => r.id === roomId);
+    if (!room) return;
+
+    const p5 = room.price5 || 0;
+    const p10 = room.price10 || 0;
+    const pFull = room.priceFull || 0;
+
+    let html = `
+    <div style="padding:16px; border:1px solid var(--border-color); border-radius:12px; background:var(--surface-bg);">
+        <h4 style="margin: 0 0 16px 0; font-size: 1.1rem; color: var(--text-primary);">Quick View: Room ${roomId.replace('room', '')}, Seat ${seatId.split('-')[1]}</h4>
+        <div style="display:flex; flex-direction:column; gap:8px;">`;
+
+    const isAvailable = (blocks) => blocks.every(b => !taken.includes(b));
+
+    const renderShiftBtn = (title, duration, timeSlot, reqBlocks, price) => {
+        if (isAvailable(reqBlocks)) {
+            return `
+            <button class="duration-btn" style="text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="window.jumpToBookingFromLiveView('${roomId}', '${seatId}', '${duration}', '${timeSlot}')">
+                <div>
+                    <strong style="display:block; margin-bottom:4px;">${title}</strong>
+                    <span style="font-size:0.85rem; color:var(--text-secondary);">${timeSlot} - ₹${price}/mo</span>
+                </div>
+                <span style="color:var(--accent-1); font-weight:700;">Book Now →</span>
+            </button>`;
+        } else {
+            return `
+            <button class="duration-btn disabled-shift" style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="display:block; margin-bottom:4px;">${title}</strong>
+                    <span style="font-size:0.85rem;">${timeSlot}</span>
+                </div>
+                <span style="font-weight:700;">Already Booked 🚫</span>
+            </button>`;
+        }
+    };
+
+    html += renderShiftBtn('Morning Shift (5 Hours)', '5 Hours', '6:00 AM - 11:00 AM', ['A'], p5);
+    html += renderShiftBtn('Afternoon Shift (5 Hours)', '5 Hours', '11:00 AM - 4:00 PM', ['B'], p5);
+    html += renderShiftBtn('Evening Shift (5 Hours)', '5 Hours', '4:00 PM - 9:00 PM', ['C'], p5);
+    html += renderShiftBtn('Day Double (10 Hours)', '10 Hours', '6:00 AM - 4:00 PM', ['A', 'B'], p10);
+    html += renderShiftBtn('Late Double (10 Hours)', '10 Hours', '11:00 AM - 9:00 PM', ['B', 'C'], p10);
+    html += renderShiftBtn('Full Shift', 'Full Shift', '6:00 AM - 9:00 PM', ['A', 'B', 'C'], pFull);
+
+    html += `</div></div>`;
+
+    detailsContainer.innerHTML = html;
+    detailsContainer.style.display = 'block';
+
+    setTimeout(() => {
+        detailsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+};
 
 // =========================// CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
 const roomsFetchTimeout = setTimeout(() => {
