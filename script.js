@@ -662,6 +662,23 @@ window.closeLiveSeatModal = function() {
     }
 }
 
+window.jumpToBookingFromLiveView = function(roomId, seatId) {
+    window.closeLiveSeatModal();
+    setTimeout(() => {
+        window.openBookingModal();
+        const room = window.allDynamicRooms.find(r => r.id === roomId);
+        const roomName = room ? room.name : `Room ${roomId}`;
+        if (window.wizardSelectRoom) {
+            window.wizardSelectRoom(roomId, roomName);
+            setTimeout(() => {
+                if (window.handleWizardSeatClick) {
+                    window.handleWizardSeatClick(seatId);
+                }
+            }, 300);
+        }
+    }, 300);
+};
+
 window.renderLiveViewerSeats = async function() {
     const roomId = document.getElementById('liveViewerRoomSelect').value;
     if (!roomId) return;
@@ -695,7 +712,13 @@ window.renderLiveViewerSeats = async function() {
             const seatDiv = document.createElement('div');
             seatDiv.className = `seat ${sd.status}`;
             seatDiv.textContent = displayId;
-            seatDiv.style.cursor = 'default';
+            
+            if (sd.status === 'available' || sd.status === 'partially-booked') {
+                seatDiv.style.cursor = 'pointer';
+                seatDiv.onclick = () => window.jumpToBookingFromLiveView(roomId, seatId);
+            } else {
+                seatDiv.style.cursor = 'default';
+            }
 
             colDiv.appendChild(seatDiv);
             seatCount++;
