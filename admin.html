@@ -191,6 +191,45 @@
             transform: translateY(0);
         }
 
+        .multi-user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+        }
+        .multi-user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .multi-user-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+        .multi-user-shift {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+        .multi-user-btn {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-light);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .multi-user-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
         .login-error {
             color: var(--danger);
             font-size: 0.85rem;
@@ -1693,6 +1732,10 @@
                         <div class="profile-field-value" id="pfPlan">-</div>
                     </div>
                     <div class="profile-field">
+                        <div class="profile-field-label">Shift Time</div>
+                        <div class="profile-field-value" id="pfShiftTime">-</div>
+                    </div>
+                    <div class="profile-field">
                         <div class="profile-field-label">Join Date</div>
                         <div class="profile-field-value" id="pfJoin">-</div>
                     </div>
@@ -1720,6 +1763,18 @@
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Multi-User Seat Modal -->
+    <div class="login-overlay hidden" id="multiUserModal" style="z-index: 10005;">
+        <div class="login-card" style="width: 480px; text-align: left; padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="multiUserModalTitle" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">Seat Bookings</h3>
+                <button onclick="closeMultiUserModal()" style="background: transparent; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer;">✖</button>
+            </div>
+            <div id="multiUserList" style="display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto;">
+            </div>
+        </div>
+    </div>
 
     <script type="module">
     /* ═══════════════════════════════════════════
@@ -1796,23 +1851,49 @@
     window.viewStudentProfile = viewStudentProfile;
     window.switchProfileTab = switchProfileTab;
     window.findAndOpenProfile = findAndOpenProfile;
+    window.closeMultiUserModal = closeMultiUserModal;
     window.renderExplorerSeatMap = renderExplorerSeatMap;
+
+    // ─── MODAL LOGIC ──────────────────────────────
+    function closeMultiUserModal() {
+        document.getElementById('multiUserModal').classList.add('hidden');
+    }
 
     // ─── PROFILE LOGIC ────────────────────────────
     function findAndOpenProfile(roomId, seatStr) {
         roomId = String(roomId).trim();
         const seatNum = parseInt(seatStr);
-        const b = allBookings.find(bo => {
+        const matchingBookings = allBookings.filter(bo => {
             const bRoom = String(bo.roomSelected).trim();
             const bRoomLegacy = bRoom.replace('Room ', '').trim();
             const matchRoom = (bRoom === roomId) || (bRoom === String(allRooms.find(r=>r.name===roomId)?.id)) || (bRoomLegacy === roomId.replace('Room ', '').trim());
             return matchRoom && parseInt(bo.seatNumber) === seatNum;
         });
-        if (!b) {
+
+        if (matchingBookings.length === 0) {
             showToast('Student details not found.', 'error');
             return;
         }
-        viewStudentProfile(b.id);
+
+        document.getElementById('multiUserModalTitle').textContent = `Room ${roomId.replace('Room ', '')} - Seat ${seatNum}`;
+        const listDiv = document.getElementById('multiUserList');
+        
+        let html = '';
+        matchingBookings.forEach(b => {
+            const shiftTime = b.selectedShiftTime || 'N/A';
+            const name = escapeHtml(b.name || 'Unknown');
+            html += `
+            <div class="multi-user-item">
+                <div class="multi-user-info">
+                    <div class="multi-user-name">👤 ${name}</div>
+                    <div class="multi-user-shift">⏰ ${escapeHtml(shiftTime)}</div>
+                </div>
+                <button class="multi-user-btn" onclick="viewStudentProfile('${b.id}'); closeMultiUserModal();">View Profile</button>
+            </div>
+            `;
+        });
+        listDiv.innerHTML = html;
+        document.getElementById('multiUserModal').classList.remove('hidden');
     }
 
     function viewStudentProfile(bookingId) {
@@ -1834,6 +1915,7 @@
         document.getElementById('pfRoom').textContent = displayRoom;
         document.getElementById('pfSeat').textContent = b.seatNumber || 'N/A';
         document.getElementById('pfPlan').textContent = b.shiftDuration || 'Offline Entry';
+        document.getElementById('pfShiftTime').textContent = b.selectedShiftTime || 'N/A';
 
         let joinStr = 'N/A';
         if (b.date) {
@@ -2214,7 +2296,7 @@
                 <td class="cell-phone">${escapeHtml(b.phone)}</td>
                 <td><span class="cell-room">🚪 ${displayRoom}</span></td>
                 <td class="cell-seat">${escapeHtml(b.seatNumber)}</td>
-                <td class="cell-shift">${escapeHtml(b.shiftDuration)}</td>
+                <td class="cell-shift">${escapeHtml(b.shiftDuration)}<br><small>${escapeHtml(b.selectedShiftTime || 'N/A')}</small></td>
                 <td class="cell-date">${dateStr}<br>${timeStr}</td>
                 <td>
                     <div style="display:flex; gap:8px;">
