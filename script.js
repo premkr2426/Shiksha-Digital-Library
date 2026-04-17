@@ -657,17 +657,17 @@ window.wizardSubmitBooking = async function () {
         wizardSeatId = null;
         renderWizardSeats();
 
-        document.getElementById('step4').classList.add('disabled');
-        document.getElementById('step4Content').style.display = 'none';
-        wizardActionSection.classList.add('hidden');
-        wizardActionSection.style.display = 'none';
-
-        const seatCountEl = document.getElementById('seatCount');
-        if (seatCountEl && window._fetchSeatCount) {
-            const count = await window._fetchSeatCount();
-            if (count !== null) seatCountEl.textContent = count;
+        const step5 = document.getElementById('step5');
+        const step5Content = document.getElementById('step5Content');
+        if (step5) step5.classList.add('disabled');
+        if (step5Content) step5Content.style.display = 'none';
+        
+        if (wizardActionSection) {
+            wizardActionSection.classList.add('hidden');
+            wizardActionSection.style.display = 'none';
         }
 
+        if (window.updateFrontendSeatCount) window.updateFrontendSeatCount();
         if (window.closeBookingModal) window.closeBookingModal();
     } catch (err) {
         console.error('Firestore booking error:', err);
