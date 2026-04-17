@@ -142,25 +142,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
         const seatFetchTimeout = setTimeout(() => {
             if (seatCountEl.textContent === 'Fetching live data...' || seatCountEl.textContent === '—') {
-                console.warn('Seat count fetch timed out (5000ms).');
-                seatCountEl.textContent = 'N/A'; // unlock UI
+                console.warn('Seat count fetch timed out (4000ms).');
+                seatCountEl.textContent = '0'; // force unlock UI
             }
-        }, 5000);
+        }, 4000);
 
         try {
+            console.log('Fetching live bookings data...');
             onSnapshot(bookingsRef, (snapshot) => {
+                console.log('Live bookings fetched:', snapshot.size);
                 clearTimeout(seatFetchTimeout);
                 currentBookingsCount = snapshot.size;
                 window.updateFrontendSeatCount();
             }, (error) => {
                 clearTimeout(seatFetchTimeout);
-                console.error('Failed to listen to seat count. Firebase permissions issue?', error);
-                seatCountEl.textContent = 'Unavailable';
+                console.error("FIREBASE ERROR:", error);
+                seatCountEl.textContent = 'Error';
             });
         } catch (e) {
             clearTimeout(seatFetchTimeout);
-            console.error('Error initiating seat count fetch:', e);
-            seatCountEl.textContent = 'Unavailable';
+            console.error("FIREBASE ERROR:", e);
+            seatCountEl.textContent = 'Error';
         }
     }
 
@@ -700,33 +702,34 @@ window.renderLiveViewerSeats = async function() {
 
 }
 
-// ==========================================
-// 10. FETCH ROOMS & ROOM DETAILS MODAL
-// ==========================================
-
-// Cache all fetched rooms for detail modal lookups
-window.allDynamicRooms = [];
-let selectedRoomIdForBooking = null;
-
-// CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
+// =========================// CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
 const roomsFetchTimeout = setTimeout(() => {
     const grid = document.getElementById('dynamicRoomsGrid');
     if (grid && window.allDynamicRooms.length === 0) {
-        console.warn('Rooms fetch timed out (5000ms).');
+        console.warn('Rooms fetch timed out (4000ms).');
         grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">Failed to load live rooms. Timeout exceeded.</p>';
+        const seatCountEl = document.getElementById('seatCount');
+        if (seatCountEl && seatCountEl.textContent === 'Fetching live data...') {
+            seatCountEl.textContent = '0';
+        }
     }
-}, 5000);
+}, 4000);
 
 try {
+    console.log('Fetching rooms data...');
     onSnapshot(roomsRef, (snapshot) => {
+        console.log('Rooms fetched successfully. Doc count:', snapshot.size);
         clearTimeout(roomsFetchTimeout);
         
         const grid = document.getElementById('dynamicRoomsGrid');
         if (!grid) return;
 
         if (snapshot.empty) {
+            console.log('Rooms collection is empty. Showing fallback empty state.');
             window.allDynamicRooms = [];
-            grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">No premium rooms available at the moment. Please check back later.</p>';
+            grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">System Ready. No premium rooms available at the moment.</p>';
+            // Even if empty, ensure we trigger the counter unlock!
+            if (window.updateFrontendSeatCount) window.updateFrontendSeatCount();
             return;
         }
 
@@ -739,8 +742,10 @@ try {
             window.allDynamicRooms.push(room);
         });
 
+        console.log('Rooms parsed:', window.allDynamicRooms);
+
         window.allDynamicRooms.sort((a, b) => {
-            const getNo = (str) => { const m = (str||'').match(/\\d+/); return m ? parseInt(m[0]) : 999; };
+            const getNo = (str) => { const m = (str||'').match(/\d+/); return m ? parseInt(m[0]) : 999; };
             return getNo(a.name) - getNo(b.name);
         });
 
@@ -780,13 +785,17 @@ try {
         if (window.updateFrontendSeatCount) window.updateFrontendSeatCount();
     }, (error) => {
         clearTimeout(roomsFetchTimeout);
-        console.error('Failed to listen to rooms. Firebase permissions issue?', error);
+        console.error("FIREBASE ERROR:", error);
         const grid = document.getElementById('dynamicRoomsGrid');
-        if (grid) grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">Failed to load rooms (Permission Denied?).</p>';
+        if (grid) grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">Error loading rooms (Permission Denied?).</p>';
+        const seatCountEl = document.getElementById('seatCount');
+        if (seatCountEl) seatCountEl.textContent = 'Error';
     });
 } catch (e) {
     clearTimeout(roomsFetchTimeout);
-    console.error('Error initiating rooms fetch:', e);
+    console.error("FIREBASE ERROR:", e);
+    const seatCountEl = document.getElementById('seatCount');
+    if (seatCountEl) seatCountEl.textContent = 'Error';
 }
 
 // Open Room Details Modal
