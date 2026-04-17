@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const availableSeats = Math.max(0, totalSeats - currentBookingsCount);
             
             if (seatCountEl) {
-                if (window.allDynamicRooms.length === 0 && seatCountEl.textContent === 'Fetching live data...') {
+                if (window.allDynamicRooms.length === 0 && seatCountEl.textContent.includes('Fetching')) {
                     seatCountEl.textContent = '0';
                 } else {
                     seatCountEl.textContent = availableSeats;
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // CHECK FIREBASE RULES: Verify in Firebase Console that 'read' access is explicitly allowed for unauthenticated users if this is public.
         const seatFetchTimeout = setTimeout(() => {
-            if (seatCountEl.textContent === 'Fetching live data...' || seatCountEl.textContent === '—') {
+            if (seatCountEl.textContent.includes('Fetching') || seatCountEl.textContent === '—') {
                 console.warn('Seat count fetch timed out (3000ms).');
                 seatCountEl.textContent = '0'; // force unlock UI
             }
@@ -1104,25 +1104,25 @@ function resetBookingWizard() {
 
     const step2 = document.getElementById('step2');
     const step2Content = document.getElementById('step2Content');
-
     const step3 = document.getElementById('step3');
     const step3Content = document.getElementById('step3Content');
+    const step4 = document.getElementById('step4');
+    const step5 = document.getElementById('step5');
+    const step5Content = document.getElementById('step5Content');
     const actionSec = document.getElementById('wizardActionSection');
 
     if (step2) step2.classList.add('disabled');
     if (step2Content) step2Content.style.display = 'none';
-    if (step25) step25.style.display = 'none';
     if (step3) step3.classList.add('disabled');
     if (step3Content) step3Content.style.display = 'none';
+    if (step4) step4.style.display = 'none';
+    if (step5) step5.classList.add('disabled');
+    if (step5Content) step5Content.style.display = 'none';
 
-    const step4 = document.getElementById('step4');
-    const step4Content = document.getElementById('step4Content');
     const wizardName = document.getElementById('wizardName');
     const wizardPhone = document.getElementById('wizardPhone');
     const confirmBtn = document.getElementById('wizardConfirmBtn');
 
-    if (step4) step4.classList.add('disabled');
-    if (step4Content) step4Content.style.display = 'none';
     if (wizardName) wizardName.value = '';
     if (wizardPhone) wizardPhone.value = '';
 
