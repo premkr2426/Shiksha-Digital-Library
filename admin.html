@@ -1736,6 +1736,7 @@
         addDoc,
         updateDoc,
         doc,
+        getDoc,
         query,
         orderBy,
         Timestamp
@@ -1743,13 +1744,12 @@
 
     // ─── 🔥 Firebase Configuration ─────────────
     const firebaseConfig = {
-        apiKey: "AIzaSyA9nATGsp8x_nIEF-i27waTj5gMEjbNrRQ",
-        authDomain: "shiksha-digital-library.firebaseapp.com",
-        databaseURL: "https://shiksha-digital-library-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "shiksha-digital-library",
-        storageBucket: "shiksha-digital-library.firebasestorage.app",
-        messagingSenderId: "162891971459",
-        appId: "1:162891971459:web:719b671bfed9c76aba14b6"
+        apiKey: "AIzaSyBYtPfwJSIcutp6IzVHflZu0RvfCS4vrWw",
+        authDomain: "library-test-cab90.firebaseapp.com",
+        projectId: "library-test-cab90",
+        storageBucket: "library-test-cab90.firebasestorage.app",
+        messagingSenderId: "996632418924",
+        appId: "1:996632418924:web:3070a8220d4e24224fd649"
     };
 
     // Initialize Firebase
@@ -1760,7 +1760,6 @@
 
     // ─── CONSTANTS ──────────────────────────────
     const TOTAL_SEATS = 90; // Default assumption for live seat map calculations
-    const ADMIN_PASSWORD = 'admin123';
 
     let allBookings = [];
     let allRooms = [];
@@ -1901,20 +1900,38 @@
         }
     }
 
-    function attemptLogin() {
+    async function attemptLogin() {
         const pwd = loginPassword.value.trim();
         if (!pwd) {
             loginError.textContent = 'Please enter the password.';
             return;
         }
-        if (pwd === ADMIN_PASSWORD) {
-            sessionStorage.setItem('shiksha-admin-auth', 'true');
-            loginError.textContent = '';
-            showDashboard();
-        } else {
+
+        const loginBtn = document.getElementById('loginBtn');
+        loginBtn.textContent = 'Checking...';
+        loginBtn.disabled = true;
+
+        try {
+            const authDocRef = doc(db, 'settings', 'adminAuth');
+            const authDocSnap = await getDoc(authDocRef);
+
+            if (authDocSnap.exists() && authDocSnap.data().password === pwd) {
+                sessionStorage.setItem('shiksha-admin-auth', 'true');
+                loginError.textContent = '';
+                showDashboard();
+            } else {
+                loginError.textContent = '❌ Incorrect password. Try again.';
+                loginPassword.value = '';
+                loginPassword.focus();
+            }
+        } catch (error) {
+            console.error('Error verifying admin auth:', error);
             loginError.textContent = '❌ Incorrect password. Try again.';
             loginPassword.value = '';
             loginPassword.focus();
+        } finally {
+            loginBtn.textContent = 'Unlock Dashboard';
+            loginBtn.disabled = false;
         }
     }
 
