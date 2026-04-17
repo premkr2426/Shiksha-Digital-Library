@@ -412,7 +412,7 @@ function handleWizardSeatClick(seatId) {
         step25.style.display = 'none'; 
 
         const sd = wizardSeatsData[wizardRoom][seatId];
-        const blocksTaken = sd ? sd.bookedBlocks.length : 0;
+        const taken = sd ? sd.bookedBlocks : [];
         
         const room = window.allDynamicRooms.find(r => r.id === wizardRoom);
         const wizardDynamicDurations = document.getElementById('wizardDynamicDurations');
@@ -422,20 +422,24 @@ function handleWizardSeatClick(seatId) {
             const pFull = room.priceFull || 0;
             
             let html = "";
-            if (blocksTaken < 3) {
+            const canBook5 = !taken.includes('A') || !taken.includes('B') || !taken.includes('C');
+            const canBook10 = (!taken.includes('A') && !taken.includes('B')) || (!taken.includes('B') && !taken.includes('C'));
+            const canBookFull = !taken.includes('A') && !taken.includes('B') && !taken.includes('C');
+
+            if (canBook5) {
                 html += `<button class="duration-btn" onclick="wizardSelectDuration('5 Hours', '₹${p5}/month')" id="duration5">
                     <span class="duration-time">5 Hours</span>
                     <span class="duration-price">₹${p5} / month</span>
                 </button>`;
             }
-            if (blocksTaken < 2) {
+            if (canBook10) {
                 html += `<button class="duration-btn" onclick="wizardSelectDuration('10 Hours', '₹${p10}/month')" id="duration10">
                     <span class="duration-time">10 Hours</span>
                     <span class="duration-price">₹${p10} / month</span>
                     <span class="duration-badge">Popular</span>
                 </button>`;
             }
-            if (blocksTaken === 0) {
+            if (canBookFull) {
                 html += `<button class="duration-btn" onclick="wizardSelectDuration('Full Shift', '₹${pFull}/month')" id="durationFull">
                     <span class="duration-time">Full Shift</span>
                     <span class="duration-price">₹${pFull} / month</span>
