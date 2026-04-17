@@ -1350,41 +1350,55 @@ img { max-width: 100%; display: block; }
     user-select: none;
 }
 
-/* Light Neon Glow for available */
+/* Green for available */
 .seat.available {
-    background: rgba(0, 206, 201, 0.05);
-    border: 1px solid var(--accent-3);
-    color: var(--accent-3);
-    box-shadow: 0 0 8px rgba(0, 206, 201, 0.3);
+    background: rgba(46, 204, 113, 0.05);
+    border: 1px solid #2ecc71;
+    color: #2ecc71;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.3);
 }
 
 .seat.available:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(0, 206, 201, 0.6);
-    background: rgba(0, 206, 201, 0.15);
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
+    background: rgba(46, 204, 113, 0.15);
 }
 
-/* Bright Green for selected */
+/* Yellow/Amber for partially booked */
+.seat.partially-booked {
+    background: rgba(241, 196, 15, 0.05);
+    border: 1px solid #f1c40f;
+    color: #f1c40f;
+    box-shadow: 0 0 8px rgba(241, 196, 15, 0.3);
+}
+
+.seat.partially-booked:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+    background: rgba(241, 196, 15, 0.15);
+}
+
+/* Bright Blue for selected (to distinguish from green) */
 .seat.selected {
-    background: #00b894;
-    border: 1px solid #00b894;
+    background: #3498db;
+    border: 1px solid #3498db;
     color: #fff;
-    box-shadow: 0 0 15px rgba(0, 184, 148, 0.6);
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.6);
     transform: scale(1.1);
 }
 
-/* Dark grey for booked */
+/* Solid Red for fully booked */
 .seat.booked {
-    background: #2d3436;
-    border: 1px solid #1e272e;
-    color: #636e72;
+    background: rgba(231, 76, 60, 0.05);
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
     cursor: not-allowed;
 }
 
 [data-theme="dark"] .seat.booked {
-    background: #1a1a2e;
-    border-color: #0f0f1a;
-    color: #4b4b6a;
+    background: rgba(231, 76, 60, 0.15);
+    border-color: #e74c3c;
+    color: #ff7675;
 }
 
 .modal-legend {
@@ -1410,14 +1424,19 @@ img { max-width: 100%; display: block; }
 }
 
 .seat-badge.available {
-    background: rgba(0, 206, 201, 0.1);
-    border: 1px solid var(--accent-3);
-    box-shadow: 0 0 8px rgba(0, 206, 201, 0.5);
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid #2ecc71;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
 }
-.seat-badge.selected { background: #00b894; box-shadow: 0 0 10px rgba(0, 184, 148, 0.6); }
-.seat-badge.booked { background: #2d3436; border: 1px solid #1e272e; }
+.seat-badge.partially-booked {
+    background: rgba(241, 196, 15, 0.1);
+    border: 1px solid #f1c40f;
+    box-shadow: 0 0 8px rgba(241, 196, 15, 0.5);
+}
+.seat-badge.selected { background: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.6); }
+.seat-badge.booked { background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; }
 
-[data-theme="dark"] .seat-badge.booked { background: #1a1a2e; border-color: #0f0f1a; }
+[data-theme="dark"] .seat-badge.booked { background: rgba(231, 76, 60, 0.2); border-color: #e74c3c; }
 
 .wizard-action-section {
     max-width: 800px;

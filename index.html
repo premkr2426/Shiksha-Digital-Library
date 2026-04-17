@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Premium study library and reading room with AC, WiFi, and peaceful environment. Book your seat today for focused studying.">
+    <meta name="description"
+        content="Premium study library and reading room with AC, WiFi, and peaceful environment. Book your seat today for focused studying.">
     <meta name="keywords" content="study library, reading room, co-working, study space, library near me">
     <title>Shiksha Digital Library — Premium Study Library & Reading Room</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <!-- ========== NAVBAR ========== -->
     <nav class="navbar" id="navbar">
@@ -26,7 +30,9 @@
                 <li><a href="#contact">Contact</a></li>
             </ul>
             <div class="nav-actions">
-                <button class="btn btn-primary" id="navJoinBtn" onclick="openBookingModal()" style="padding: 8px 16px; font-size: 0.9rem; border-radius: 6px; margin-right: 15px;">Join Now</button>
+                <button class="btn btn-primary" id="navJoinBtn" onclick="openBookingModal()"
+                    style="padding: 8px 16px; font-size: 0.9rem; border-radius: 6px; margin-right: 15px;">Join
+                    Now</button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
                     <span class="theme-icon" id="themeIcon">🌙</span>
                 </button>
@@ -51,12 +57,16 @@
                 <span class="gradient-text">Achieve More.</span>
             </h1>
             <p class="hero-subtitle">
-                A premium, distraction-free study library designed for students who are serious about their goals. Air-conditioned, high-speed WiFi, and the perfect environment to excel.
+                A premium, distraction-free study library designed for students who are serious about their goals.
+                Air-conditioned, high-speed WiFi, and the perfect environment to excel.
             </p>
             <div class="hero-actions">
                 <button class="btn btn-primary btn-lg" id="joinNowBtn" onclick="openBookingModal()">
                     Join Now
                     <span class="btn-arrow">→</span>
+                </button>
+                <button class="btn btn-outline btn-lg" onclick="openLiveSeatModal()">
+                    Check Live Seat Availability
                 </button>
                 <a href="#facilities" class="btn btn-outline btn-lg" id="exploreFacilitiesBtn">
                     Explore Facilities
@@ -93,7 +103,9 @@
                     </div>
                     <div class="seat-info">
                         <span class="seat-label">Available Seats Right Now</span>
-                        <span class="seat-number" id="seatCount" style="font-size: 1.2rem; color: var(--text-secondary); font-weight: 500;">Fetching live data... ⏳</span>
+                        <span class="seat-number" id="seatCount"
+                            style="font-size: 1.2rem; color: var(--text-secondary); font-weight: 500;">Fetching live
+                            data... ⏳</span>
                     </div>
                     <div class="seat-status" id="seatStatus">
                         <span class="status-dot live"></span>
@@ -110,11 +122,14 @@
             <div class="section-header">
                 <span class="section-badge">✨ Explore Our Spaces</span>
                 <h2 class="section-title">Premium <span class="gradient-text">Study Rooms</span></h2>
-                <p class="section-subtitle">Find the perfect study ambiance tailored to your needs. Click 'Join Now' to book.</p>
+                <p class="section-subtitle">Find the perfect study ambiance tailored to your needs. Click 'Join Now' to
+                    book.</p>
             </div>
-            
+
             <div class="dynamic-rooms-grid" id="dynamicRoomsGrid">
-                <div class="loader"><div class="loader-spinner"></div></div>
+                <div class="loader">
+                    <div class="loader-spinner"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -125,16 +140,20 @@
             <div class="section-header">
                 <span class="section-badge">🏛️ World-Class Amenities</span>
                 <h2 class="section-title">Everything You Need to <span class="gradient-text">Stay Focused</span></h2>
-                <p class="section-subtitle">We've thought of everything so you can focus on what matters — your studies.</p>
+                <p class="section-subtitle">We've thought of everything so you can focus on what matters — your studies.
+                </p>
             </div>
             <div class="facilities-grid">
                 <div class="facility-card" id="facilityWifi">
                     <div class="facility-icon-wrap">
                         <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="32" cy="48" r="4" fill="currentColor"/>
-                            <path d="M22 38c5.5-5.5 14.5-5.5 20 0" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <path d="M14 30c9.9-9.9 26.1-9.9 36 0" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <path d="M6 22c14.4-14.4 37.6-14.4 52 0" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="32" cy="48" r="4" fill="currentColor" />
+                            <path d="M22 38c5.5-5.5 14.5-5.5 20 0" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" />
+                            <path d="M14 30c9.9-9.9 26.1-9.9 36 0" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" />
+                            <path d="M6 22c14.4-14.4 37.6-14.4 52 0" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" />
                         </svg>
                     </div>
                     <h3 class="facility-name">High-Speed WiFi</h3>
@@ -143,13 +162,16 @@
                 <div class="facility-card" id="facilityAC">
                     <div class="facility-icon-wrap">
                         <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="8" y="12" width="48" height="28" rx="4" stroke="currentColor" stroke-width="3"/>
-                            <line x1="20" y1="40" x2="20" y2="52" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4"/>
-                            <line x1="32" y1="40" x2="32" y2="56" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4"/>
-                            <line x1="44" y1="40" x2="44" y2="52" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4"/>
-                            <line x1="16" y1="22" x2="48" y2="22" stroke="currentColor" stroke-width="2"/>
-                            <line x1="16" y1="28" x2="48" y2="28" stroke="currentColor" stroke-width="2"/>
-                            <line x1="16" y1="34" x2="48" y2="34" stroke="currentColor" stroke-width="2"/>
+                            <rect x="8" y="12" width="48" height="28" rx="4" stroke="currentColor" stroke-width="3" />
+                            <line x1="20" y1="40" x2="20" y2="52" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-dasharray="2 4" />
+                            <line x1="32" y1="40" x2="32" y2="56" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-dasharray="2 4" />
+                            <line x1="44" y1="40" x2="44" y2="52" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-dasharray="2 4" />
+                            <line x1="16" y1="22" x2="48" y2="22" stroke="currentColor" stroke-width="2" />
+                            <line x1="16" y1="28" x2="48" y2="28" stroke="currentColor" stroke-width="2" />
+                            <line x1="16" y1="34" x2="48" y2="34" stroke="currentColor" stroke-width="2" />
                         </svg>
                     </div>
                     <h3 class="facility-name">Air Conditioned</h3>
@@ -158,8 +180,10 @@
                 <div class="facility-card" id="facilityWater">
                     <div class="facility-icon-wrap">
                         <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M32 8C32 8 16 28 16 40c0 8.8 7.2 16 16 16s16-7.2 16-16C48 28 32 8 32 8z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M24 42c0 4.4 3.6 8 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+                            <path d="M32 8C32 8 16 28 16 40c0 8.8 7.2 16 16 16s16-7.2 16-16C48 28 32 8 32 8z"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M24 42c0 4.4 3.6 8 8 8" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round" opacity="0.6" />
                         </svg>
                     </div>
                     <h3 class="facility-name">RO Purified Water</h3>
@@ -168,8 +192,9 @@
                 <div class="facility-card" id="facilityPeaceful">
                     <div class="facility-icon-wrap">
                         <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="32" cy="32" r="20" stroke="currentColor" stroke-width="3"/>
-                            <path d="M32 12c0 11 9 20 20 20-11 0-20 9-20 20 0-11-9-20-20-20 11 0 20-9 20-20z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="32" cy="32" r="20" stroke="currentColor" stroke-width="3" />
+                            <path d="M32 12c0 11 9 20 20 20-11 0-20 9-20 20 0-11-9-20-20-20 11 0 20-9 20-20z"
+                                fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2" />
                         </svg>
                     </div>
                     <h3 class="facility-name">Peaceful Environment</h3>
@@ -178,7 +203,8 @@
                 <div class="facility-card" id="facilityPower">
                     <div class="facility-icon-wrap">
                         <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M36 8L20 34h12L28 56l20-30H34L36 8z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity="0.1"/>
+                            <path d="M36 8L20 34h12L28 56l20-30H34L36 8z" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity="0.1" />
                         </svg>
                     </div>
                     <h3 class="facility-name">Power Backup</h3>
@@ -187,10 +213,12 @@
                 <div class="facility-card" id="facilityLocker">
                     <div class="facility-icon-wrap">
                         <svg class="facility-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="12" y="26" width="40" height="30" rx="4" stroke="currentColor" stroke-width="3"/>
-                            <path d="M20 26V20c0-6.6 5.4-12 12-12s12 5.4 12 12v6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <circle cx="32" cy="40" r="4" fill="currentColor"/>
-                            <line x1="32" y1="44" x2="32" y2="49" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <rect x="12" y="26" width="40" height="30" rx="4" stroke="currentColor" stroke-width="3" />
+                            <path d="M20 26V20c0-6.6 5.4-12 12-12s12 5.4 12 12v6" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" />
+                            <circle cx="32" cy="40" r="4" fill="currentColor" />
+                            <line x1="32" y1="44" x2="32" y2="49" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round" />
                         </svg>
                     </div>
                     <h3 class="facility-name">Personal Lockers</h3>
@@ -210,7 +238,8 @@
             <div class="testimonials-grid">
                 <div class="testimonial-card">
                     <div class="testimonial-stars">★★★★★</div>
-                    <p class="testimonial-text">"This library literally changed my study habits. The silent environment and AC is a blessing during summers!"</p>
+                    <p class="testimonial-text">"This library literally changed my study habits. The silent environment
+                        and AC is a blessing during summers!"</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">R</div>
                         <div>
@@ -221,7 +250,8 @@
                 </div>
                 <div class="testimonial-card">
                     <div class="testimonial-stars">★★★★★</div>
-                    <p class="testimonial-text">"Best study library in the city. Worth every rupee. The WiFi is super fast and the environment is perfect."</p>
+                    <p class="testimonial-text">"Best study library in the city. Worth every rupee. The WiFi is super
+                        fast and the environment is perfect."</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">P</div>
                         <div>
@@ -232,7 +262,8 @@
                 </div>
                 <div class="testimonial-card">
                     <div class="testimonial-stars">★★★★★</div>
-                    <p class="testimonial-text">"I cleared my GATE exam while studying here. The peaceful environment really helped me stay focused for hours."</p>
+                    <p class="testimonial-text">"I cleared my GATE exam while studying here. The peaceful environment
+                        really helped me stay focused for hours."</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">A</div>
                         <div>
@@ -292,12 +323,8 @@
                 <div class="map-container">
                     <iframe
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3630.3587118853275!2d86.69703167514014!3d24.50766707816132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f1177b19f30dbd%3A0xe10a7950a04422b5!2sSiksha%20Digital%20Library!5e0!3m2!1sen!2sin!4v1775477721652!5m2!1sen!2sin"
-                        width="100%"
-                        height="300"
-                        style="border:0; border-radius: 16px;"
-                        allowfullscreen=""
-                        loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade"
+                        width="100%" height="300" style="border:0; border-radius: 16px;" allowfullscreen=""
+                        loading="lazy" referrerpolicy="no-referrer-when-downgrade"
                         title="Shiksha Digital Library Location Map">
                     </iframe>
                 </div>
@@ -316,10 +343,11 @@
     <div class="modal-overlay" id="roomDetailsModal">
         <div class="modal-content room-details-modal">
             <button class="modal-close" onclick="closeRoomDetailsModal()" aria-label="Close modal">✖</button>
-            
+
             <!-- Room Image -->
             <div class="room-detail-image" id="roomDetailImage">
-                <img src="" alt="Room Image" id="roomDetailImg" style="width: 100%; height: 240px; object-fit: cover; border-radius: 12px;">
+                <img src="" alt="Room Image" id="roomDetailImg"
+                    style="width: 100%; height: 240px; object-fit: cover; border-radius: 12px;">
             </div>
 
             <!-- Room Name & Tagline -->
@@ -329,11 +357,13 @@
             </div>
 
             <!-- Description -->
-            <p style="text-align: center; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;" id="roomDetailDesc">Description</p>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;"
+                id="roomDetailDesc">Description</p>
 
             <!-- Pricing Section -->
             <div class="room-detail-section">
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">💰 Pricing Details (Time-Wise)</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">💰 Pricing Details (Time-Wise)
+                </h3>
                 <div class="room-pricing-grid" id="roomDetailPricing">
                     <!-- Injected dynamically -->
                 </div>
@@ -349,7 +379,8 @@
 
             <!-- Proceed to Book Button -->
             <div style="text-align: center; margin-top: 28px;">
-                <button class="btn btn-primary btn-lg" id="proceedToBookBtn" onclick="proceedToBookFromDetails()" style="width: 100%; max-width: 400px;">
+                <button class="btn btn-primary btn-lg" id="proceedToBookBtn" onclick="proceedToBookFromDetails()"
+                    style="width: 100%; max-width: 400px;">
                     Proceed to Book <span class="btn-arrow">→</span>
                 </button>
             </div>
@@ -362,9 +393,10 @@
             <button class="modal-close" onclick="closeBookingModal()" aria-label="Close modal">✖</button>
             <div class="modal-header" style="text-align: center; margin-bottom: 24px;">
                 <span class="section-badge" style="display:inline-block; margin-bottom:8px;">🎯 Live Seat Booking</span>
-                <h2 class="section-title" style="font-size: 1.8rem;">Reserve Your <span class="gradient-text">Focus Zone</span></h2>
+                <h2 class="section-title" style="font-size: 1.8rem;">Reserve Your <span class="gradient-text">Focus
+                        Zone</span></h2>
             </div>
-            
+
             <div class="wizard-container">
                 <!-- Step 1: Select Room -->
                 <div class="wizard-step" id="step1">
@@ -396,13 +428,16 @@
                     </div>
                     <div class="step-content">
                         <div class="duration-selector" id="timeSlotContainer">
-                            <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('6:00 AM - 11:00 AM')" id="slotA">
+                            <button class="duration-btn timeslot-btn"
+                                onclick="wizardSelectTimeSlot('6:00 AM - 11:00 AM')" id="slotA">
                                 <span class="duration-time">6:00 AM - 11:00 AM</span>
                             </button>
-                            <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 4:00 PM')" id="slotB">
+                            <button class="duration-btn timeslot-btn"
+                                onclick="wizardSelectTimeSlot('11:00 AM - 4:00 PM')" id="slotB">
                                 <span class="duration-time">11:00 AM - 4:00 PM</span>
                             </button>
-                            <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('4:00 PM - 9:00 PM')" id="slotC">
+                            <button class="duration-btn timeslot-btn"
+                                onclick="wizardSelectTimeSlot('4:00 PM - 9:00 PM')" id="slotC">
                                 <span class="duration-time">4:00 PM - 9:00 PM</span>
                             </button>
                         </div>
@@ -418,6 +453,7 @@
                     <div class="step-content" id="step3Content" style="display: none;">
                         <div class="modal-legend">
                             <div class="legend-item"><span class="seat-badge available"></span> Available</div>
+                            <div class="legend-item"><span class="seat-badge partially-booked"></span> Partially Booked</div>
                             <div class="legend-item"><span class="seat-badge selected"></span> Selected</div>
                             <div class="legend-item"><span class="seat-badge booked"></span> Booked</div>
                         </div>
@@ -431,40 +467,89 @@
                 </div>
             </div>
 
-                <!-- Step 4: User Details Form -->
-                <div class="wizard-step disabled" id="step4">
-                    <div class="step-header">
-                        <span class="step-number">4</span>
-                        <h3 class="step-title">Your Details</h3>
-                    </div>
-                    <div class="step-content" id="step4Content" style="display: none;">
-                        <div class="user-details-form" style="max-width: 400px; margin: 0 auto;">
-                            <div style="margin-bottom: 12px; text-align: left;">
-                                <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Full Name</label>
-                                <input type="text" id="wizardName" placeholder="e.g. John Doe" style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
-                            </div>
-                            <div style="margin-bottom: 12px; text-align: left;">
-                                <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Phone Number</label>
-                                <input type="tel" id="wizardPhone" placeholder="e.g. 9876543210" style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
-                            </div>
-                            <!-- Wizard Action Section -->
-                            <div class="wizard-action-section hidden" id="wizardActionSection" style="display: none; width: 100%; margin-top: 24px; padding: 20px; box-sizing: border-box;">
-                                <div class="wizard-summary" style="gap: 16px; flex-direction: column; font-size: 1rem;">
-                                    <div class="summary-item"><strong>Room:</strong> <span id="summaryRoom">—</span></div>
-                                    <div class="summary-item"><strong>Duration:</strong> <span id="summaryDuration">—</span></div>
-                                    <div class="summary-item"><strong>Seat:</strong> <span id="summarySeat">—</span></div>
+            <!-- Step 4: User Details Form -->
+            <div class="wizard-step disabled" id="step4">
+                <div class="step-header">
+                    <span class="step-number">4</span>
+                    <h3 class="step-title">Your Details</h3>
+                </div>
+                <div class="step-content" id="step4Content" style="display: none;">
+                    <div class="user-details-form" style="max-width: 400px; margin: 0 auto;">
+                        <div style="margin-bottom: 12px; text-align: left;">
+                            <label
+                                style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Full
+                                Name</label>
+                            <input type="text" id="wizardName" placeholder="e.g. John Doe"
+                                style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
+                        </div>
+                        <div style="margin-bottom: 12px; text-align: left;">
+                            <label
+                                style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Phone
+                                Number</label>
+                            <input type="tel" id="wizardPhone" placeholder="e.g. 9876543210"
+                                style="width: 100%; padding: 12px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; outline: none; background: transparent; color: inherit;">
+                        </div>
+                        <!-- Wizard Action Section -->
+                        <div class="wizard-action-section hidden" id="wizardActionSection"
+                            style="display: none; width: 100%; margin-top: 24px; padding: 20px; box-sizing: border-box;">
+                            <div class="wizard-summary" style="gap: 16px; flex-direction: column; font-size: 1rem;">
+                                <div class="summary-item"><strong>Room:</strong> <span id="summaryRoom">—</span></div>
+                                <div class="summary-item"><strong>Duration:</strong> <span id="summaryDuration">—</span>
                                 </div>
-                                <button class="btn btn-primary btn-lg" id="wizardConfirmBtn" style="width: 100%; margin-top: 16px;">
-                                    Submit Booking <span class="btn-arrow">→</span>
-                                </button>
+                                <div class="summary-item"><strong>Seat:</strong> <span id="summarySeat">—</span></div>
                             </div>
+                            <button class="btn btn-primary btn-lg" id="wizardConfirmBtn"
+                                style="width: 100%; margin-top: 16px;">
+                                Submit Booking <span class="btn-arrow">→</span>
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
 
+    <!-- ========== LIVE SEAT VIEWER MODAL ========== -->
+    <div class="modal-overlay" id="liveSeatModal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeLiveSeatModal()" aria-label="Close modal">✖</button>
+            <div class="modal-header" style="text-align: center; margin-bottom: 24px;">
+                <span class="section-badge" style="display:inline-block; margin-bottom:8px;">🗺️ Live View</span>
+                <h2 class="section-title" style="font-size: 1.8rem;">Current Seat <span class="gradient-text">Availability</span></h2>
+            </div>
+            
+            <div class="wizard-container">
+                <div class="wizard-step" style="opacity: 1; transform: none;">
+                    <div class="step-header">
+                        <h3 class="step-title">Select a Room to View</h3>
+                    </div>
+                    <div class="step-content" style="text-align: center; display: block;">
+                        <select id="liveViewerRoomSelect" onchange="renderLiveViewerSeats()" style="padding: 12px; width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 1rem; margin-bottom: 24px; outline: none; background: transparent; color: inherit;">
+                            <option value="" disabled selected>Loading rooms...</option>
+                        </select>
+
+                        <div class="modal-legend">
+                            <div class="legend-item"><span class="seat-badge available"></span> Fully Available</div>
+                            <div class="legend-item"><span class="seat-badge partially-booked"></span> Partially Booked</div>
+                            <div class="legend-item"><span class="seat-badge booked"></span> Fully Booked</div>
+                        </div>
+
+                        <div class="wizard-seat-layout">
+                            <div class="seat-layout" id="liveViewerSeatGrid">
+                                <!-- Seats generated via JS -->
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 32px;">
+                            <button class="btn btn-primary" onclick="closeLiveSeatModal(); setTimeout(openBookingModal, 300);">Book a Seat Now <span class="btn-arrow">→</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="script.js"></script>
 </body>
+
 </html>

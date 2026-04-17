@@ -249,7 +249,6 @@ async function fetchRoomSeats(roomId) {
 
         wizardSeatsData[roomId] = {};
         
-        // Reset all seats to available first
         let seatCount = 0;
         for (let c = 1; c <= 3; c++) {
             for (let s = 1; s <= rowsPerCol; s++) {
@@ -257,25 +256,46 @@ async function fetchRoomSeats(roomId) {
                 const seatNum = startSeat + seatCount;
                 const displayId = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
                 const seatId = `${roomId}-${displayId}`;
-                wizardSeatsData[roomId][seatId] = 'available';
+                wizardSeatsData[roomId][seatId] = {
+                    status: 'available',
+                    bookedBlocks: []
+                };
                 seatCount++;
             }
         }
 
-        // Query Firestore for bookings in this room
         const q = query(bookingsRef, where('roomSelected', '==', roomId));
         const snapshot = await getDocs(q);
 
-        // Mark booked seats
         snapshot.forEach(doc => {
             const data = doc.data();
             const seatId = `${roomId}-${data.seatNumber}`;
-            if (wizardSeatsData[roomId][seatId] !== undefined) {
-                wizardSeatsData[roomId][seatId] = 'booked';
+            if (wizardSeatsData[roomId][seatId]) {
+                const shift = data.selectedShiftTime || 'N/A';
+                const blocks = [];
+                
+                if (shift.includes('6:00 AM - 11:00 AM')) blocks.push('A');
+                else if (shift.includes('11:00 AM - 4:00 PM')) blocks.push('B');
+                else if (shift.includes('4:00 PM - 9:00 PM')) blocks.push('C');
+                else if (shift.includes('6:00 AM - 4:00 PM')) { blocks.push('A', 'B'); }
+                else if (shift.includes('11:00 AM - 9:00 PM')) { blocks.push('B', 'C'); }
+                else { blocks.push('A', 'B', 'C'); }
+
+                wizardSeatsData[roomId][seatId].bookedBlocks.push(...blocks);
             }
         });
+
+        for (let seatId in wizardSeatsData[roomId]) {
+            const sd = wizardSeatsData[roomId][seatId];
+            const uniqueBlocks = new Set(sd.bookedBlocks);
+            sd.bookedBlocks = Array.from(uniqueBlocks);
+
+            if (uniqueBlocks.size === 0) sd.status = 'available';
+            else if (uniqueBlocks.size >= 3) sd.status = 'booked';
+            else sd.status = 'partially-booked';
+        }
     } catch (err) {
-        console.error('Failed to fetch room seats from Firestore:', err);
+        console.error('Failed to fetch room seats:', err);
     }
 }
 
@@ -283,165 +303,39 @@ window.wizardSelectRoom = function (roomId, roomName) {
     wizardRoom = roomId;
     summaryRoom.textContent = roomName || `Room ${roomId}`;
 
-    // Highlight selected
     const allRoomBtns = document.querySelectorAll('.room-btn');
-    allRoomBtns.forEach((btn) => {
+    allRoomBtns.forEach(btn => {
         if (btn.id === `roomBtn${roomId}`) btn.classList.add('selected');
         else btn.classList.remove('selected');
     });
 
-    // Populate Dynamic Durations
-    const room = window.allDynamicRooms.find(r => r.id === roomId);
-    const wizardDynamicDurations = document.getElementById('wizardDynamicDurations');
+    const wContainer = document.querySelector('.wizard-container');
+    const step2 = document.getElementById('step2'); 
+    const step3 = document.getElementById('step3'); 
+    const step25 = document.getElementById('step25'); 
     
-    if (room && wizardDynamicDurations) {
-        const p5 = room.price5 || 0;
-        const p10 = room.price10 || 0;
-        const pFull = room.priceFull || 0;
-        
-        wizardDynamicDurations.innerHTML = `
-            <button class="duration-btn" onclick="wizardSelectDuration('5 Hours', '₹${p5}/month')" id="duration5">
-                <span class="duration-time">5 Hours</span>
-                <span class="duration-price">₹${p5} / month</span>
-            </button>
-            <button class="duration-btn" onclick="wizardSelectDuration('10 Hours', '₹${p10}/month')" id="duration10">
-                <span class="duration-time">10 Hours</span>
-                <span class="duration-price">₹${p10} / month</span>
-                <span class="duration-badge">Popular</span>
-            </button>
-            <button class="duration-btn" onclick="wizardSelectDuration('Full Shift', '₹${pFull}/month')" id="durationFull">
-                <span class="duration-time">Full Shift</span>
-                <span class="duration-price">₹${pFull} / month</span>
-                <span class="duration-badge">Best Value</span>
-            </button>
-        `;
+    if (step3.nextElementSibling === step2 || step2.nextElementSibling === step3) {
+        wContainer.insertBefore(step3, step2);
     }
+    
+    step3.querySelector('.step-number').textContent = '2';
+    step2.querySelector('.step-number').textContent = '3';
+    step25.querySelector('.step-number').textContent = '3.5';
 
-    // Reveal Step 2
-    step2.classList.remove('disabled');
-    step2Content.style.display = 'block';
-
-    // If seat was previously selected but room changed, reset seat
-    if (wizardSeatId) {
-        wizardSeatId = null;
-        updateWizardSummary();
-    }
-
-    // If Step 3 is open, re-render seats for the new room
-    if (!step3.classList.contains('disabled')) {
-        fetchRoomSeats(roomId).then(() => renderWizardSeats());
-    }
-
-    // Scroll to Step 2
-    setTimeout(() => {
-        const offset = step2.getBoundingClientRect().top + window.scrollY - 100;
-        window.scrollTo({ top: offset, behavior: 'smooth' });
-    }, 100);
-}
-
-window.wizardSelectDuration = function (duration, price) {
-    wizardDuration = duration;
-    wizardPrice = price;
-    summaryDuration.textContent = `${duration} (${price})`;
-
-    // Highlight selected
-    durationBtns.forEach((btn) => {
-        const btnDuration = btn.querySelector('.duration-time').textContent;
-        if (btnDuration === duration) btn.classList.add('selected');
-        else btn.classList.remove('selected');
-    });
-
-    const step25 = document.getElementById('step25');
-    const timeSlotContainer = document.getElementById('timeSlotContainer');
-
-    if (duration === '5 Hours') {
-        if (timeSlotContainer) {
-            timeSlotContainer.innerHTML = `
-                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('6:00 AM - 11:00 AM')" id="slotA">
-                    <span class="duration-time">6:00 AM - 11:00 AM</span>
-                </button>
-                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 4:00 PM')" id="slotB">
-                    <span class="duration-time">11:00 AM - 4:00 PM</span>
-                </button>
-                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('4:00 PM - 9:00 PM')" id="slotC">
-                    <span class="duration-time">4:00 PM - 9:00 PM</span>
-                </button>
-            `;
-        }
-        wizardTimeSlot = null;
-        document.querySelectorAll('.timeslot-btn').forEach(btn => btn.classList.remove('selected'));
-
-        // Hide step 3 until time slot is selected
-        step3.classList.add('disabled');
-        step3Content.style.display = 'none';
-
-        step25.style.display = 'block';
-
-        // Scroll to Step 2.5
-        setTimeout(() => {
-            const offset = step25.getBoundingClientRect().top + window.scrollY - 100;
-            window.scrollTo({ top: offset, behavior: 'smooth' });
-        }, 100);
-    } else if (duration === '10 Hours') {
-        if (timeSlotContainer) {
-            timeSlotContainer.innerHTML = `
-                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('6:00 AM - 4:00 PM')" id="slotA">
-                    <span class="duration-time">6:00 AM - 4:00 PM</span>
-                </button>
-                <button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 9:00 PM')" id="slotB">
-                    <span class="duration-time">11:00 AM - 9:00 PM</span>
-                </button>
-            `;
-        }
-        wizardTimeSlot = null;
-        document.querySelectorAll('.timeslot-btn').forEach(btn => btn.classList.remove('selected'));
-
-        step3.classList.add('disabled');
-        step3Content.style.display = 'none';
-
-        step25.style.display = 'block';
-
-        // Scroll to Step 2.5
-        setTimeout(() => {
-            const offset = step25.getBoundingClientRect().top + window.scrollY - 100;
-            window.scrollTo({ top: offset, behavior: 'smooth' });
-        }, 100);
-    } else if (duration === 'Full Shift') {
-        wizardTimeSlot = '6:00 AM - 9:00 PM';
-        step25.style.display = 'none';
-
-        // Reveal Step 3
-        step3.classList.remove('disabled');
-        step3Content.style.display = 'block';
-
-        // Fetch live seat data then render
-        fetchRoomSeats(wizardRoom).then(() => renderWizardSeats());
-
-        // Scroll to Step 3
-        setTimeout(() => {
-            const offset = step3.getBoundingClientRect().top + window.scrollY - 100;
-            window.scrollTo({ top: offset, behavior: 'smooth' });
-        }, 100);
-    }
-}
-
-window.wizardSelectTimeSlot = function (slot) {
-    wizardTimeSlot = slot;
-
-    // Highlight selected
-    document.querySelectorAll('.timeslot-btn').forEach(btn => {
-        if (btn.querySelector('.duration-time').textContent === slot) btn.classList.add('selected');
-        else btn.classList.remove('selected');
-    });
-
-    // Reveal Step 3
     step3.classList.remove('disabled');
     step3Content.style.display = 'block';
 
-    // Fetch live seat data then render
-    fetchRoomSeats(wizardRoom).then(() => renderWizardSeats());
+    step2.classList.add('disabled');
+    step2Content.style.display = 'none';
+    step25.style.display = 'none';
+    const step4 = document.getElementById('step4');
+    if(step4) { step4.classList.add('disabled'); document.getElementById('step4Content').style.display = 'none'; }
+    wizardActionSection.classList.add('hidden');
+    wizardActionSection.style.display = 'none';
+    wizardSeatId = null;
 
-    // Scroll to Step 3
+    fetchRoomSeats(roomId).then(() => renderWizardSeats());
+    
     setTimeout(() => {
         const offset = step3.getBoundingClientRect().top + window.scrollY - 100;
         window.scrollTo({ top: offset, behavior: 'smooth' });
@@ -450,7 +344,6 @@ window.wizardSelectTimeSlot = function (slot) {
 
 function renderWizardSeats() {
     wizardSeatGrid.innerHTML = '';
-
     const room = window.allDynamicRooms.find(r => r.id === wizardRoom);
     const total = room && room.totalSeats ? parseInt(room.totalSeats) : 30;
     const startSeat = room && room.startSeatNumber ? parseInt(room.startSeatNumber) : 1;
@@ -466,17 +359,18 @@ function renderWizardSeats() {
             const seatNum = startSeat + seatCount;
             const displayId = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
             const seatId = `${wizardRoom}-${displayId}`;
-            const status = wizardSeatsData[wizardRoom][seatId];
-            if (!status) { seatCount++; continue; } 
+            
+            const sd = wizardSeatsData[wizardRoom][seatId];
+            if (!sd) { seatCount++; continue; } 
 
             const seatDiv = document.createElement('div');
-            let stateClass = status;
+            let stateClass = sd.status;
             if (seatId === wizardSeatId) stateClass = 'selected';
 
             seatDiv.className = `seat ${stateClass}`;
             seatDiv.textContent = displayId;
 
-            if (status === 'available') {
+            if (sd.status === 'available' || sd.status === 'partially-booked') {
                 seatDiv.addEventListener('click', () => handleWizardSeatClick(seatId));
             }
             colDiv.appendChild(seatDiv);
@@ -487,37 +381,164 @@ function renderWizardSeats() {
 }
 
 function handleWizardSeatClick(seatId) {
-    wizardSeatId = (wizardSeatId === seatId) ? null : seatId;
+    if (wizardSeatId === seatId) {
+        wizardSeatId = null;
+        step2.classList.add('disabled');
+        step2Content.style.display = 'none';
+        step25.style.display = 'none';
+    } else {
+        wizardSeatId = seatId;
+        
+        step2.classList.remove('disabled');
+        step2Content.style.display = 'block';
+        step25.style.display = 'none'; 
+
+        const sd = wizardSeatsData[wizardRoom][seatId];
+        const blocksTaken = sd ? sd.bookedBlocks.length : 0;
+        
+        const room = window.allDynamicRooms.find(r => r.id === wizardRoom);
+        const wizardDynamicDurations = document.getElementById('wizardDynamicDurations');
+        if (room && wizardDynamicDurations) {
+            const p5 = room.price5 || 0;
+            const p10 = room.price10 || 0;
+            const pFull = room.priceFull || 0;
+            
+            let html = "";
+            if (blocksTaken < 3) {
+                html += `<button class="duration-btn" onclick="wizardSelectDuration('5 Hours', '₹${p5}/month')" id="duration5">
+                    <span class="duration-time">5 Hours</span>
+                    <span class="duration-price">₹${p5} / month</span>
+                </button>`;
+            }
+            if (blocksTaken < 2) {
+                html += `<button class="duration-btn" onclick="wizardSelectDuration('10 Hours', '₹${p10}/month')" id="duration10">
+                    <span class="duration-time">10 Hours</span>
+                    <span class="duration-price">₹${p10} / month</span>
+                    <span class="duration-badge">Popular</span>
+                </button>`;
+            }
+            if (blocksTaken === 0) {
+                html += `<button class="duration-btn" onclick="wizardSelectDuration('Full Shift', '₹${pFull}/month')" id="durationFull">
+                    <span class="duration-time">Full Shift</span>
+                    <span class="duration-price">₹${pFull} / month</span>
+                    <span class="duration-badge">Best Value</span>
+                </button>`;
+            }
+            wizardDynamicDurations.innerHTML = html;
+        }
+        
+        wizardDuration = null;
+        wizardTimeSlot = null;
+        summaryDuration.textContent = '—';
+        document.getElementById('step4').classList.add('disabled');
+        document.getElementById('step4Content').style.display = 'none';
+        wizardActionSection.classList.add('hidden');
+        wizardActionSection.style.display = 'none';
+
+        setTimeout(() => {
+            const offset = step2.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+        }, 100);
+    }
     renderWizardSeats();
-    updateWizardSummary();
+    summarySeat.textContent = wizardSeatId ? wizardSeatId.split('-')[1] : '—';
 }
 
-function updateWizardSummary() {
+window.wizardSelectDuration = function (duration, price) {
+    wizardDuration = duration;
+    wizardPrice = price;
+    summaryDuration.textContent = `${duration} (${price})`;
+
+    const dBtns = document.querySelectorAll('.duration-btn:not(.timeslot-btn)');
+    dBtns.forEach(btn => {
+        if (btn.querySelector('.duration-time').textContent === duration) btn.classList.add('selected');
+        else btn.classList.remove('selected');
+    });
+
+    const step25 = document.getElementById('step25');
+    const timeSlotContainer = document.getElementById('timeSlotContainer');
+    
+    const sd = wizardSeatsData[wizardRoom][wizardSeatId];
+    const taken = sd ? sd.bookedBlocks : [];
+
+    if (duration === '5 Hours') {
+        let html = "";
+        if (!taken.includes('A')) html += `<button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('6:00 AM - 11:00 AM')"><span class="duration-time">6:00 AM - 11:00 AM</span></button>`;
+        if (!taken.includes('B')) html += `<button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 4:00 PM')"><span class="duration-time">11:00 AM - 4:00 PM</span></button>`;
+        if (!taken.includes('C')) html += `<button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('4:00 PM - 9:00 PM')"><span class="duration-time">4:00 PM - 9:00 PM</span></button>`;
+        timeSlotContainer.innerHTML = html;
+        
+        wizardTimeSlot = null;
+        step25.style.display = 'block';
+        
+        document.getElementById('step4').classList.add('disabled');
+        document.getElementById('step4Content').style.display = 'none';
+        wizardActionSection.classList.add('hidden');
+        wizardActionSection.style.display = 'none';
+
+        setTimeout(() => {
+            const offset = step25.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+        }, 100);
+        
+    } else if (duration === '10 Hours') {
+        let html = "";
+        if (!taken.includes('A') && !taken.includes('B')) {
+            html += `<button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('6:00 AM - 4:00 PM')"><span class="duration-time">6:00 AM - 4:00 PM</span></button>`;
+        }
+        if (!taken.includes('B') && !taken.includes('C')) {
+            html += `<button class="duration-btn timeslot-btn" onclick="wizardSelectTimeSlot('11:00 AM - 9:00 PM')"><span class="duration-time">11:00 AM - 9:00 PM</span></button>`;
+        }
+        timeSlotContainer.innerHTML = html;
+        
+        wizardTimeSlot = null;
+        step25.style.display = 'block';
+        
+        document.getElementById('step4').classList.add('disabled');
+        document.getElementById('step4Content').style.display = 'none';
+        wizardActionSection.classList.add('hidden');
+        wizardActionSection.style.display = 'none';
+
+        setTimeout(() => {
+            const offset = step25.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+        }, 100);
+        
+    } else if (duration === 'Full Shift') {
+        wizardTimeSlot = '6:00 AM - 9:00 PM';
+        step25.style.display = 'none';
+        updateWizardSummaryAction();
+    }
+}
+
+window.wizardSelectTimeSlot = function (slot) {
+    wizardTimeSlot = slot;
+    document.querySelectorAll('.timeslot-btn').forEach(btn => {
+        if (btn.querySelector('.duration-time').textContent === slot) btn.classList.add('selected');
+        else btn.classList.remove('selected');
+    });
+    updateWizardSummaryAction();
+}
+
+function updateWizardSummaryAction() {
     const step4 = document.getElementById('step4');
     const step4Content = document.getElementById('step4Content');
     const confirmBtn = document.getElementById('wizardConfirmBtn');
 
-    if (wizardSeatId) {
-        const [room, seat] = wizardSeatId.split('-');
-        summarySeat.textContent = seat;
-
-        // Reveal action section
+    if (wizardSeatId && wizardDuration && wizardTimeSlot) {
         wizardActionSection.classList.remove('hidden');
         wizardActionSection.style.display = 'flex';
 
-        // Auto-expand step 4
         if (step4) {
             step4.classList.remove('disabled');
             if (step4Content) step4Content.style.display = 'block';
         }
 
-        // Setup Submit Booking button
         if (confirmBtn) {
             confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
             confirmBtn.onclick = window.wizardSubmitBooking;
         }
 
-        // Scroll to step 4
         setTimeout(() => {
             if (step4) {
                 const offset = step4.getBoundingClientRect().top + window.scrollY - 100;
@@ -526,19 +547,11 @@ function updateWizardSummary() {
                 if (wizardNameInput) wizardNameInput.focus();
             }
         }, 100);
-    } else {
-        summarySeat.textContent = '—';
-        wizardActionSection.classList.add('hidden');
-        wizardActionSection.style.display = 'none';
-
-        // Hide Step 4 if seat un-selected
-        if (step4) step4.classList.add('disabled');
-        if (step4Content) step4Content.style.display = 'none';
-
-        if (confirmBtn) {
-            confirmBtn.onclick = null;
-        }
     }
+}
+
+function updateWizardSummary() {
+    // Legacy helper kept empty to avoid reference errors
 }
 
 window.wizardSubmitBooking = async function () {
@@ -568,10 +581,14 @@ window.wizardSubmitBooking = async function () {
 
         alert(`✅ Booking Confirmed!\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName}!`);
 
-        wizardSeatsData[wizardRoom][wizardSeatId] = 'booked';
+        await fetchRoomSeats(wizardRoom);
         wizardSeatId = null;
         renderWizardSeats();
-        updateWizardSummary();
+        
+        document.getElementById('step4').classList.add('disabled');
+        document.getElementById('step4Content').style.display = 'none';
+        wizardActionSection.classList.add('hidden');
+        wizardActionSection.style.display = 'none';
 
         const seatCountEl = document.getElementById('seatCount');
         if (seatCountEl && window._fetchSeatCount) {
@@ -586,6 +603,85 @@ window.wizardSubmitBooking = async function () {
         confirmBtn.disabled = false;
         confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
     }
+}
+
+// ==========================================
+// 10. LIVE SEAT VIEWER MODAL LOGIC
+// ==========================================
+
+window.openLiveSeatModal = function() {
+    const modal = document.getElementById('liveSeatModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+        document.body.style.overflow = 'hidden';
+        
+        const select = document.getElementById('liveViewerRoomSelect');
+        if (select) {
+            if (window.allDynamicRooms && window.allDynamicRooms.length > 0) {
+                let html = '<option value="" disabled selected>Select a Room to View</option>';
+                window.allDynamicRooms.forEach(r => {
+                    html += `<option value="${r.id}">${r.name}</option>`;
+                });
+                select.innerHTML = html;
+            } else {
+                select.innerHTML = '<option value="" disabled selected>No rooms available</option>';
+            }
+        }
+    }
+}
+
+window.closeLiveSeatModal = function() {
+    const modal = document.getElementById('liveSeatModal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300);
+        document.body.style.overflow = '';
+    }
+}
+
+window.renderLiveViewerSeats = async function() {
+    const roomId = document.getElementById('liveViewerRoomSelect').value;
+    if (!roomId) return;
+    
+    await fetchRoomSeats(roomId);
+    
+    const grid = document.getElementById('liveViewerSeatGrid');
+    grid.innerHTML = '';
+    
+    const room = window.allDynamicRooms.find(r => r.id === roomId);
+    if (!room) return;
+    
+    const total = room.totalSeats ? parseInt(room.totalSeats) : 30;
+    const startSeat = room.startSeatNumber ? parseInt(room.startSeatNumber) : 1;
+    const rowsPerCol = Math.ceil(total / 3);
+
+    let seatCount = 0;
+    for (let c = 1; c <= 3; c++) {
+        const colDiv = document.createElement('div');
+        colDiv.className = 'seat-column';
+
+        for (let s = 1; s <= rowsPerCol; s++) {
+            if (seatCount >= total) break;
+            const seatNum = startSeat + seatCount;
+            const displayId = seatNum < 10 ? `0${seatNum}` : `${seatNum}`;
+            const seatId = `${roomId}-${displayId}`;
+            
+            const sd = wizardSeatsData[roomId][seatId];
+            if (!sd) { seatCount++; continue; } 
+
+            const seatDiv = document.createElement('div');
+            seatDiv.className = `seat ${sd.status}`;
+            seatDiv.textContent = displayId;
+            seatDiv.style.cursor = 'default';
+
+            colDiv.appendChild(seatDiv);
+            seatCount++;
+        }
+        grid.appendChild(colDiv);
+    }
+}
+
 }
 
 // ==========================================
