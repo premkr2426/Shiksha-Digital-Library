@@ -409,10 +409,32 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Select Duration -->
-                <div class="wizard-step disabled" id="step2">
+                <!-- Step 3: Select Seat -->
+                <div class="wizard-step disabled" id="step3">
                     <div class="step-header">
                         <span class="step-number">2</span>
+                        <h3 class="step-title">Choose Your Seat</h3>
+                    </div>
+                    <div class="step-content" id="step3Content" style="display: none;">
+                        <div class="modal-legend">
+                            <div class="legend-item"><span class="seat-badge available"></span> Available</div>
+                            <div class="legend-item"><span class="seat-badge partially-booked"></span> Partially Booked</div>
+                            <div class="legend-item"><span class="seat-badge selected"></span> Selected</div>
+                            <div class="legend-item"><span class="seat-badge booked"></span> Booked</div>
+                        </div>
+
+                        <div class="wizard-seat-layout">
+                            <div class="seat-layout" id="wizardSeatGrid">
+                                <!-- Seats generated via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Step 2: Select Duration -->
+                <div class="wizard-step disabled" id="step2">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
                         <h3 class="step-title">Select Duration/Shift</h3>
                     </div>
                     <div class="step-content" id="step2Content" style="display: none;">
@@ -423,7 +445,7 @@
                 <!-- Step 2.5: Select Time Slot (Conditional) -->
                 <div class="wizard-step" id="step25" style="display: none; margin-top: 24px;">
                     <div class="step-header">
-                        <span class="step-number">2.5</span>
+                        <span class="step-number">3.5</span>
                         <h3 class="step-title">Select a Time Slot</h3>
                     </div>
                     <div class="step-content">
@@ -444,30 +466,7 @@
                     </div>
                 </div>
 
-                <!-- Step 3: Select Seat -->
-                <div class="wizard-step disabled" id="step3">
-                    <div class="step-header">
-                        <span class="step-number">3</span>
-                        <h3 class="step-title">Choose Your Seat</h3>
-                    </div>
-                    <div class="step-content" id="step3Content" style="display: none;">
-                        <div class="modal-legend">
-                            <div class="legend-item"><span class="seat-badge available"></span> Available</div>
-                            <div class="legend-item"><span class="seat-badge partially-booked"></span> Partially Booked</div>
-                            <div class="legend-item"><span class="seat-badge selected"></span> Selected</div>
-                            <div class="legend-item"><span class="seat-badge booked"></span> Booked</div>
-                        </div>
-
-                        <div class="wizard-seat-layout">
-                            <div class="seat-layout" id="wizardSeatGrid">
-                                <!-- Seats generated via JS -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 4: User Details Form -->
+                <!-- Step 4: User Details Form -->
             <div class="wizard-step disabled" id="step4">
                 <div class="step-header">
                     <span class="step-number">4</span>

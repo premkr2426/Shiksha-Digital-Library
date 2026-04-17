@@ -331,14 +331,7 @@ window.wizardSelectRoom = function (roomId, roomName) {
     const step2 = document.getElementById('step2'); 
     const step3 = document.getElementById('step3'); 
     const step25 = document.getElementById('step25'); 
-    
-    if (step3.nextElementSibling === step2 || step2.nextElementSibling === step3) {
-        wContainer.insertBefore(step3, step2);
-    }
-    
-    step3.querySelector('.step-number').textContent = '2';
-    step2.querySelector('.step-number').textContent = '3';
-    step25.querySelector('.step-number').textContent = '3.5';
+
 
     step3.classList.remove('disabled');
     step3Content.style.display = 'block';
@@ -473,7 +466,8 @@ window.wizardSelectDuration = function (duration, price) {
 
     const dBtns = document.querySelectorAll('.duration-btn:not(.timeslot-btn)');
     dBtns.forEach(btn => {
-        if (btn.querySelector('.duration-time').textContent === duration) btn.classList.add('selected');
+        const dTimeEl = btn.querySelector('.duration-time');
+        if (dTimeEl && dTimeEl.textContent === duration) btn.classList.add('selected');
         else btn.classList.remove('selected');
     });
 
@@ -666,36 +660,36 @@ window.jumpToBookingFromLiveView = function(roomId, seatId, duration, timeSlot) 
     window.closeLiveSeatModal();
     setTimeout(() => {
         window.openBookingModal();
-        const room = window.allDynamicRooms.find(r => r.id === roomId);
-        const roomName = room ? room.name : `Room ${roomId}`;
-        if (window.wizardSelectRoom) {
-            window.wizardSelectRoom(roomId, roomName);
+        setTimeout(() => {
+            const room = window.allDynamicRooms.find(r => r.id === roomId);
+            const roomName = room ? room.name : `Room ${roomId}`;
+            if (window.wizardSelectRoom) window.wizardSelectRoom(roomId, roomName);
+            
             setTimeout(() => {
-                if (window.handleWizardSeatClick) {
-                    window.handleWizardSeatClick(seatId);
-                    
-                    if (duration && timeSlot) {
-                        setTimeout(() => {
-                            if (window.wizardSelectDuration) {
-                                let priceLabel = '...';
-                                if (room) {
-                                    if (duration === '5 Hours') priceLabel = `₹${room.price5 || 0}/month`;
-                                    else if (duration === '10 Hours') priceLabel = `₹${room.price10 || 0}/month`;
-                                    else if (duration === 'Full Shift') priceLabel = `₹${room.priceFull || 0}/month`;
-                                }
-                                window.wizardSelectDuration(duration, priceLabel);
-                                
-                                setTimeout(() => {
-                                    if (window.wizardSelectTimeSlot) {
-                                        window.wizardSelectTimeSlot(timeSlot);
-                                    }
-                                }, 150);
-                            }
-                        }, 150);
+                if (window.handleWizardSeatClick) window.handleWizardSeatClick(seatId);
+                
+                setTimeout(() => {
+                    let priceLabel = '...';
+                    if (room) {
+                        if (duration === '5 Hours') priceLabel = `₹${room.price5 || 0}/month`;
+                        else if (duration === '10 Hours') priceLabel = `₹${room.price10 || 0}/month`;
+                        else if (duration === 'Full Shift') priceLabel = `₹${room.priceFull || 0}/month`;
                     }
-                }
+                    if (window.wizardSelectDuration) window.wizardSelectDuration(duration, priceLabel);
+                    
+                    setTimeout(() => {
+                        if (window.wizardSelectTimeSlot && duration !== 'Full Shift') {
+                            window.wizardSelectTimeSlot(timeSlot);
+                        }
+                        const step4 = document.getElementById('step4');
+                        if (step4 && !step4.classList.contains('disabled')) {
+                            const offset = step4.getBoundingClientRect().top + window.scrollY - 100;
+                            window.scrollTo({ top: offset, behavior: 'smooth' });
+                        }
+                    }, 300);
+                }, 300);
             }, 300);
-        }
+        }, 100);
     }, 300);
 };
 
