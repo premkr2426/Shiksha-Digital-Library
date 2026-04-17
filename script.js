@@ -214,8 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
 window.openBookingModal = function () {
     const modal = document.getElementById('bookingModal');
     if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+        document.body.style.overflow = 'hidden'; 
     }
 };
 
@@ -223,7 +224,8 @@ window.closeBookingModal = function () {
     const modal = document.getElementById('bookingModal');
     if (modal) {
         modal.classList.remove('active');
-        document.body.style.overflow = ''; // Restore background scrolling
+        setTimeout(() => modal.style.display = 'none', 300);
+        document.body.style.overflow = '';
     }
 };
 
