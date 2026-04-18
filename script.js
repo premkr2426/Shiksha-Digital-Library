@@ -683,7 +683,21 @@ window.wizardSubmitBooking = async function () {
             bookingToken: refToken
         });
 
-        alert(`✅ Booking Request Sent! Awaiting Admin Approval.\n\n🔖 Booking Token: ${refToken}\nPlease save this token for your reference.\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName}!`);
+        alert(
+            `✅ BOOKING REQUEST SENT SUCCESSFULLY! ✅\n\n` +
+            `===================================\n` +
+            `🎫 YOUR BOOKING TOKEN: ${refToken} 🎫\n` +
+            `===================================\n\n` +
+            `⚠️ IMPORTANT NOTE:\n` +
+            `This token is mandatory for completing your offline payment at the library desk. If you have already paid online, please keep this token safe as your proof of booking.\n\n` +
+            `-----------------------------------\n` +
+            `Booking Details:\n` +
+            `🚪 Room: ${room}\n` +
+            `💺 Seat: ${seat}\n` +
+            `⏳ Duration: ${wizardDuration}\n` +
+            `⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\n` +
+            `Thank you, ${userName}!`
+        );
 
         await fetchRoomSeats(wizardRoom);
         wizardSeatId = null;
