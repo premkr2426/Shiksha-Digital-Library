@@ -640,15 +640,6 @@ function updateWizardSummary() {
     // Legacy helper kept empty to avoid reference errors
 }
 
-function generateBookingToken() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let token = '';
-    for (let i = 0; i < 6; i++) {
-        token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return `SL-${token}`;
-}
-
 window.showSuccessModal = function(token, room, seat, duration, shift) {
     const tokenEl = document.getElementById('smToken');
     const roomEl = document.getElementById('smRoom');
@@ -701,7 +692,7 @@ window.wizardSubmitBooking = async function () {
         const expiryDate = new Date(joinDate);
         expiryDate.setMonth(expiryDate.getMonth() + 1);
 
-        const refToken = generateBookingToken();
+        const bookingToken = generateBookingToken();
 
         await addDoc(bookingsRef, {
             name: userName,
@@ -713,12 +704,8 @@ window.wizardSubmitBooking = async function () {
             date: Timestamp.fromDate(joinDate),
             expiryDate: Timestamp.fromDate(expiryDate),
             status: 'pending',
-            bookingToken: refToken
+            bookingToken: bookingToken
         });
-
-        if (window.showSuccessModal) {
-            window.showSuccessModal(refToken, room, seat, wizardDuration, wizardTimeSlot);
-        }
 
         await fetchRoomSeats(wizardRoom);
         wizardSeatId = null;
@@ -736,9 +723,16 @@ window.wizardSubmitBooking = async function () {
 
         if (window.updateFrontendSeatCount) window.updateFrontendSeatCount();
         if (window.closeBookingModal) window.closeBookingModal();
+
+        const sm = document.getElementById('successModal');
+        if (sm) {
+            document.getElementById('successTokenDisplay').innerText = bookingToken;
+            sm.style.display = 'flex';
+            setTimeout(() => sm.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        }
     } catch (err) {
         console.error('Firestore booking error:', err);
-        alert('❌ Failed to save booking. Please check your connection and try again.');
         confirmBtn.disabled = false;
         confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
     }
@@ -1230,4 +1224,31 @@ function resetBookingWizard() {
             window.scrollTo({ top: offset, behavior: 'smooth' });
         }
     }, 100);
+}
+
+window.closeSuccessModal = function() {
+    const sm = document.getElementById('successModal');
+    if (sm) {
+        sm.classList.remove('active');
+        setTimeout(() => {
+            sm.style.display = 'none';
+            document.body.style.overflow = '';
+        }, 300);
+    }
+};
+
+window.copyBookingToken = function() {
+    const token = document.getElementById('successTokenDisplay').innerText;
+    navigator.clipboard.writeText(token).then(() => {
+        const btn = document.getElementById('copyTokenBtn');
+        btn.innerText = '✅ Copied!';
+        setTimeout(() => { btn.innerText = '📋 Copy Token'; }, 2000);
+    });
+};
+
+function generateBookingToken() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let res = 'SL-';
+    for (let i = 0; i < 6; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+    return res;
 }
