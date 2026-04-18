@@ -561,6 +561,42 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal" style="display: none; z-index: 10000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="max-width: 500px; width: 90%; text-align: center; border-radius: 12px; overflow: hidden; position: relative; padding: 0;">
+            <div style="background: var(--gradient-primary); padding: 40px 20px 20px; color: white;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+                <h2 style="font-size: 1.5rem; margin-bottom: 0;">Booking Request Sent!</h2>
+                <p style="opacity: 0.9; margin-top: 5px;">Awaiting Admin Approval</p>
+            </div>
+            <div style="padding: 30px;">
+                <p style="color: var(--text-secondary); margin-bottom: 15px; font-weight: 500;">YOUR BOOKING TOKEN</p>
+                <div style="background: rgba(var(--accent-1-rgb), 0.1); border: 2px dashed var(--accent-1); border-radius: 8px; padding: 15px; margin-bottom: 20px; position: relative;">
+                    <span id="smToken" style="font-family: monospace; font-size: 1.8rem; font-weight: bold; color: var(--accent-1); letter-spacing: 2px;">SL-XXXXXX</span>
+                </div>
+                <button id="copyTokenBtn" class="btn btn-outline" style="width: 100%; border: 2px solid var(--accent-1); color: var(--accent-1); font-weight: bold; margin-bottom: 30px;">📋 Copy Token</button>
+
+                <div style="background: #fff8e1; border-left: 4px solid #f59e0b; padding: 15px; text-align: left; border-radius: 4px; margin-bottom: 25px;">
+                    <strong style="color: #d97706; display: flex; align-items: center; gap: 6px; font-size: 0.95rem; margin-bottom: 6px;">⚠️ IMPORTANT NOTE</strong>
+                    <p style="color: #92400e; font-size: 0.85rem; line-height: 1.4; margin: 0;">This token is mandatory for completing your offline payment at the library desk. If you have already paid online, please keep this token safe as your proof of booking.</p>
+                </div>
+
+                <div style="border-top: 1px solid var(--border-color); padding-top: 20px; text-align: left;">
+                    <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 12px;">Booking Details:</h3>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-secondary); font-size: 0.95rem;">
+                        <li style="margin-bottom: 8px;">🚪 Room: <strong style="color: var(--text-primary);" id="smRoom">...</strong></li>
+                        <li style="margin-bottom: 8px;">💺 Seat: <strong style="color: var(--text-primary);" id="smSeat">...</strong></li>
+                        <li style="margin-bottom: 8px;">⏳ Duration: <strong style="color: var(--text-primary);" id="smDuration">...</strong></li>
+                        <li style="margin-bottom: 8px;">⏰ Shift: <strong style="color: var(--text-primary);" id="smShift">...</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-top: 1px solid var(--border-color);">
+                <button class="btn btn-primary" onclick="document.getElementById('successModal').style.display='none'" style="width: 100%;">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="script.js"></script>
 </body>
 

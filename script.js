@@ -637,9 +637,6 @@ function updateWizardSummaryAction() {
 }
 
 function updateWizardSummary() {
-    // Legacy helper kept empty to avoid reference errors
-}
-
 function generateBookingToken() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let token = '';
@@ -647,6 +644,39 @@ function generateBookingToken() {
         token += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return `SL-${token}`;
+}
+
+window.showSuccessModal = function(token, room, seat, duration, shift) {
+    const tokenEl = document.getElementById('smToken');
+    const roomEl = document.getElementById('smRoom');
+    const seatEl = document.getElementById('smSeat');
+    const durationEl = document.getElementById('smDuration');
+    const shiftEl = document.getElementById('smShift');
+
+    if (tokenEl) tokenEl.textContent = token;
+    if (roomEl) roomEl.textContent = room;
+    if (seatEl) seatEl.textContent = seat;
+    if (durationEl) durationEl.textContent = duration;
+    if (shiftEl) shiftEl.textContent = shift || 'N/A';
+
+    const copyBtn = document.getElementById('copyTokenBtn');
+    if (copyBtn) {
+        copyBtn.onclick = function() {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(token).then(() => {
+                    copyBtn.innerHTML = '✅ Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '📋 Copy Token';
+                    }, 2000);
+                }).catch(err => {
+                    console.error("Failed to copy:", err);
+                });
+            }
+        };
+    }
+
+    const modal = document.getElementById('successModal');
+    if (modal) modal.style.display = 'flex';
 }
 
 window.wizardSubmitBooking = async function () {
@@ -683,21 +713,9 @@ window.wizardSubmitBooking = async function () {
             bookingToken: refToken
         });
 
-        alert(
-            `✅ BOOKING REQUEST SENT SUCCESSFULLY! ✅\n\n` +
-            `===================================\n` +
-            `🎫 YOUR BOOKING TOKEN: ${refToken} 🎫\n` +
-            `===================================\n\n` +
-            `⚠️ IMPORTANT NOTE:\n` +
-            `This token is mandatory for completing your offline payment at the library desk. If you have already paid online, please keep this token safe as your proof of booking.\n\n` +
-            `-----------------------------------\n` +
-            `Booking Details:\n` +
-            `🚪 Room: ${room}\n` +
-            `💺 Seat: ${seat}\n` +
-            `⏳ Duration: ${wizardDuration}\n` +
-            `⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\n` +
-            `Thank you, ${userName}!`
-        );
+        if (window.showSuccessModal) {
+            window.showSuccessModal(refToken, room, seat, wizardDuration, wizardTimeSlot);
+        }
 
         await fetchRoomSeats(wizardRoom);
         wizardSeatId = null;
