@@ -533,7 +533,10 @@ window.wizardSelectDuration = function (duration, price) {
         timeSlotContainer.innerHTML = html;
 
         wizardTimeSlot = null;
-        if (step4) step4.style.display = 'block';
+        if (step4) {
+            step4.classList.remove('disabled');
+            step4.style.display = 'block';
+        }
 
         if (step5) step5.classList.add('disabled');
         if (step5Content) step5Content.style.display = 'none';
@@ -560,7 +563,10 @@ window.wizardSelectDuration = function (duration, price) {
         timeSlotContainer.innerHTML = html;
 
         wizardTimeSlot = null;
-        if (step4) step4.style.display = 'block';
+        if (step4) {
+            step4.classList.remove('disabled');
+            step4.style.display = 'block';
+        }
 
         if (step5) step5.classList.add('disabled');
         if (step5Content) step5Content.style.display = 'none';
