@@ -1099,13 +1099,14 @@ window.proceedToBookFromDetails = function () {
 
 // Wizard ko fresh state mein lane ka function
 function resetBookingWizard() {
-    // Ye variables existing codebase mein pehle se define hone chahiye
-    if (typeof wizardRoom !== 'undefined') wizardRoom = null;
-    if (typeof wizardDuration !== 'undefined') wizardDuration = null;
-    if (typeof wizardPrice !== 'undefined') wizardPrice = null;
-    if (typeof wizardSeatId !== 'undefined') wizardSeatId = null;
-    if (typeof wizardTimeSlot !== 'undefined') wizardTimeSlot = null;
+    // 1. Reset Variables explicitly
+    wizardRoom = null;
+    wizardDuration = null;
+    wizardPrice = null;
+    wizardSeatId = null;
+    wizardTimeSlot = null;
 
+    // 2. Reset UI Steps
     const step2 = document.getElementById('step2');
     const step2Content = document.getElementById('step2Content');
     const step3 = document.getElementById('step3');
@@ -1113,41 +1114,57 @@ function resetBookingWizard() {
     const step4 = document.getElementById('step4');
     const step5 = document.getElementById('step5');
     const step5Content = document.getElementById('step5Content');
-    const actionSec = document.getElementById('wizardActionSection');
 
-    if (step2) step2.classList.add('disabled');
-    if (step2Content) step2Content.style.display = 'none';
-    if (step3) step3.classList.add('disabled');
-    if (step3Content) step3Content.style.display = 'none';
-    if (step4) step4.style.display = 'none';
-    if (step5) step5.classList.add('disabled');
-    if (step5Content) step5Content.style.display = 'none';
+    if (step2) { step2.classList.add('disabled'); }
+    if (step2Content) { step2Content.style.display = 'none'; }
+    
+    if (step3) { step3.classList.add('disabled'); }
+    if (step3Content) { step3Content.style.display = 'none'; }
+    
+    if (step4) { 
+        step4.classList.add('disabled'); 
+        step4.style.display = 'none'; 
+    }
+    
+    if (step5) { step5.classList.add('disabled'); }
+    if (step5Content) { step5Content.style.display = 'none'; }
 
+    // 3. Clear Inputs & Summary
     const wizardName = document.getElementById('wizardName');
     const wizardPhone = document.getElementById('wizardPhone');
-    const confirmBtn = document.getElementById('wizardConfirmBtn');
-
     if (wizardName) wizardName.value = '';
     if (wizardPhone) wizardPhone.value = '';
 
-    if (confirmBtn) {
-        confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
+    const summaryRoom = document.getElementById('summaryRoom');
+    const summaryDuration = document.getElementById('summaryDuration');
+    const summarySeat = document.getElementById('summarySeat');
+    if (summaryRoom) summaryRoom.textContent = '—';
+    if (summaryDuration) summaryDuration.textContent = '—';
+    if (summarySeat) summarySeat.textContent = '—';
+
+    const wizardActionSection = document.getElementById('wizardActionSection');
+    if (wizardActionSection) {
+        wizardActionSection.classList.add('hidden');
+        wizardActionSection.style.display = 'none';
     }
 
-    if (actionSec) {
-        actionSec.classList.add('hidden');
-        actionSec.style.display = 'none';
-    }
-
+    // 4. Reset Buttons
     document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('selected'));
     document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
     document.querySelectorAll('.timeslot-btn').forEach(b => b.classList.remove('selected'));
 
-    const sumRoom = document.getElementById('summaryRoom');
-    const sumDur = document.getElementById('summaryDuration');
-    const sumSeat = document.getElementById('summarySeat');
+    const confirmBtn = document.getElementById('wizardConfirmBtn');
+    if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
+    }
 
-    if (sumRoom) sumRoom.textContent = '—';
-    if (sumDur) sumDur.textContent = '—';
-    if (sumSeat) sumSeat.textContent = '—';
+    // 5. Auto-Scroll to Step 1
+    setTimeout(() => {
+        const step1 = document.getElementById('step1');
+        if (step1) {
+            const offset = step1.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+        }
+    }, 100);
 }
