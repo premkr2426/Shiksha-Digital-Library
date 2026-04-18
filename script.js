@@ -608,7 +608,6 @@ function updateWizardSummaryAction() {
 
         if (confirmBtn) {
             confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
-            confirmBtn.onclick = window.wizardSubmitBooking;
         }
 
         setTimeout(() => {
@@ -1128,7 +1127,6 @@ function resetBookingWizard() {
 
     if (confirmBtn) {
         confirmBtn.innerHTML = 'Submit Booking <span class="btn-arrow">→</span>';
-        confirmBtn.onclick = null;
     }
 
     if (actionSec) {
