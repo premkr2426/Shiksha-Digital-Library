@@ -637,6 +637,9 @@ function updateWizardSummaryAction() {
 }
 
 function updateWizardSummary() {
+    // Legacy helper kept empty to avoid reference errors
+}
+
 function generateBookingToken() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let token = '';
@@ -941,7 +944,7 @@ const roomsFetchTimeout = setTimeout(() => {
         console.warn('Rooms fetch timed out (4000ms).');
         grid.innerHTML = '<p style="text-align:center; color:var(--text-muted); width: 100%;">Failed to load live rooms. Timeout exceeded.</p>';
         const seatCountEl = document.getElementById('seatCount');
-        if (seatCountEl && seatCountEl.textContent === 'Fetching live data...') {
+        if (seatCountEl && seatCountEl.textContent.includes('Fetching')) {
             seatCountEl.textContent = '0';
         }
     }
