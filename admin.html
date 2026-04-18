@@ -1487,6 +1487,7 @@
                 <li><button onclick="switchView('students')" class="nav-btn" data-target="students">👥 All Students</button></li>
                 <li><button onclick="switchView('explorer')" class="nav-btn" data-target="explorer">🗺️ Seat Map & Profiles</button></li>
                 <li><button onclick="switchView('bookings')" class="nav-btn" data-target="bookings">📒 Recent Bookings</button></li>
+                <li><button onclick="switchView('subscriptions')" class="nav-btn" data-target="subscriptions">⏳ Subscriptions</button></li>
             </ul>
         </aside>
 
@@ -1598,6 +1599,46 @@
                 </div>
                 </div> <!-- section-card -->
             </div> <!-- End Bookings View -->
+
+            <!-- Subscription Tracker View -->
+            <div id="view-subscriptions" class="view-section">
+                <div class="section-card">
+                    <div class="table-header">
+                        <div class="section-title" style="margin-bottom:0;">⏳ Subscription Tracker</div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                            <select id="subFilterSelect" onchange="window.currentSubFilter=this.value; window.renderSubscriptions();" style="padding: 8px; border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month" selected>This Month</option>
+                                <option value="all">All Time</option>
+                            </select>
+                            <div class="profile-tabs" style="margin: 0; border: none; padding: 0;">
+                                <button class="profile-tab active" id="tabNewJoins" onclick="window.switchSubTab('joins')" style="padding: 8px 16px;">New Joins</button>
+                                <button class="profile-tab" id="tabExpiring" onclick="window.switchSubTab('expiring')" style="padding: 8px 16px;">Expiring Soon</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="subsTable" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 12px 16px; border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 0.85rem;">#</th>
+                                    <th style="padding: 12px 16px; border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 0.85rem;">Student Name</th>
+                                    <th style="padding: 12px 16px; border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 0.85rem;">Phone & Room</th>
+                                    <th style="padding: 12px 16px; border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 0.85rem;">Shift / Pln</th>
+                                    <th style="padding: 12px 16px; border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 0.85rem;">Join Date</th>
+                                    <th style="padding: 12px 16px; border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 0.85rem;">Expiry Date</th>
+                                    <th id="subStatusHeader" style="padding: 12px 16px; border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 0.85rem;">Days Since Join</th>
+                                    <th style="padding: 12px 16px; border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 0.85rem;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subsBody">
+                                <tr><td colspan="8"><div class="loader"><div class="loader-spinner"></div></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- End Subscriptions View -->
 
             <!-- 3. All Students View -->
             <div id="view-students" class="view-section">
@@ -1974,12 +2015,24 @@
         }
         document.getElementById('pfJoin').textContent = joinStr;
 
-        let expStr = 'N/A';
+        let expHtml = 'N/A';
         if (b.expiryDate) {
             const ed = b.expiryDate.toDate ? b.expiryDate.toDate() : new Date(b.expiryDate);
-            expStr = ed.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+            const expStr = ed.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+            
+            const now = new Date();
+            const timeDiff = ed.getTime() - now.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            if (daysDiff < 0) {
+                expHtml = `<span style="color: var(--danger); font-weight: bold;">${expStr} <span style="font-size: 0.85em;">🚨 Expired</span></span>`;
+            } else if (daysDiff <= 3) {
+                expHtml = `<span style="color: var(--danger); font-weight: bold;">${expStr} <span style="font-size: 0.85em;">⚠️ Expiring Soon</span></span>`;
+            } else {
+                expHtml = expStr;
+            }
         }
-        document.getElementById('pfExpiry').textContent = expStr;
+        document.getElementById('pfExpiry').innerHTML = expHtml;
 
         switchProfileTab('overview');
         switchView('profile');
@@ -2111,6 +2164,7 @@
             renderBookingsTable(allBookings);
             renderRoomMaps(allBookings);
             renderAlerts(allBookings);
+            if (typeof window.renderSubscriptions === 'function') window.renderSubscriptions();
         }, (error) => {
             console.error('Firestore bookings onSnapshot error:', error);
             showToast('Failed to connect to bookings database.', 'error');
@@ -2343,6 +2397,123 @@
             </div>
         </div>`;
     }
+
+    // ─── SUBSCRIPTION TRACKER LOGIC ──────────────
+    window.currentSubTab = 'joins';
+    window.currentSubFilter = 'month';
+
+    window.switchSubTab = function(tab) {
+        window.currentSubTab = tab;
+        document.getElementById('tabNewJoins').classList.toggle('active', tab === 'joins');
+        document.getElementById('tabExpiring').classList.toggle('active', tab === 'expiring');
+        window.renderSubscriptions();
+    };
+
+    window.renderSubscriptions = function() {
+        if (!allBookings) return;
+        const tbody = document.getElementById('subsBody');
+        const headerStatus = document.getElementById('subStatusHeader');
+        if (!tbody) return;
+
+        const filterVal = document.getElementById('subFilterSelect') ? document.getElementById('subFilterSelect').value : window.currentSubFilter;
+        window.currentSubFilter = filterVal;
+
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfWeek = new Date(now.getTime() - (now.getDay() * 24 * 60 * 60 * 1000)).getTime();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+        let filtered = allBookings.filter(b => {
+            if (window.currentSubTab === 'joins') {
+                if (!b.date) return false;
+                const dTime = b.date.toDate ? b.date.toDate().getTime() : new Date(b.date).getTime();
+                if (filterVal === 'today') return dTime >= startOfDay;
+                if (filterVal === 'week') return dTime >= startOfWeek;
+                if (filterVal === 'month') return dTime >= startOfMonth;
+                return true;
+            } else {
+                if (!b.expiryDate) return false;
+                const eTime = b.expiryDate.toDate ? b.expiryDate.toDate().getTime() : new Date(b.expiryDate).getTime();
+                
+                // For expiring soon, 'today' means expiring before tomorrow
+                const daysDiff = Math.ceil((eTime - now.getTime()) / (1000 * 3600 * 24));
+                
+                if (filterVal === 'today') return daysDiff <= 1;
+                if (filterVal === 'week') return daysDiff <= 7;
+                if (filterVal === 'month') return daysDiff <= 30;
+                return true;
+            }
+        });
+
+        // Filter out expired from "New Joins" logically to just sort them properly
+        if (window.currentSubTab === 'joins') {
+            filtered.sort((a,b) => {
+                const at = a.date?.toDate ? a.date.toDate().getTime() : new Date(a.date).getTime();
+                const bt = b.date?.toDate ? b.date.toDate().getTime() : new Date(b.date).getTime();
+                return bt - at; // newest first
+            });
+            headerStatus.textContent = "Days Since Join";
+        } else {
+            filtered.sort((a,b) => {
+                const at = a.expiryDate?.toDate ? a.expiryDate.toDate().getTime() : new Date(a.expiryDate).getTime();
+                const bt = b.expiryDate?.toDate ? b.expiryDate.toDate().getTime() : new Date(b.expiryDate).getTime();
+                return at - bt; // expiring earliest first
+            });
+            headerStatus.textContent = "Days to Expiry";
+        }
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--text-secondary);">No records found for '${filterVal}'</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach((b, idx) => {
+            const safeName = escapeHtml(b.name || 'Unknown');
+            let roomDisp = b.roomSelected;
+            if (String(roomDisp).match(/^\d+$/)) roomDisp = `Room ${roomDisp}`;
+            const matchedRoom = allRooms.find(r => r.id === b.roomSelected || r.name === b.roomSelected);
+            if (matchedRoom) roomDisp = matchedRoom.name;
+
+            const jdDate = b.date?.toDate ? b.date.toDate() : (b.date ? new Date(b.date) : new Date());
+            const edDate = b.expiryDate?.toDate ? b.expiryDate.toDate() : (b.expiryDate ? new Date(b.expiryDate) : null);
+            
+            const jdStr = jdDate.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+            const edStr = edDate ? edDate.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'N/A';
+            
+            let statusBadge = '';
+            if (window.currentSubTab === 'joins') {
+                const daysDiff = Math.abs(Math.ceil((now.getTime() - jdDate.getTime()) / (1000 * 3600 * 24)));
+                statusBadge = `<span style="color:var(--text-secondary);">${daysDiff} day(s) ago</span>`;
+            } else {
+                if (edDate) {
+                    const daysDiff = Math.ceil((edDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
+                    if (daysDiff < 0) {
+                        statusBadge = `<span style="background:rgba(239, 68, 68, 0.15); color:var(--danger); padding:4px 8px; border-radius:12px; font-weight:bold; font-size: 0.85em;">🚨 Expired (${Math.abs(daysDiff)} d)</span>`;
+                    } else if (daysDiff <= 3) {
+                        statusBadge = `<span style="background:rgba(245, 158, 11, 0.15); color:#d97706; padding:4px 8px; border-radius:12px; font-weight:bold; font-size: 0.85em;">⚠️ In ${daysDiff} day(s)</span>`;
+                    } else {
+                        statusBadge = `<span style="color:var(--text-secondary);">${daysDiff} day(s)</span>`;
+                    }
+                } else {
+                    statusBadge = 'N/A';
+                }
+            }
+
+            html += `<tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem;">${idx + 1}</td>
+                <td style="padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem;"><strong>${safeName}</strong></td>
+                <td style="padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem;">${escapeHtml(b.phone || 'N/A')}<br><small style="color:var(--text-muted);">${escapeHtml(roomDisp)} • ${escapeHtml(b.seatNumber || '')}</small></td>
+                <td style="padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem;">${escapeHtml(b.shiftDuration || 'Offline')}<br><small style="color:var(--text-muted);">${escapeHtml(b.selectedShiftTime || '')}</small></td>
+                <td style="padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem;">${jdStr}</td>
+                <td style="padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem; ${edDate && (edDate.getTime() - now.getTime()) < 0 ? 'color:var(--danger);font-weight:bold;' : ''}">${edStr}</td>
+                <td style="padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem;">${statusBadge}</td>
+                <td style="padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem;"><button class="btn btn-outline" style="border:1px solid rgba(255,255,255,0.1); padding:4px 8px; font-size:0.8rem;" onclick="viewStudentProfile('${b.id}')">View</button></td>
+            </tr>`;
+        });
+        
+        tbody.innerHTML = html;
+    };
 
     // ─── RENDER BOOKINGS TABLE ──────────────────
     function renderBookingsTable(bookings) {

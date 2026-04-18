@@ -640,6 +640,10 @@ window.wizardSubmitBooking = async function () {
     confirmBtn.innerHTML = 'Booking... ⏳';
 
     try {
+        const joinDate = new Date();
+        const expiryDate = new Date(joinDate);
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+
         await addDoc(bookingsRef, {
             name: userName,
             phone: userPhone,
@@ -647,7 +651,8 @@ window.wizardSubmitBooking = async function () {
             shiftDuration: wizardDuration,
             selectedShiftTime: wizardTimeSlot || 'N/A',
             seatNumber: seat,
-            date: Timestamp.now()
+            date: Timestamp.fromDate(joinDate),
+            expiryDate: Timestamp.fromDate(expiryDate)
         });
 
         alert(`✅ Booking Confirmed!\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName}!`);
