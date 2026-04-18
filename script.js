@@ -157,10 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             console.log('Fetching live bookings data...');
             onSnapshot(bookingsRef, (snapshot) => {
+                let approvedBookingsCount = 0;
+                snapshot.forEach(docSnap => {
+                    const status = docSnap.data().status || 'approved';
+                    if (status === 'approved') approvedBookingsCount++;
+                });
+
                 console.log('CRITICAL: Data received from Firebase');
-                console.log('Live bookings fetched:', snapshot.size);
+                console.log('Live bookings fetched:', snapshot.size, 'Approved:', approvedBookingsCount);
                 clearTimeout(seatFetchTimeout);
-                currentBookingsCount = snapshot.size;
+                currentBookingsCount = approvedBookingsCount;
                 window.updateFrontendSeatCount();
             }, (error) => {
                 clearTimeout(seatFetchTimeout);
@@ -336,6 +342,9 @@ async function fetchRoomSeats(roomId) {
 
         snapshot.forEach(doc => {
             const data = doc.data();
+            const bStatus = data.status || 'approved';
+            if (bStatus !== 'approved') return;
+
             const seatId = `${roomId}-${data.seatNumber}`;
             if (wizardSeatsData[roomId][seatId]) {
                 const shift = data.selectedShiftTime || 'N/A';
@@ -658,10 +667,11 @@ window.wizardSubmitBooking = async function () {
             selectedShiftTime: wizardTimeSlot || 'N/A',
             seatNumber: seat,
             date: Timestamp.fromDate(joinDate),
-            expiryDate: Timestamp.fromDate(expiryDate)
+            expiryDate: Timestamp.fromDate(expiryDate),
+            status: 'pending'
         });
 
-        alert(`✅ Booking Confirmed!\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName}!`);
+        alert(`✅ Booking Request Sent! Awaiting Admin Approval.\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName}!`);
 
         await fetchRoomSeats(wizardRoom);
         wizardSeatId = null;
