@@ -640,6 +640,15 @@ function updateWizardSummary() {
     // Legacy helper kept empty to avoid reference errors
 }
 
+function generateBookingToken() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let token = '';
+    for (let i = 0; i < 6; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `SL-${token}`;
+}
+
 window.wizardSubmitBooking = async function () {
     const userName = document.getElementById('wizardName').value.trim();
     const userPhone = document.getElementById('wizardPhone').value.trim();
@@ -659,6 +668,8 @@ window.wizardSubmitBooking = async function () {
         const expiryDate = new Date(joinDate);
         expiryDate.setMonth(expiryDate.getMonth() + 1);
 
+        const refToken = generateBookingToken();
+
         await addDoc(bookingsRef, {
             name: userName,
             phone: userPhone,
@@ -668,10 +679,11 @@ window.wizardSubmitBooking = async function () {
             seatNumber: seat,
             date: Timestamp.fromDate(joinDate),
             expiryDate: Timestamp.fromDate(expiryDate),
-            status: 'pending'
+            status: 'pending',
+            bookingToken: refToken
         });
 
-        alert(`✅ Booking Request Sent! Awaiting Admin Approval.\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName}!`);
+        alert(`✅ Booking Request Sent! Awaiting Admin Approval.\n\n🔖 Booking Token: ${refToken}\nPlease save this token for your reference.\n\n🚪 Room: ${room}\n💺 Seat: ${seat}\n⏳ Duration: ${wizardDuration}\n⏰ Shift: ${wizardTimeSlot || 'N/A'}\n\nThank you, ${userName}!`);
 
         await fetchRoomSeats(wizardRoom);
         wizardSeatId = null;
